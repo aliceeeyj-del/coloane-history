@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-MO"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>十月初五 · 澳門歷史地圖</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"><script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script><style>
+:root{--bg:#e9eff5;--ink:#12243a;--mute:#566a80;--acc:#f2b134;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08121e;--ink:#e9f0f7;--mute:#9bb0c6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#08121e;--ink:#e9f0f7;--mute:#9bb0c6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+main{max-width:620px;margin:0 auto;padding:12px 12px 28px}
+.stage{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:14px;background:#05101c}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#05101c 0,#05101c00 22%),radial-gradient(ellipse at 50% 45%,#0000 55%,#05101ccc 100%)}
+.persp{position:absolute;inset:0;perspective:900px}
+svg{width:100%;height:100%;display:block;transform-origin:50% 75%;transition:transform .9s}
+svg.t{transform:rotateX(24deg) scale(1.22)}
+.hd{position:absolute;left:14px;top:10px;z-index:2;color:#f2d28a;text-shadow:0 2px 8px #000}
+.hd h1{margin:0;font:700 28px/1.2 "Songti SC","Noto Serif SC",serif}
+.hd p{margin:2px 0 0;font-size:12px;color:#d9c9a0}
+.ov{position:absolute;right:10px;top:10px;width:28%;z-index:2;border:2px solid #fff8;border-radius:8px;overflow:hidden;line-height:0}
+.ov img{width:100%;display:block}
+.ov i{position:absolute;left:36.3%;top:71.5%;width:12px;height:12px;margin:-7px;border:3px solid var(--acc);border-radius:50%}
+.tools{position:absolute;left:10px;top:78px;z-index:2;display:flex;flex-direction:column;gap:6px}
+.tools button{font:inherit;font-size:12px;color:#eaf1f8;background:#06101cbb;border:1px solid #fff4;border-radius:8px;padding:5px 10px;cursor:pointer}
+.info{position:absolute;left:10px;right:10px;bottom:10px;z-index:3;max-height:42%;overflow:auto;background:#06101ccf;backdrop-filter:blur(6px);color:#eaf1f8;border:1px solid #f2b13559;border-radius:12px;padding:10px 14px}
+.info.in{animation:up .5s}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+.info small{color:var(--acc);font-size:13px}
+.info h2{margin:0;font:700 18px/1.4 "Songti SC","Noto Serif SC",serif;color:#f2d28a}
+.info p{margin:4px 0 8px;font-size:14px;line-height:1.65}
+.info button{font:inherit;font-size:13px;color:#06101c;background:var(--acc);border:0;border-radius:8px;padding:5px 14px;margin-right:8px;cursor:pointer}
+.lb{fill:#fff;stroke:#0b1826;stroke-width:9px;paint-order:stroke;font-size:42px;font-weight:600}
+.nd{fill:#fff;stroke:#0b1826;stroke-width:6}
+.rg{fill:none;stroke:var(--acc);stroke-width:6;opacity:0;transform-box:fill-box;transform-origin:center}
+g.on .nd{fill:var(--acc)}
+g.on .rg{animation:pu 1.6s infinite}
+@keyframes pu{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.9);opacity:0}}
+#hl{fill:none;stroke:var(--acc);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px var(--acc))}
+#dot{fill:#fff;stroke:var(--acc);stroke-width:8;opacity:0}
+.tl{display:flex;overflow-x:auto;background:#0a1626;border-radius:12px;margin-top:10px;padding:6px}
+.tl button{flex:0 0 auto;min-width:98px;background:none;border:0;border-radius:8px;color:#cfd9e6;font:inherit;font-size:13px;line-height:1.4;padding:16px 6px 8px;position:relative;cursor:pointer}
+.tl button::before{content:"";position:absolute;top:4px;left:50%;width:9px;height:9px;margin-left:-4px;border-radius:50%;background:#b8a46a}
+.tl button b{display:block;font-weight:400;font-size:11px;color:#8fa3b8}
+.tl button.on{background:#4a1d1d;color:#fff}
+.tl button.on::before{background:#ff5a4a}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.note{color:var(--mute);font-size:12px;margin:12px 4px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sg{transition:opacity .6s}.sg.off{opacity:0;pointer-events:none}
+
+:root{color-scheme:dark;--bg:#0a1015;--ink:#eee4ce;--mute:#a99e8c;--acc:#f4bc75}
+body{background:#0a1015;color:#eee4ce}
+main{max-width:1600px;padding:0 0 10px}
+header,.rail{display:flex;align-items:center;gap:18px;padding:10px 22px;background:#0e171f;border-bottom:1px solid #d5ae7333}
+header strong{font:700 clamp(22px,3vw,36px) Georgia,serif;color:#f2cd91}
+header span,.rail span{font-size:13px;color:#b7ab99}
+header button{margin-left:auto}
+header button,.tools button{border:1px solid #e5bc793d;border-radius:5px;background:#101a23;color:#f3e4c6;padding:6px 10px;white-space:nowrap;cursor:pointer}
+.stage{aspect-ratio:auto;height:clamp(430px,66vh,850px);border-radius:0;background:radial-gradient(ellipse at 52% 38%,#494037,#222327 54%,#10161a)}
+.stage::after{background:radial-gradient(ellipse at center,transparent 48%,#080e1466 100%)}
+.persp{perspective:1100px;inset:0 8%;touch-action:none;cursor:grab}
+.persp:active{cursor:grabbing}
+svg{transform-origin:50% 50%;transform:none}
+svg.t{transform:rotateX(33deg) rotateZ(var(--az,-9deg)) scale(1.14)}
+svg image{filter:sepia(.27) saturate(.85) brightness(.91)}
+svg:not(.t) .relief{display:none}
+.hd{left:26px;top:22px;pointer-events:none}
+.hd h1{font-size:clamp(22px,3vw,40px)}
+.ov{top:auto;bottom:18px;left:22px;width:105px;right:auto;opacity:.85}
+.tools{left:auto;right:18px;top:17px;flex-direction:row;flex-wrap:wrap;justify-content:flex-end}
+.info{left:auto;right:20px;bottom:24px;width:min(285px,32%);max-height:48%;border-radius:7px;background:#101a23ed;box-shadow:0 10px 34px #0009}
+.info #close{float:right;margin:0;background:transparent;color:#eee4ce;padding:0 5px}
+.info[hidden]{display:none}
+.tl{margin:0;border-radius:0;background:#0e171f;padding:8px 16px 12px}
+.tl button{flex:1 0 116px;padding:18px 8px 8px;border-top:1px solid #806b4b55;border-radius:4px}
+.tl button.on{background:linear-gradient(#6e3025,#281d1e)}
+/* A quiet reveal when the timeline is populated, followed by an animated active marker. */
+.tl{scrollbar-color:#826344 #17232c;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+.tl button{isolation:isolate;scroll-snap-align:center;transition:background .35s ease,color .35s ease,border-color .5s ease,transform .3s ease,box-shadow .35s ease;animation:tl-reveal .52s ease backwards;animation-delay:var(--tl-delay,0ms)}
+.tl button::before{z-index:2;transition:background .4s ease,box-shadow .4s ease,transform .4s ease}
+.tl button::after{content:"";position:absolute;z-index:1;top:0;left:50%;width:17px;height:17px;margin-left:-8px;border:1px solid #ffa178;border-radius:50%;opacity:0;pointer-events:none}
+.tl button.past{border-top-color:#cf9a5b;color:#ead9bc}.tl button.past::before{background:#f1c77e;box-shadow:0 0 8px #e4a85a88}
+.tl button.on{border-top-color:#ff8261;transform:translateY(-2px);box-shadow:0 4px 16px #0006,inset 0 1px #e17c64a0}
+.tl button.on::before{background:#ff6f56;transform:scale(1.25);box-shadow:0 0 7px #ff8f69,0 0 16px #ff684aaa}
+.tl button.on::after{animation:tl-halo 2s ease-out infinite}
+.tl button.on b{color:#f2c19d}.tl button:focus-visible{z-index:3}
+@keyframes tl-reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tl-halo{0%{transform:scale(.65);opacity:.85}100%{transform:scale(1.8);opacity:0}}
+@media(prefers-reduced-motion:reduce){.tl button,.tl button.on::after{animation:none!important;transition:none!important}.tl{scroll-behavior:auto}}
+
+.note{padding:0 18px}
+.lb{fill:#fff0d3;stroke:#161717;stroke-width:7px;font-size:32px;pointer-events:none}
+.nd{fill:#ec8660;stroke:#fff1d3;stroke-width:5}
+#hl{stroke:#f16640;stroke-width:10;filter:drop-shadow(0 0 4px #ff5c36)}
+.pin{cursor:pointer}
+.pin:focus-visible .nd{stroke:#fff;stroke-width:10}
+@media(max-width:650px){
+ header,.rail{padding:8px 12px;gap:10px}
+ header span{display:none}
+ .stage{height:67svh;min-height:420px}
+ .hd{left:12px;top:10px}
+ .tools{top:58px;right:8px;gap:4px}
+ .tools button{padding:4px 7px}
+ .persp{inset:22px 0 48px}
+ .ov{display:none}
+ .info{width:auto;left:8px;right:8px;bottom:8px;max-height:30%}
+ .info p{font-size:13px}
+}
+
+#live-map{background:#ddd0b6;position:absolute;inset:0;opacity:0;pointer-events:none}
+.stage.live #live-map{opacity:1;pointer-events:auto}
+.stage.live .persp,.stage.live .ov{visibility:hidden}
+.stage.live::after{opacity:.13}
+.map-pin{border:1px solid #f7c785;color:#fff1d2;background:#162027;padding:5px 8px;border-radius:5px;cursor:pointer;font-weight:700}
+.map-pin.active{background:#a8412b;box-shadow:0 0 14px #f16640}
+.maplibregl-ctrl-attrib{color:#172025}
+.direction-arrow{width:30px;height:24px;clip-path:polygon(0 29%,54% 29%,54% 0,100% 50%,54% 100%,54% 71%,0 71%);pointer-events:none}
+#event-source{display:inline-block;color:#f6cf92;margin-top:7px;font-size:12px}
+#event-source[hidden]{display:none}
+
+#battle-controls{position:absolute;z-index:4;left:16px;top:106px;max-width:calc(100% - 32px);padding:8px 11px;background:#101a23f2;color:#fff1da;border:1px solid #d5b27f88;border-radius:8px;font-size:12px}
+#battle-controls button,dialog button{background:#253442;color:#fff1da;border:1px solid #ffffff44;border-radius:4px;padding:4px 8px;cursor:pointer}
+#battle-controls button[aria-pressed=true]{background:#794725}
+#battle-controls p{margin:2px 0 6px}
+.red-force{color:#ff947a}.blue-force{color:#86caff}
+.direction-arrow.counter{clip-path:polygon(0 10%,47% 10%,47% 0,100% 50%,47% 100%,47% 90%,0 90%,38% 50%)}
+.force-label{color:white;background:#142233;padding:4px 7px;border:2px solid var(--force);border-radius:5px;white-space:nowrap;font-size:12px}
+dialog{width:min(680px,90vw);max-height:85vh;overflow:auto;background:#17222b;color:#fff1da;border:1px solid #a58963;border-radius:10px;padding:16px;box-sizing:border-box}
+dialog::backdrop{background:#060b12c9}
+dialog a{color:#f8ce87}dialog svg{height:auto;transform:none}
+@media(max-width:650px){#battle-controls{left:8px;top:99px;max-width:calc(100% - 16px)}}
+#battle-caption{margin:6px 0 0;color:#f5d9ae}
+@media(max-width:650px){.stage.battle-playing .info:not(.expanded) p,.stage.battle-playing .info:not(.expanded) #rp,.stage.battle-playing .info:not(.expanded) #sp,.stage.battle-playing .info:not(.expanded) #event-source,.stage.battle-playing .info:not(.expanded) br{display:none}}
+#battle-details[hidden]{display:none}
+@media(min-width:651px){#battle-details{display:none}}
+#event-video[hidden]{display:none}#clip-dialog video{display:block;width:100%;max-height:55vh;background:#101922}#clip-dialog h2{padding-right:105px}#event-art[hidden]{display:none}#event-art{margin:8px 0 7px}#event-art button{display:block;width:100%;padding:0;margin:0;background:none}#event-art img,#art-dialog img{display:block;width:100%;height:auto;border-radius:5px}#event-art figcaption{font-size:11px;color:#dbc9a8}#art-dialog h2{padding-right:105px}@media(max-width:650px){.stage.battle-playing .info:not(.expanded) #event-art{display:none}}#art-nav[hidden]{display:none}#art-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}#art-dialog img{max-height:56vh;object-fit:contain} .era-spotlight{pointer-events:none;text-align:center}
+.era-spotlight strong{display:block;background:#10202b;color:#fff5e4;padding:5px 9px;border:1px solid var(--era-color);border-radius:6px;white-space:nowrap;font-size:13px;box-shadow:0 0 8px var(--era-color),0 0 20px var(--era-color);text-shadow:0 0 9px var(--era-color)}
+.era-spotlight i{display:block;width:22px;height:22px;border:2px solid var(--era-color);border-radius:50%;margin:6px auto 0;box-shadow:0 0 18px var(--era-color);animation:era-pulse 1.8s ease-out infinite}
+@keyframes era-pulse{from{transform:scale(.65);opacity:1}to{transform:scale(2.1);opacity:.25}}
+.landmark-dot.active{background:#a33e29;color:#fff8e0;box-shadow:0 0 0 3px #ffd88c,0 0 16px 7px #ff995cbb;position:relative;z-index:2}.landmark-dot.active::after{content:"";position:absolute;inset:-5px;border:2px solid #ffd88c;border-radius:50%;pointer-events:none;animation:pin-halo 1.8s ease-out infinite}@keyframes pin-halo{0%{transform:scale(.9);opacity:.9}100%{transform:scale(2.1);opacity:0}}.landmark-dot[hidden]{display:none}.landmark-dot{width:22px;height:22px;padding:0;line-height:20px;border-radius:50%;color:#f6ce87;font-size:10px} #laichi-steps[hidden]{display:none}</style></head><body><main>
+<header><strong>十月初五</strong><span>路環海旁與澳門半島 · 互動歷史地圖</span><button id="full">全螢幕</button></header>
+<div class="stage">
+<div id="live-map" aria-label="十月初五互動地圖"></div>
+<div id="forces-overlay" aria-hidden="true"><div class="force-pirates"></div><div class="force-portuguese"></div></div><div id="forces-key" hidden><b><i class="force-blue"></i>澳葡軍警</b><b><i class="force-purple"></i>海盜團伙</b><span>色彩只示意戰事進程，並非實際控制範圍或退路</span></div><svg id="route-overlay" aria-hidden="true"></svg><div id="stage-vfx" aria-hidden="true"><span class="fx-water"></span><span class="fx-flash"></span><span class="fx-smoke"></span></div>
+<div class="hd"><h1 id="area">路環十月初五馬路</h1><p id="hp">選擇下方地標，探索海旁的歷史</p></div>
+<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr">總覽</button><button id="td">平面</button><button id="rot">旋轉</button></div>
+<aside class="info" id="info" hidden>
+<button id="close" aria-label="關閉介紹">×</button><small id="yr"></small><h2 id="tt"></h2>
+<figure id="event-art" hidden><button id="art-open" aria-label="放大插圖"><img id="art-thumb" alt=""></button><figcaption id="art-credit"></figcaption></figure>
+<p id="tx"></p><div id="war-gallery" hidden aria-label="路環戰役場景插圖"><button id="open-panorama" type="button">◉ 進入 360° 路環海旁</button><p>戰役場景插圖：點選放大</p><p><a href="https://commons.wikimedia.org/wiki/File:Coloane_after_the_1910_bombing.jpg" target="_blank" rel="noopener">查看標註為1910年炮擊後的舊照 ↗</a>（作者及首次發表資料未明）</p><div class="gallery-row"><button data-art="0" aria-label="放大登岸插圖"><img src="media/war-0.webp" alt="登岸場景插圖"></button><button data-art="1" aria-label="放大炮擊插圖"><img src="media/war-1.webp" alt="炮擊場景插圖"></button><button data-art="2" aria-label="放大搜捕插圖"><img src="media/war-2.webp" alt="搜捕場景插圖"></button><button data-art="3" aria-label="放大紀念碑插圖"><img src="media/war-3.webp" alt="紀念碑場景插圖"></button></div></div><div id="laichi-steps" hidden><ul class="war-legend"><li><strong>澳葡巡捕分遣隊</strong> · 藍箭嘴：由水面指向荔枝碗據點，示意進駐方向。</li><li><strong>海盜團伙</strong> · 與葡方交戰；位置及行軍未確認。</li><li><strong>路環居民</strong> · 有居民要求派兵保護。</li></ul><button id="laichi-advance">播放進駐方向</button><p>史料未交代分兵，示意箭嘴不代表實際航線。</p></div><div id="war-steps" hidden><div class="war-player"><button id="war-auto" type="button">▶ 播放戰役全過程</button><button id="war-stop" type="button" hidden>■ 停止播放</button><button id="forces-toggle" type="button" aria-pressed="true">隱藏色彩</button><button id="war-audio" type="button" aria-pressed="false">🔇 開啟音效</button><span id="war-progress" role="status"></span></div><p class="fx-disclaimer">路線、船隻、部隊、聲音與光影為示意，並非確切戰鬥位置。</p><div id="war-villagers" hidden><strong>村民視角</strong><p>炮擊波及路環村落，造成村民傷亡。橙色光圈只標示村落一帶，並非已確認的受害地點。</p><a href="https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db" target="_blank" rel="noopener">閱讀相關記載 ↗</a></div><ul class="war-legend"><li><strong>澳葡軍警</strong> · 藍箭嘴：海上登岸；紅箭嘴：向九澳搜捕。</li><li><strong>綁架者／海盜團伙</strong> · 曾抵抗葡軍；移動路線未確認。</li><li><strong>路環村民及人質</strong> · 受戰事波及；橙圈標示村落一帶。</li></ul><button data-phase="0">① 登陸</button><button data-phase="1">② 炮擊</button><button data-phase="2">③ 向九澳搜捕</button><button data-phase="3">④ 回到紀念碑</button></div><a id="photo-source" href="https://commons.wikimedia.org/wiki/File:Coloane_Village.JPG" target="_blank" rel="noopener" hidden>實景照片來源與 CC BY-SA 3.0 授權 ↗</a> <a id="event-source" target="_blank" rel="noopener">查看資料 ↗</a></aside>
+</div>
+<div class="rail"><strong>歷史時間軸</strong><button data-area="0" aria-pressed="true">路環馬路</button><button data-area="1" aria-pressed="false">半島日街</button></div>
+<div class="tl" id="tl"></div>
+<p class="note" id="status">底圖由 OpenFreeMap 提供，地圖資料來自 OpenStreetMap。小圓點可點選；完整地名見時間軸。路線為示意。</p>
+<dialog id="pano-dialog" aria-labelledby="pano-title"><div class="pano-head"><div><small>沉浸式歷史場景</small><h2 id="pano-title">路環海旁 · 1910</h2></div><button id="close-panorama" type="button">返回地圖 ×</button></div><p class="pano-intro">拖動畫面環視四周；手機可用手指滑動。場景屬藝術重現，並非歷史實拍。</p><div id="panorama" aria-label="路環海旁360度場景"></div><p id="pano-status" role="status">正在載入場景…</p><div class="pano-motion-controls"><button id="pano-rotate" type="button" aria-pressed="false">▶ 自動環視</button><button id="pano-effects" type="button" aria-pressed="true">暫停光影與煙霧</button></div><div class="pano-tabs" aria-label="事件介紹"><button data-pano-info="0">事件背景</button><button data-pano-info="1">海上行動</button><button data-pano-info="2">村民處境</button></div><p id="pano-info">1910年7月，綁架事件引發澳葡當局派兵到路環，其後衝突波及村落。</p><a href="https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db" target="_blank" rel="noopener">查看歷史資料 ↗</a></dialog><dialog id="art-dialog"><form method="dialog"><button style="float:right">返回地圖 ×</button></form><h2 id="art-title"></h2><img id="art-large" alt=""><p id="art-dialog-note">景觀插圖或情景重構。建築、人物及歷史場景細節屬藝術演繹。</p></dialog>
+</main>
+<style>
+#pano-dialog{width:min(1040px,96vw);max-width:1040px;max-height:92vh;padding:16px}#pano-dialog::backdrop{background:#050b10eb}.pano-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.pano-head h2{margin:0;color:#f2cd91}.pano-head small{color:#e0b777}.pano-intro,#pano-info{font-size:14px}.pano-tabs{display:flex;gap:7px;flex-wrap:wrap}.pano-tabs button{padding:7px 10px}#panorama{height:min(52vh,480px);min-height:240px;background:#111e27;border:1px solid #7b6a4c;border-radius:8px;overflow:hidden}#pano-status{margin:4px 0;color:#e7cfa2;font-size:13px}#pano-dialog a{color:#f8ce87}.pano-motion-controls{display:flex;gap:7px;margin:8px 0}.pano-motion-controls button{padding:7px 10px}.pano-smoke,.pano-wave{pointer-events:none!important;background:none!important}.pano-smoke::after,.pano-wave::after{content:"";position:absolute;pointer-events:none}.pano-smoke::after{width:110px;height:120px;left:-55px;bottom:-24px;background:radial-gradient(ellipse at 55% 70%,#d6d3c548,transparent 60%),radial-gradient(ellipse at 35% 45%,#e9e1d02b,transparent 62%);filter:blur(8px);animation:pano-drift 7s ease-in-out infinite alternate}.pano-wave::after{width:105px;height:35px;left:-52px;top:-17px;background:repeating-linear-gradient(174deg,transparent 0 7px,#fff4cf66 8px,transparent 10px 17px);border-radius:50%;filter:blur(1.6px);opacity:.25;animation:pano-glint 4s ease-in-out infinite alternate}.pano-effects-paused .pano-wave::after,.pano-effects-paused .pano-smoke::after{animation-play-state:paused}@keyframes pano-drift{from{transform:translate(-8px,10px) scale(.8);opacity:.25}to{transform:translate(12px,-26px) scale(1.3);opacity:.8}}@keyframes pano-glint{from{transform:translateX(-8px);opacity:.08}to{transform:translateX(8px);opacity:.38}}@media(prefers-reduced-motion:reduce){.pano-smoke::after,.pano-wave::after{animation:none}}@media(max-width:650px){#pano-dialog{width:96vw;padding:10px}#panorama{height:42vh;min-height:220px}.pano-head h2{font-size:20px}}
+#war-gallery[hidden]{display:none}.gallery-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.gallery-row button{padding:0;margin:0;background:none}.gallery-row img{width:100%;height:52px;object-fit:cover;border-radius:4px}.war-legend{padding-left:18px;font-size:13px;line-height:1.5}.war-legend li:first-child strong{color:#8bc6ff}.war-legend li:last-child strong{color:#ffc184}.rail button{background:#192735;color:#f4e7cf;border:1px solid #b79b6f66;border-radius:5px;padding:5px 9px;cursor:pointer}.rail button[aria-pressed=true]{background:#714d2b}
+#forces-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .7s ease;overflow:hidden}#forces-overlay.visible{opacity:1}#forces-overlay .force-pirates,#forces-overlay .force-portuguese{position:absolute;top:0;bottom:0;transition:width 2.6s ease,opacity 2.6s ease;pointer-events:none}#forces-overlay .force-pirates{right:0;width:var(--pirate-width,72%);background:linear-gradient(90deg,transparent,#b64a9770 30%,#8a2f7d75);opacity:var(--pirate-opacity,.9)}#forces-overlay .force-portuguese{left:0;width:var(--portuguese-width,28%);background:linear-gradient(90deg,#248be078,#318ee06b 70%,transparent)}#forces-overlay[data-phase="0"]{--portuguese-width:35%;--pirate-width:70%;--pirate-opacity:.9}#forces-overlay[data-phase="1"]{--portuguese-width:52%;--pirate-width:54%;--pirate-opacity:.8}#forces-overlay[data-phase="2"]{--portuguese-width:77%;--pirate-width:30%;--pirate-opacity:.55}#forces-overlay[data-phase="3"]{--portuguese-width:110%;--pirate-width:0%;--pirate-opacity:0}#forces-key{position:absolute;z-index:2;left:14px;bottom:20px;max-width:min(430px,calc(100% - 28px));padding:6px 10px;background:#091620e8;color:#f7ecdb;border:1px solid #d8bd8066;border-radius:6px;font-size:12px;pointer-events:none}#forces-key[hidden]{display:none}#forces-key b{display:inline-block;margin-right:12px}#forces-key i{display:inline-block;width:10px;height:10px;margin-right:5px;border-radius:50%}.force-blue{background:#4da5f0}.force-purple{background:#d17aba}#forces-key span{display:block;color:#e2cfaf;font-size:11px}@media(max-width:650px){#forces-key{top:96px;bottom:auto;left:8px;right:8px;max-width:none;font-size:11px;line-height:1.4}#forces-key span{font-size:10px}}
+.war-unit{pointer-events:none;text-align:center;color:white;white-space:nowrap}.war-unit svg{display:block;width:42px;height:32px;margin:auto;overflow:visible;filter:drop-shadow(0 0 6px #a2dcff);transform:none!important}.war-unit span{display:block;background:#102238ef;border:1px solid #8fc9ff;border-radius:4px;padding:2px 5px;color:#eff9ff;font-size:10px;line-height:1.2}.war-unit.troops svg{filter:drop-shadow(0 0 6px #ffb1a2)}.war-unit.troops span{border-color:#ffad94}#war-villagers[hidden]{display:none}#war-villagers{margin:9px 0;padding:8px 10px;background:#5e3a26b8;border:1px solid #f1ad66;border-radius:6px;color:#fff0d6}#war-villagers strong{color:#ffcd91}#war-villagers p{margin:3px 0;font-size:12px}#war-villagers a{font-size:12px;color:#ffe0a9}
+#stage-vfx{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}#stage-vfx span{position:absolute;display:block;opacity:0;pointer-events:none}.fx-water{left:8%;top:35%;width:46%;height:24%;background:repeating-linear-gradient(174deg,transparent 0 15px,#a9e9ff33 16px,transparent 20px 34px);filter:blur(2px);border-radius:50%}.fx-flash{left:35%;top:34%;width:29%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff9d6cc 0,#ffa74688 13%,#ef6a2833 35%,transparent 65%);filter:blur(8px)}.fx-smoke{left:28%;top:30%;width:45%;height:40%;background:radial-gradient(ellipse at 40% 65%,#e6d7be44,transparent 45%),radial-gradient(ellipse at 60% 45%,#c3b6a538,transparent 45%);filter:blur(15px)}#stage-vfx.sea .fx-water{animation:water-fx 4s ease-in-out infinite alternate}#stage-vfx.shelling .fx-flash{animation:flash-fx 3s ease-out 2}#stage-vfx.shelling .fx-smoke{animation:smoke-fx 8s ease-out 1}.war-player{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}.war-player #war-auto{background:#c04a30;color:white;box-shadow:0 0 14px #d85b3b88}.war-player #war-stop{background:#263744;color:#fff}.war-player #war-stop[hidden]{display:none}.war-player span,.fx-disclaimer{font-size:12px;color:#d7bd95}.fx-disclaimer{margin:5px 0!important}[data-phase].phase-active{background:#c14b36;color:#fff;box-shadow:0 0 12px #fa745988}#event-art img{animation:art-arrive .7s ease-out}@keyframes art-arrive{from{opacity:.2;transform:scale(.96)}to{opacity:1;transform:scale(1)}}@keyframes water-fx{from{opacity:.1;transform:translateX(-20px)}to{opacity:.65;transform:translateX(20px)}}@keyframes flash-fx{0%,40%,100%{opacity:0;transform:scale(.4)}8%{opacity:.8;transform:scale(1)}18%{opacity:.15}26%{opacity:.6;transform:scale(1.2)}}@keyframes smoke-fx{0%{opacity:0;transform:translateY(15px) scale(.6)}30%{opacity:.7}100%{opacity:0;transform:translateY(-55px) scale(1.35)}}
+.stage{background:#233741}.stage.live #live-map{opacity:1}.info{max-height:66%}.info #event-art img{max-height:120px;object-fit:cover}
+#route-overlay{position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;overflow:hidden;transform:none}
+#route-overlay text{font-family:"PingFang TC","Microsoft JhengHei",sans-serif;paint-order:stroke;stroke:#10202b;stroke-width:1px}
+@media(max-width:650px){.info{max-height:42%}.info #event-art img{max-height:76px}}
+</style>
+<script>
+const $=id=>document.getElementById(id);
+const gov="https://www.macaotourism.gov.mo/";
+const chapel=gov+"en/sightseeing/churches/chapel-of-st-francis-xavier";
+const library="https://www.library.gov.mo/uploads/attachment/2024-12/6875167627c3b4949b.pdf";
+const tam=gov+"zh-hant/sightseeing/temples/tam-kong-temple";
+const walk="https://content.macaotourism.gov.mo/uploads/mgto_brochures/f6b79de606327cc5f6d649eda5d53f93569c565f.pdf";
+const groups=[
+ {name:"路環十月初五馬路",center:[113.5511,22.1159],zoom:15.9,events:[
+ ["清同治年間","譚公廟",[113.5501,22.1142],"譚公廟位於海旁馬路南端，面對水道，供奉譚仙聖。廟內鯨骨龍舟與漁民信仰有關。從廟前望向海面，可以理解昔日漁村的生活如何與海相連。",tam,"tam"],
+ ["1864年","荔枝碗軍事行動",[113.550978,22.120640],"1864年，有路環居民向澳葡當局請求派兵抵禦海盜。編年資料記載一支巡捕分遣隊進駐荔枝碗並設立據點；另有資料記載其後首度進攻海盜失利。進駐日期在文獻有不同記載，出發點、分兵及交戰路線未確認。","https://macaumemory.mo/specialtopic_b60a5de32d4e4898811d84738ebd01f6","laichi"],
+ ["1910年7月","路環戰役",[113.55126,22.11696],"廣東新寧學童遭綁架後，澳葡當局於7月12日派兵進攻路環。其後增援並出動炮艦，至19日向九澳一帶搜捕。有被擄人士獲救，也有村民受炮擊波及。可逐幕觀看方向示意。","https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db","pirates"],
+ ["1910年","打海盜紀念碑",[113.55126,22.11696],"路環在1910年發生與海盜有關的衝突。聖堂前方的紀念碑紀念當年擊退海盜一事。地圖聚焦今日紀念碑附近；圖片為紀念碑及聖堂的2013年實景照片。",chapel,"monument-photo"],
+ ["1911年 → 1983年","由學校到圖書館",[113.55104,22.11667],"這幢單層葡式建築建於1911年，前身為路環公局市立學校。建築經過不同用途，1983年改為圖書館。由學校到公共圖書館，同一座建築一直與社區教育和閱讀有關。",library,"library"],
+ ["1928年","聖方濟各聖堂",[113.55147,22.11692],"聖堂建於1928年，外觀以淺黃色及白色為主，設有橢圓形窗和鐘樓。走進前地，可以同時看見宗教建築和紀念海盜事件的石碑，兩者記錄不同年代的路環。",chapel,"chapel"],
+ ["街巷地名","鹹蝦巷與市亭前地",[113.55104,22.11667],"沿十月初五馬路步行時，可留意通往市亭前地的街巷和路牌。這一站定位在圖書館附近，供比較海旁主路與細小巷道；巷名由來仍待史料核實。","https://charles.com.tw/%E6%BE%B3%E9%96%80%E8%B6%B4%E8%B6%B4%E8%B5%B0-day-1-%E5%8D%81%E6%9C%88%E5%88%9D%E4%BA%94%E9%A6%AC%E8%B7%AF/","alley"],
+ ["街巷地名","老人圍",[113.55147,22.11692],"老人圍見於市政署的路環街巷資料。圖片為路環舊村街巷的示意，並非已確認的老人圍實景。地圖以路環舊村附近作區域提示，老人圍的精確位置及命名由來仍待查證。","https://www.iam.gov.mo/Content/notices/01d86fe6-91d9-4292-9817-137cfff05ac0/%E6%8B%9B%E6%A8%99%E6%96%87%E4%BB%B6-%E4%B8%AD%E6%96%87.pdf","new-elder"],
+ ["古樹保育","譚公廟前的假菩提樹",[113.5501,22.1142],"市政署資料記載，譚公廟前地的假菩提樹納入《古樹名木保護名錄》，公布時估計樹齡約140年。可以留意廟前的樹蔭，看看古樹如何成為居民生活空間的一部分。圖片為廟宇及樹蔭的示意，並非該樹的實景照片。","https://www.gov.mo/zh-hant/news/1077908/","new-tree"],
+ ["漫步路線","沿海旁走到譚公廟",[113.5506,22.1154],"由圖書館附近出發，經聖堂及紀念碑一帶，再沿海旁向南至譚公廟。紅線連接本次介紹的地標，供展示大致方向。",walk,null,[[113.55104,22.11667],[113.55126,22.11696],[113.55090,22.11620],[113.55047,22.11536],[113.5501,22.1142]]]
+ ]},
+ {name:"澳門半島十月初五日街",center:[113.538,22.1967],zoom:16,events:[
+ ["16世紀・區域背景","明代澳門與內港",[113.5359,22.1966],"16世紀澳門逐步成為海上貿易港，中葡商貿往來帶動港口發展。這是日後街區形成的背景；今日十月初五日街的街道格局主要與19世紀填海有關。地圖標示今內港一帶，明代岸線未重建。","https://whc.unesco.org/en/list/1110/","ming"],
+ ["1860年起","康真君廟",[113.53797,22.19673],"康真君廟始建於1860年，位於今日十月初五日街與草堆街交界。廟內供奉康公真君等神明。廟地界址碑記下廟前填築至海旁的範圍，提供昔日海岸與碼頭生活的線索。","https://www.gcs.gov.mo/news/detail/zh-hant/M23AMKBDcR","temple"],
+ ["1860年代","由海灣變街道",[113.53797,22.19673],"康公廟前原為內港北灣的灘塗。填海後，1869年前後開闢皇家新街、海邊新街等街道。皇家新街又稱泗𠵼街，後來成為十月初五日街。地圖以康公廟前地作區域參照。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","trade"],
+ ["1895年","廟前墟集與攤販",[113.53797,22.19673],"《鏡海叢報》1895年的報道記下康公廟前有大量食物攤檔，一度擠滿通道。廟前地既是拜神的地方，也是街坊做買賣和聚集的公共空間。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-market"],
+ ["1910年・街名由來","十月初五日街",[113.53797,22.19673],"1910年10月5日，葡萄牙革命推翻君主制並建立共和國。澳葡當局其後將皇家新街改名為 Rua de Cinco de Outubro 作紀念。插圖重構的是里斯本革命背景，地圖定位則是澳門改名的街區。",gov+"zh-hant/macao-full-of-fun/world-heritage-tour-in-central-district","republic"],
+ ["20世紀上半葉","碼頭帶旺商業街",[113.53797,22.19673],"靠近內港輪渡碼頭，往返中山的客商可以就近採購。街上有雜貨、海味、油糖等店舖，康公廟前亦有攤檔和賣藝。街道與碼頭之間的人流及貨物流動，令這裡成為商業中心。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-commerce"],
+ ["抗戰時期","交通受阻與商業轉移",[113.53797,22.19673],"據澳門街坊掌故記載，中山部分鄉鎮淪陷後，跨境交通和交易受阻，部分商店結業或搬走，街道昔日的商業地位逐漸被新馬路取代。這一節展示港口交通改變如何影響街區。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-wartime"],
+ ["近年","街節與社區記憶",[113.53797,22.19673],"十月初五街節曾在十月初五日街及康公廟前地舉行，以展覽、市集和活動介紹街區歷史。可把今日的街坊活動與早期廟前墟集放在一起比較。",gov+"zh-hant/events/whatson/13804?month=10","fair"]
+
+ ]}
+];
+const war=[
+ ["7月12日 · 葡軍出兵","藍箭嘴示意由水面向路環登岸；守方遇到抵抗後，澳葡當局再派增援。",[[113.546,22.118],[113.551,22.117]],"#459af0"],
+ ["7月17–18日 · 增援與炮擊","橙色光圈示意受戰事波及的村落一帶。炮擊造成村民死傷，確切位置及炮彈軌跡未在圖上重建。",null,"#ee9b52"],
+ ["7月19日 · 向九澳搜捕","紅箭嘴示意葡軍向九澳一帶推進的總方向。史料記載部分被擄人士獲救。",[[113.552,22.117],[113.566,22.122],[113.587,22.129]],"#e95438"],
+ ["戰事記憶 · 紀念碑","紀念碑紀念擊退海盜。另有史料以『路環慘案』記錄村民受到的傷害，兩種記憶可對照閱讀。",null,"#eac16e"]
+];
+const laichiApproach=[[113.5477,22.1220],[113.5492,22.1217],[113.550978,22.120640]];
+let routeColor="#e95438";
+let area=0,current=-1,map,ready=false,markers=[],spot,frame=0,flat=false;
+let activeRoute=null,routeRequest=0,roadRouteCache=null;
+let warTimer=0,warRun=0,forcesShown=true,warUnit=null,warSoundOn=false,warAudio=null,warSoundNode=null,warPhase=null;
+const empty={type:"FeatureCollection",features:[]};
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const colors=["#edb870","#fa8171","#8cc8fa","#d8acff","#80d5c5","#f6bc7a","#9bd477"];
+const camera=()=>({center:groups[area].center,zoom:groups[area].zoom,pitch:flat?0:45,bearing:-20});
+
+// Keep the direction symbols and their label aligned as the map moves.
+function drawRouteOverlay(){
+ const overlay=$("route-overlay");
+ overlay.replaceChildren();
+ if(!activeRoute||activeRoute.points.length<2)return;
+ const container=map.getContainer();
+ const width=container.clientWidth,height=container.clientHeight;
+ if(!width||!height)return;
+ overlay.setAttribute("viewBox",`0 0 ${width} ${height}`);
+ const points=activeRoute.points.map(point=>map.project(point));
+ const segments=[];
+ let length=0;
+ for(let i=1;i<points.length;i++){
+  const a=points[i-1],b=points[i];
+  const distance=Math.hypot(b.x-a.x,b.y-a.y);
+  if(distance<.01)continue;
+  segments.push({a,b,distance,start:length});
+  length+=distance;
+ }
+ if(!segments.length)return;
+ const svgNS="http://www.w3.org/2000/svg";
+ const element=(name,attributes)=>{
+  const node=document.createElementNS(svgNS,name);
+  for(const [key,value] of Object.entries(attributes))node.setAttribute(key,value);
+  return node;
+ };
+ const pathData="M"+points.map(point=>`${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" L");
+ const line=(stroke,strokeWidth,opacity)=>element("path",{
+  d:pathData,fill:"none",stroke,"stroke-width":strokeWidth,
+  "stroke-opacity":opacity,"stroke-linecap":"round","stroke-linejoin":"round"
+ });
+ overlay.append(line("#10202b",13,.55),line(activeRoute.color,9,.86));
+
+ function at(distance){
+  const target=Math.max(0,Math.min(distance,length));
+  const segment=segments.find(part=>target<=part.start+part.distance)||segments.at(-1);
+  const progress=(target-segment.start)/segment.distance;
+  const ux=(segment.b.x-segment.a.x)/segment.distance;
+  const uy=(segment.b.y-segment.a.y)/segment.distance;
+  return {x:segment.a.x+progress*(segment.b.x-segment.a.x),
+   y:segment.a.y+progress*(segment.b.y-segment.a.y),ux,uy};
+ }
+ function position(point,along,across){
+  return `${(point.x+along*point.ux-across*point.uy).toFixed(1)},${(point.y+along*point.uy+across*point.ux).toFixed(1)}`;
+ }
+ for(let distance=20;distance<length-15;distance+=34){
+  const point=at(distance);
+  overlay.append(element("polygon",{points:[
+   position(point,6,0),position(point,-5,-5),
+   position(point,-2,0),position(point,-5,5)
+  ].join(" "),fill:"#ffffff","fill-opacity":.9}));
+ }
+ const end=at(length);
+ overlay.append(element("polygon",{points:[
+  position(end,7,0),position(end,-12,-9),position(end,-12,9)
+ ].join(" "),fill:activeRoute.color,stroke:"#ffffff","stroke-width":2}));
+
+ const midpoint=at(length*.5);
+ const boxWidth=Math.min(width-16,Math.max(136,activeRoute.label.length*15+24));
+ const info=$('info').getBoundingClientRect();
+ const stage=container.getBoundingClientRect();
+ const cardTop=info.height&&info.left<stage.right&&info.right>stage.left?info.top-stage.top:height;
+ const safeBottom=window.matchMedia("(max-width:650px)").matches?Math.max(85,cardTop-12):height-12;
+ const x=Math.max(boxWidth/2+8,Math.min(width-boxWidth/2-8,midpoint.x));
+ const y=Math.max(94,Math.min(safeBottom-42,midpoint.y-55));
+ const group=element("g",{transform:`translate(${x} ${y})`});
+ group.append(element("rect",{x:-boxWidth/2,y:0,width:boxWidth,height:38,rx:6,
+  fill:"#10202b","fill-opacity":.96,stroke:activeRoute.color,"stroke-width":2}));
+ const label=element("text",{x:0,y:16,"text-anchor":"middle",fill:"#fff8e8","font-size":14,"font-weight":700});
+ label.textContent=activeRoute.label;
+ const detail=element("text",{x:0,y:31,"text-anchor":"middle",fill:"#d8e4e7","font-size":10});
+ detail.textContent=activeRoute.detail;
+ group.append(label,detail);overlay.append(group);
+}
+
+function clear(){
+ routeRequest++;cancelAnimationFrame(frame);spot?.remove();spot=null;warUnit?.remove();warUnit=null;
+ activeRoute=null;$("route-overlay").replaceChildren();
+ if(ready){map.getSource("route").setData(empty);map.setPaintProperty("route","line-opacity",1);}
+}
+function pins(){
+ markers.forEach(m=>m.remove());markers=[];
+ const seen=new Set();
+ groups[area].events.forEach((item,i)=>{
+  const key=item[2].join();if(seen.has(key)||item[6]||["鹹蝦巷與市亭前地","老人圍","明代澳門與內港"].includes(item[1]))return;seen.add(key);
+  const b=document.createElement("button");b.className="map-pin landmark-dot";b.title=item[1];b.setAttribute("aria-label",item[1]);b.textContent="●";b.onclick=()=>show(i);
+  markers.push(new maplibregl.Marker({element:b,anchor:"center"}).setLngLat(item[2]).addTo(map));
+ });
+}
+function spacePins(){
+ const visible=[];
+ for(const marker of [...markers].sort((a,b)=>Number(b.getElement().classList.contains("active"))-Number(a.getElement().classList.contains("active")))){
+  const point=map.project(marker.getLngLat());
+  const overlaps=visible.some(p=>Math.hypot(p.x-point.x,p.y-point.y)<27);
+  marker.getElement().hidden=overlaps;
+  if(!overlaps)visible.push(point);
+ }
+}
+function reset(){
+ stopWar();clear();current=-1;markers.forEach(m=>m.getElement().classList.remove("active"));$("info").hidden=true;$("laichi-steps").hidden=true;$("war-steps").hidden=true;
+ $("hp").textContent="選擇下方地標，探索街道歷史";
+ for(const b of $("tl").children){b.classList.remove("on","past");b.removeAttribute("aria-current");}
+ if(ready)map.flyTo({...camera(),duration:reduce?0:1050});
+}
+function switchArea(index){
+ area=index;$("area").textContent=groups[area].name;
+ for(const b of document.querySelectorAll("[data-area]"))b.setAttribute("aria-pressed",String(Number(b.dataset.area)===area));
+ $("tl").replaceChildren();
+ groups[area].events.forEach(([date,title],i)=>{
+  const b=document.createElement("button"),y=document.createElement("b");
+  y.textContent=date;b.style.setProperty("--tl-delay",`${Math.min(i,8)*45}ms`);b.append(title,y);b.onclick=()=>show(i);$("tl").append(b);
+ });
+ reset();if(ready){pins();spacePins();}
+}
+function locate(item,i,color=colors[i%colors.length],routeInfo=null){
+ clear();
+ const [date,title,point,,, ,path]=item;
+ if(path){
+  const bounds=new maplibregl.LngLatBounds();path.forEach(p=>bounds.extend(p));
+  const container=map.getContainer(),card=$("info").getBoundingClientRect();
+  const mobile=window.matchMedia("(max-width:650px)").matches;
+  const padding=mobile
+   ?{top:Math.min(108,container.clientHeight*.24),bottom:Math.min(card.height+22,container.clientHeight*.46),left:32,right:32}
+   :{top:75,bottom:60,left:55,right:Math.min(card.width+55,container.clientWidth*.4)};
+  map.fitBounds(bounds,{padding,maxZoom:17.4,duration:reduce?0:2100});
+  if(routeInfo)map.setPaintProperty("route","line-opacity",0);
+  if(routeInfo?.unit){
+   const node=document.createElement("div");node.className="war-unit "+routeInfo.unit;node.setAttribute("aria-hidden","true");
+   node.innerHTML=routeInfo.unit==="ship"?'<svg viewBox="0 0 60 40"><path d="M4 23h51l-8 10H14z" fill="#d8e8f1" stroke="#275476" stroke-width="2"/><path d="M19 21v-7h14v7M25 14V5h3v9M36 21v-5h7v5" fill="#a2d2ea" stroke="#275476" stroke-width="2"/></svg><span>澳葡船隻 · 示意</span>':'<svg viewBox="0 0 60 40"><path d="M22 34V5m1 1 20 6-20 7" fill="#ff9878" stroke="#f8e4ce" stroke-width="3"/><circle cx="14" cy="26" r="4" fill="#ffd2a3"/><circle cx="29" cy="26" r="4" fill="#ffd2a3"/><path d="M8 36q6-11 12 0m3 0q6-11 12 0" stroke="#fff3d4" stroke-width="4" fill="none"/></svg><span>澳葡軍警 · 示意</span>';
+   warUnit=new maplibregl.Marker({element:node,anchor:"bottom"}).setLngLat(path[0]).addTo(map);
+  }
+  const start=performance.now(),source=map.getSource("route");
+  // Interpolate by distance so long and short road segments move at the same speed.
+  const lengths=[0];
+  for(let j=1;j<path.length;j++){
+   const a=path[j-1],b=path[j],lat=(a[1]+b[1])*Math.PI/360;
+   lengths.push(lengths[j-1]+Math.hypot((b[0]-a[0])*Math.cos(lat),b[1]-a[1]));
+  }
+  const total=lengths.at(-1),duration=routeInfo?7000:2400;
+  function animate(now){
+   const progress=reduce?1:Math.max(0,Math.min(1,(now-start)/duration));
+   const traveled=total*progress;
+   let k=0;while(k<path.length-2&&lengths[k+1]<traveled)k++;
+   if(progress===1)k=path.length-1;
+   const points=path.slice(0,k+1);
+   if(k<path.length-1){
+    const span=lengths[k+1]-lengths[k],fraction=span?(traveled-lengths[k])/span:1;
+    points.push(path[k].map((v,j)=>v+(path[k+1][j]-v)*fraction));
+   }
+   if(warUnit&&points.length)warUnit.setLngLat(points[points.length-1]);
+   if(points.length>1){
+    source.setData({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:points}});
+    if(routeInfo){activeRoute={...routeInfo,points,color};drawRouteOverlay();}
+   }
+   if(k<path.length-1)frame=requestAnimationFrame(animate);
+   else if(!routeInfo){
+    const end=path.at(-1),previous=path.at(-2);
+    const arrow=document.createElement("div");arrow.className="direction-arrow";arrow.style.background=routeColor;
+    const angle=Math.atan2(previous[1]-end[1],(end[0]-previous[0])*Math.cos(end[1]*Math.PI/180))*180/Math.PI;
+    spot=new maplibregl.Marker({element:arrow,rotation:angle,rotationAlignment:"map",pitchAlignment:"map",anchor:"right"}).setLngLat(end).addTo(map);
+   }
+  }
+  frame=requestAnimationFrame(animate);
+ }else{
+  map.flyTo({center:point,zoom:17.65,pitch:flat?0:40,bearing:-12,offset:[0,-45],duration:reduce?0:1900});
+  const el=document.createElement("div"),label=document.createElement("strong"),ring=document.createElement("i");
+  el.className="era-spotlight";el.style.setProperty("--era-color",color);
+  label.textContent=title;el.append(label,ring);
+  spot=new maplibregl.Marker({element:el,anchor:"bottom"}).setLngLat(point).addTo(map);
+ }
+}
+function show(i){
+ stopWar();current=i;
+ const item=groups[area].events[i], [date,title,coords,body,source,art]=item;
+ markers.forEach(marker=>{const pos=marker.getLngLat();marker.getElement().classList.toggle("active",Math.abs(pos.lng-coords[0])<.0000001&&Math.abs(pos.lat-coords[1])<.0000001);});
+ if(ready)spacePins();
+ $("info").hidden=false;$("yr").textContent=date;$("tt").textContent=title;$("tx").textContent=body;
+ $("event-source").href=source;$("hp").textContent=date+" · "+title;
+ $("event-art").hidden=!art;$("photo-source").hidden=art!=="monument-photo";
+ if(art){$("art-thumb").src=art==="monument-photo"?"https://upload.wikimedia.org/wikipedia/commons/0/07/Coloane_Village.JPG":"media/"+art+(art.startsWith("new-")?".png":".webp");$("art-thumb").alt=title;$("art-credit").textContent=art==="monument-photo"?"2013年紀念碑實景 · Elizabeth B. Thomsen / Wikimedia Commons · CC BY-SA 3.0":"景觀插圖／情景重構 · 點擊放大";}
+ const buttons=[...$("tl").children];buttons.forEach((b,j)=>{b.classList.toggle("on",j===i);b.classList.toggle("past",j<i);if(j===i)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");});buttons[i].scrollIntoView({behavior:reduce?"auto":"smooth",block:"nearest",inline:"center"});
+ $("war-gallery").hidden=title!=="路環戰役";
+ $("war-steps").hidden=title!=="路環戰役";
+ $("laichi-steps").hidden=title!=="荔枝碗軍事行動";
+ routeColor="#e95438";
+ if(ready){map.setPaintProperty("route","line-color",routeColor);locate(item,i);}
+}
+$("laichi-advance").onclick=()=>{
+ if(!ready||current<0)return;
+ const item=groups[area].events[current].slice();
+ item[6]=laichiApproach;routeColor="#459af0";
+ map.setPaintProperty("route","line-color",routeColor);
+ locate(item,current,routeColor,{label:"澳葡巡捕分遣隊",detail:"進駐方向 · 示意"});
+};
+function stopWarSound(){if(warSoundNode){try{warSoundNode.stop()}catch{}warSoundNode=null}}
+function playWarSound(phase){
+ if(!warSoundOn||!warAudio||![0,1].includes(phase))return;
+ stopWarSound();
+ try{
+  const ctx=warAudio,seconds=phase===0?2.8:1.3;
+  const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*seconds),ctx.sampleRate),samples=buf.getChannelData(0);
+  for(let i=0;i<samples.length;i++)samples[i]=Math.random()*2-1;
+  const node=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain(),now=ctx.currentTime;
+  node.buffer=buf;filter.type="lowpass";filter.frequency.setValueAtTime(phase===0?500:1100,now);filter.frequency.exponentialRampToValueAtTime(phase===0?260:90,now+seconds);
+  gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(phase===0?.035:.08,now+(phase===0?.5:.025));gain.gain.exponentialRampToValueAtTime(.0001,now+seconds);
+  node.connect(filter);filter.connect(gain);gain.connect(ctx.destination);node.onended=()=>{if(warSoundNode===node)warSoundNode=null};warSoundNode=node;node.start();node.stop(now+seconds);
+ }catch{$("war-progress").textContent="音效暫未能播放"}
+}
+$("war-audio").onclick=async()=>{
+ if(warSoundOn){warSoundOn=false;stopWarSound();$("war-audio").setAttribute("aria-pressed","false");$("war-audio").textContent="🔇 開啟音效";return;}
+ try{const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)throw Error("不支援音效");warAudio=warAudio||new AudioCtor();await warAudio.resume();if(warAudio.state!=="running")throw Error("音效未啟用");warSoundOn=true;$("war-audio").setAttribute("aria-pressed","true");$("war-audio").textContent="🔊 關閉音效";if(warPhase!==null)playWarSound(warPhase)}catch{$("war-progress").textContent="此裝置未能啟用音效";}
+};
+function stopWar(){
+ stopWarSound();warPhase=null;$("war-villagers").hidden=true;warUnit?.remove();warUnit=null;
+ warRun++;routeRequest++;clearTimeout(warTimer);cancelAnimationFrame(frame);$("war-auto").hidden=false;$("war-stop").hidden=true;$("war-progress").textContent="";
+ $("stage-vfx").className="";$("forces-overlay").classList.remove("visible");$("forces-key").hidden=true;document.querySelectorAll("[data-phase]").forEach(b=>b.classList.remove("phase-active"));
+}
+async function selectWarPhase(index){
+ if(current<0||groups[area].events[current][1]!=="路環戰役")return;
+ const phase=String(index), [title,body,path,color]=war[index];
+ warPhase=index;$("war-villagers").hidden=index!==1;playWarSound(index);
+ document.querySelectorAll("[data-phase]").forEach(b=>b.classList.toggle("phase-active",b.dataset.phase===phase));
+ $("stage-vfx").className="";void $("stage-vfx").offsetWidth;$("stage-vfx").className=index===0?"sea":index===1?"shelling":"";
+ $("war-progress").textContent=`第 ${index+1} / 4 幕 · 畫面示意`;
+ $("forces-overlay").dataset.phase=phase;$("forces-overlay").classList.toggle("visible",forcesShown);$("forces-key").hidden=!forcesShown;
+ const button={dataset:{phase}};
+ const item=groups[area].events[current].slice();
+ item[1]=index===1?"路環村落一帶 · 示意":title;item[6]=path;
+ $("hp").textContent=title;$("tx").textContent=body;
+ $("art-thumb").src="media/war-"+button.dataset.phase+".webp";
+ $("art-thumb").alt=title;
+ $("art-credit").textContent=button.dataset.phase==="3"?"景觀插圖 · 點擊放大":"情景重構 · 點擊放大";
+ routeColor=color;
+ const routeInfo=path?{
+  label:"澳葡軍警",
+  unit:index===0?"ship":"troops",
+  detail:button.dataset.phase==="0"?"海上登岸 · 示意":"向九澳搜捕 · 示意"
+ }:null;
+ if(ready){
+  map.setPaintProperty("route","line-color",color);
+  if(button.dataset.phase==="2"){
+   // Today's road network provides an illustrative route, not a historical reconstruction.
+   clear();const request=routeRequest;
+   $("tx").textContent=body+" 正在載入今日道路示意。";
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
+   try{
+    const ends=[path[0],path[path.length-1]].map(p=>p.join(",")).join(";");
+    let coords=roadRouteCache;
+    if(!coords){
+     const response=await fetch(`https://router.project-osrm.org/route/v1/driving/${ends}?overview=full&geometries=geojson`,{signal:controller.signal});
+     if(!response.ok)throw new Error("路線服務未能回應");
+     const data=await response.json();coords=data.routes?.[0]?.geometry?.coordinates;
+     if(!Array.isArray(coords)||coords.length<2)throw new Error("沒有可用道路");
+     roadRouteCache=coords;
+    }
+    if(request!==routeRequest)return;
+    item[6]=coords;
+    $("tx").textContent=body+" 箭嘴沿今日道路示意，並非已確認的歷史行軍路線。";
+    routeInfo.detail="今日道路 · 歷史方向示意";
+    locate(item,current,color,routeInfo);
+   }catch(error){
+    if(request!==routeRequest)return;
+    $("tx").textContent=body+" 今日道路路線暫時未能載入，請稍後再按此步驟。";
+   }finally{clearTimeout(timer)}
+  }else locate(item,current,color,routeInfo);
+ }
+}
+for(const button of document.querySelectorAll("[data-phase]"))button.onclick=()=>{stopWar();selectWarPhase(Number(button.dataset.phase));};
+$("war-auto").onclick=()=>{
+ if(current<0||groups[area].events[current][1]!=="路環戰役")return;
+ stopWar();const run=warRun;$("war-auto").hidden=true;$("war-stop").hidden=false;
+ async function play(index){
+  if(run!==warRun)return;
+  await selectWarPhase(index);
+  if(run!==warRun)return;
+  if(index===3){$("war-auto").hidden=false;$("war-stop").hidden=true;$("war-progress").textContent="播放完成 · 畫面示意";return;}
+  warTimer=setTimeout(()=>play(index+1),index===0?9000:index===1?6000:9000);
+ }
+ play(0);
+};
+$("forces-toggle").onclick=()=>{
+ forcesShown=!forcesShown;$("forces-toggle").setAttribute("aria-pressed",String(forcesShown));
+ $("forces-toggle").textContent=forcesShown?"隱藏色彩":"顯示色彩";
+ $("forces-overlay").classList.toggle("visible",forcesShown&&current>=0);$("forces-key").hidden=!forcesShown||current<0;
+};
+$("war-stop").onclick=()=>{stopWar();routeRequest++;cancelAnimationFrame(frame);$("war-progress").textContent="已停止自動播放";};
+let panoramaViewer=null,pannellumLoading=null;
+function loadPanoramaLibrary(){
+ if(window.pannellum)return Promise.resolve();
+ if(pannellumLoading)return pannellumLoading;
+ pannellumLoading=new Promise((resolve,reject)=>{
+  const css=document.createElement("link");css.rel="stylesheet";css.href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css";document.head.append(css);
+  const script=document.createElement("script");script.src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js";script.onload=resolve;script.onerror=()=>reject(new Error("全景元件載入失敗"));document.head.append(script);
+ });
+ return pannellumLoading.catch(e=>{pannellumLoading=null;throw e});
+}
+$("open-panorama").onclick=async()=>{
+ $("pano-dialog").showModal();$("pano-status").textContent="正在載入場景…";
+ try{
+  await loadPanoramaLibrary();
+  if(!$("pano-dialog").open)return;
+  if(!panoramaViewer){
+   panoramaViewer=window.pannellum.viewer("panorama",{type:"equirectangular",panorama:"media/coloane-360.png",autoLoad:true,showZoomCtrl:true,showFullscreenCtrl:true,showControls:true,compass:false,hfov:95,hotSpots:[
+    {pitch:0,yaw:-35,cssClass:"pano-smoke"},{pitch:2,yaw:-55,cssClass:"pano-smoke"},
+    {pitch:-8,yaw:60,cssClass:"pano-wave"},{pitch:-7,yaw:85,cssClass:"pano-wave"},{pitch:-9,yaw:110,cssClass:"pano-wave"}
+   ]});
+   panoramaViewer.on("load",()=>{$("pano-status").textContent="拖動畫面環視，或用 +／− 調整遠近。光影與煙霧為示意效果。";});
+   panoramaViewer.on("error",()=>{$("pano-status").textContent="場景未能載入，請檢查網絡後重新開啟。"});
+  }else{panoramaViewer.resize();$("pano-status").textContent="拖動畫面環視，或用 +／− 調整遠近。";}
+ }catch{$("pano-status").textContent="全景元件未能載入，請檢查網絡後重新開啟。";}
+};
+$("pano-rotate").onclick=()=>{
+ if(!panoramaViewer||!panoramaViewer.isLoaded()){$("pano-status").textContent="請等待全景載入後再開啟環視。";return;}
+ const turning=$("pano-rotate").getAttribute("aria-pressed")!=="true";
+ if(turning)panoramaViewer.startAutoRotate(-3);else panoramaViewer.stopAutoRotate();
+ $("pano-rotate").setAttribute("aria-pressed",String(turning));$("pano-rotate").textContent=turning?"❚❚ 停止環視":"▶ 自動環視";
+};
+$("pano-effects").onclick=()=>{
+ const paused=$("panorama").classList.toggle("pano-effects-paused");
+ $("pano-effects").setAttribute("aria-pressed",String(!paused));$("pano-effects").textContent=paused?"播放光影與煙霧":"暫停光影與煙霧";
+};
+$("pano-dialog").addEventListener("close",()=>{
+ if(panoramaViewer)panoramaViewer.stopAutoRotate();
+ $("pano-rotate").setAttribute("aria-pressed","false");$("pano-rotate").textContent="▶ 自動環視";
+});
+$("close-panorama").onclick=()=>$("pano-dialog").close();
+const panoInfo=["1910年7月，綁架事件引發澳葡當局派兵到路環，其後衝突波及村落。","澳葡當局先後派出軍警及增援，亦出動炮艦；場景中的船隻和人物位置只是示意。","村民同樣受到戰事影響。不同史料對事件有不同側重，可以對照閱讀。"];
+for(const button of document.querySelectorAll("[data-pano-info]"))button.onclick=()=>{$("pano-info").textContent=panoInfo[Number(button.dataset.panoInfo)];};
+for(const button of document.querySelectorAll("[data-art]"))button.onclick=()=>{
+ $("art-dialog-note").textContent="場景重構：人物及環境細節屬藝術演繹。";const picture=button.querySelector("img");$("art-title").textContent=picture.alt;$("art-large").src=picture.src;$("art-large").alt=picture.alt;$("art-dialog").showModal();
+};
+$("art-open").onclick=()=>{
+ $("art-dialog-note").textContent=$("art-credit").textContent;$("art-title").textContent=$("art-thumb").alt;$("art-large").src=$("art-thumb").src;$("art-large").alt=$("art-thumb").alt;$("art-dialog").showModal();
+};
+$("close").onclick=()=>{stopWar();$("info").hidden=true;};
+$("zr").onclick=reset;
+$("z1").onclick=()=>{if(ready)map.zoomIn();};
+$("z0").onclick=()=>{if(ready)map.zoomOut();};
+$("rot").onclick=()=>{if(ready)map.rotateTo(map.getBearing()+25);};
+$("td").onclick=()=>{flat=!flat;$("td").textContent=flat?"立體":"平面";if(ready)map.easeTo({pitch:flat?0:45});};
+$("full").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{$("full").textContent="可橫向觀看";}};
+for(const b of document.querySelectorAll("[data-area]"))b.onclick=()=>switchArea(Number(b.dataset.area));
+window.addEventListener("keydown",e=>{
+ if(document.querySelector("dialog[open]"))return;
+ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+  const length=groups[area].events.length;
+  show(current<0?0:(current+(e.key==="ArrowRight"?1:-1)+length)%length);
+ }
+});
+switchArea(0);
+document.addEventListener("DOMContentLoaded",()=>{
+ if(!window.maplibregl){$("status").textContent="地圖元件未載入，仍可使用時間軸瀏覽資料。";return;}
+ try{map=new maplibregl.Map({container:"live-map",style:"https://tiles.openfreemap.org/styles/liberty",...camera()});}
+ catch{$("status").textContent="此裝置暫時未能顯示立體地圖，仍可使用時間軸。";return;}
+ map.once("load",()=>{
+  const style=map.getStyle();
+  if(style.sources.openmaptiles&&!style.layers.some(l=>l.type==="fill-extrusion")){
+   map.addLayer({id:"heritage-buildings",type:"fill-extrusion",source:"openmaptiles","source-layer":"building",minzoom:15,paint:{"fill-extrusion-color":"#cfb28a","fill-extrusion-height":["coalesce",["get","render_height"],8],"fill-extrusion-base":["coalesce",["get","render_min_height"],0]}},style.layers.find(l=>l.type==="symbol")?.id);
+  }
+  map.addSource("route",{type:"geojson",data:empty});
+  map.addLayer({id:"route",type:"line",source:"route",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#e95438","line-width":7}});
+  ready=true;document.querySelector(".stage").classList.add("live");
+  map.on("move",()=>{spacePins();drawRouteOverlay();});
+  map.on("resize",drawRouteOverlay);
+  pins();spacePins();if(current>=0)locate(groups[area].events[current],current);else map.jumpTo(camera());
+ });
+});
+</script></body></html>
