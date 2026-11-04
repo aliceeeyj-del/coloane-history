@@ -137,13 +137,21 @@ dialog a{color:#f8ce87}dialog svg{height:auto;transform:none}
 .era-spotlight strong{display:block;background:#10202b;color:#fff5e4;padding:5px 9px;border:1px solid var(--era-color);border-radius:6px;white-space:nowrap;font-size:13px;box-shadow:0 0 8px var(--era-color),0 0 20px var(--era-color);text-shadow:0 0 9px var(--era-color)}
 .era-spotlight i{display:block;width:22px;height:22px;border:2px solid var(--era-color);border-radius:50%;margin:6px auto 0;box-shadow:0 0 18px var(--era-color);animation:era-pulse 1.8s ease-out infinite}
 @keyframes era-pulse{from{transform:scale(.65);opacity:1}to{transform:scale(2.1);opacity:.25}}
-.landmark-dot.active{background:#a33e29;color:#fff8e0;box-shadow:0 0 0 3px #ffd88c,0 0 16px 7px #ff995cbb;position:relative;z-index:2}.landmark-dot.active::after{content:"";position:absolute;inset:-5px;border:2px solid #ffd88c;border-radius:50%;pointer-events:none;animation:pin-halo 1.8s ease-out infinite}@keyframes pin-halo{0%{transform:scale(.9);opacity:.9}100%{transform:scale(2.1);opacity:0}}.landmark-dot[hidden]{display:none}.landmark-dot{width:22px;height:22px;padding:0;line-height:20px;border-radius:50%;color:#f6ce87;font-size:10px} #laichi-steps[hidden]{display:none}</style></head><body><main>
+.landmark-dot.active{background:#a33e29;color:#fff8e0;box-shadow:0 0 0 3px #ffd88c,0 0 16px 7px #ff995cbb;position:relative;z-index:2}.landmark-dot.active::after{content:"";position:absolute;inset:-5px;border:2px solid #ffd88c;border-radius:50%;pointer-events:none;animation:pin-halo 1.8s ease-out infinite}@keyframes pin-halo{0%{transform:scale(.9);opacity:.9}100%{transform:scale(2.1);opacity:0}}.landmark-dot[hidden]{display:none}.landmark-dot{width:22px;height:22px;padding:0;line-height:20px;border-radius:50%;color:#f6ce87;font-size:10px} #laichi-steps[hidden]{display:none}</style><link rel="stylesheet" href="terrain.css">
+</head><body><main>
 <header><strong>十月初五</strong><span>路環海旁與澳門半島 · 互動歷史地圖</span><button id="full">全螢幕</button></header>
-<div class="stage">
+<div class="stage terrain-mode">
+<div id="terrain-view" aria-label="澳門立體地形" aria-busy="true">
+<div id="terrain-labels"></div><p id="terrain-loading" role="status">正在建立澳門立體地形…</p><button id="terrain-retry" hidden>重新載入</button>
+</div>
+<div id="terrain-heading"><small>MACAU · A LANDSCAPE OF MEMORY</small><h1>澳門立體地形</h1><p>半島 · 氹仔 · 路氹 · 路環</p><i class="rule"></i><p class="terrain-caption">循著山海，走進歷史</p></div>
+<div id="terrain-legend"><strong><i></i>澳門地形總覽</strong><div class="terrain-gradient"></div><p>低地 ───────── 山地</p><p>高程放大 4 倍 · 岩層厚度為視覺示意</p></div>
+<div id="terrain-compass"><small>N</small><span id="north-arrow">↑</span><div id="bearing">0°</div></div>
+<div id="terrain-hint">拖曳旋轉 360° · 滾輪縮放 · 雙指平移<button id="terrain-detail">探索街道與歷史 ↗</button></div>
 <div id="live-map" aria-label="十月初五互動地圖"></div>
 <div id="forces-overlay" aria-hidden="true"><div class="force-pirates"></div><div class="force-portuguese"></div></div><div id="forces-key" hidden><b><i class="force-blue"></i>澳葡軍警</b><b><i class="force-purple"></i>海盜團伙</b><span>色彩只示意戰事進程，並非實際控制範圍或退路</span></div><svg id="route-overlay" aria-hidden="true"></svg><div id="stage-vfx" aria-hidden="true"><span class="fx-water"></span><span class="fx-flash"></span><span class="fx-smoke"></span></div>
 <div class="hd"><h1 id="area">路環十月初五馬路</h1><p id="hp">選擇下方地標，探索海旁的歷史</p></div>
-<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr">總覽</button><button id="td">平面</button><button id="rot">旋轉</button></div>
+<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr">總覽</button><button id="td">俯視</button><button id="rot" aria-pressed="false">360° 旋轉</button><button id="labels-toggle" aria-pressed="true">隱藏地名</button><button id="view-switch" aria-pressed="true">街道地圖</button></div>
 <aside class="info" id="info" hidden>
 <button id="close" aria-label="關閉介紹">×</button><small id="yr"></small><h2 id="tt"></h2>
 <figure id="event-art" hidden><button id="art-open" aria-label="放大插圖"><img id="art-thumb" alt=""></button><figcaption id="art-credit"></figcaption></figure>
@@ -151,7 +159,7 @@ dialog a{color:#f8ce87}dialog svg{height:auto;transform:none}
 </div>
 <div class="rail"><strong>歷史時間軸</strong><button data-area="0" aria-pressed="true">路環馬路</button><button data-area="1" aria-pressed="false">半島日街</button></div>
 <div class="tl" id="tl"></div>
-<p class="note" id="status">底圖由 OpenFreeMap 提供，地圖資料來自 OpenStreetMap。小圓點可點選；完整地名見時間軸。路線為示意。</p>
+<p class="note" id="status">立體地形：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors / ODbL</a> · <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · <a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">AWS Terrain Tiles 高程資料</a>。現代地形供歷史定位參照，高程放大 4 倍，並非歷史岸線或測繪模型。街道地圖及歷史時間軸可繼續使用。</p>
 <dialog id="pano-dialog" aria-labelledby="pano-title"><div class="pano-head"><div><small>沉浸式歷史場景</small><h2 id="pano-title">路環海旁 · 1910</h2></div><button id="close-panorama" type="button">返回地圖 ×</button></div><p class="pano-intro">拖動畫面環視四周；手機可用手指滑動。場景屬藝術重現，並非歷史實拍。</p><div id="panorama" aria-label="路環海旁360度場景"></div><p id="pano-status" role="status">正在載入場景…</p><div class="pano-motion-controls"><button id="pano-rotate" type="button" aria-pressed="false">▶ 自動環視</button><button id="pano-effects" type="button" aria-pressed="true">暫停光影與煙霧</button></div><div class="pano-tabs" aria-label="事件介紹"><button data-pano-info="0">事件背景</button><button data-pano-info="1">海上行動</button><button data-pano-info="2">村民處境</button></div><p id="pano-info">1910年7月，綁架事件引發澳葡當局派兵到路環，其後衝突波及村落。</p><a href="https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db" target="_blank" rel="noopener">查看歷史資料 ↗</a></dialog><dialog id="art-dialog"><form method="dialog"><button style="float:right">返回地圖 ×</button></form><h2 id="art-title"></h2><img id="art-large" alt=""><p id="art-dialog-note">景觀插圖或情景重構。建築、人物及歷史場景細節屬藝術演繹。</p></dialog>
 </main>
 <style>
@@ -385,6 +393,7 @@ function locate(item,i,color=colors[i%colors.length],routeInfo=null){
  }
 }
 function show(i){
+ window.macauTerrain?.setActive(false);
  stopWar();current=i;
  const item=groups[area].events[i], [date,title,coords,body,source,art]=item;
  markers.forEach(marker=>{const pos=marker.getLngLat();marker.getElement().classList.toggle("active",Math.abs(pos.lng-coords[0])<.0000001&&Math.abs(pos.lat-coords[1])<.0000001);});
@@ -548,11 +557,11 @@ $("art-open").onclick=()=>{
  $("art-dialog-note").textContent=$("art-credit").textContent;$("art-title").textContent=$("art-thumb").alt;$("art-large").src=$("art-thumb").src;$("art-large").alt=$("art-thumb").alt;$("art-dialog").showModal();
 };
 $("close").onclick=()=>{stopWar();$("info").hidden=true;};
-$("zr").onclick=reset;
-$("z1").onclick=()=>{if(ready)map.zoomIn();};
-$("z0").onclick=()=>{if(ready)map.zoomOut();};
-$("rot").onclick=()=>{if(ready)map.rotateTo(map.getBearing()+25);};
-$("td").onclick=()=>{flat=!flat;$("td").textContent=flat?"立體":"平面";if(ready)map.easeTo({pitch:flat?0:45});};
+$("zr").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.reset();else reset();};
+$("z1").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.zoom(.8);else if(ready)map.zoomIn();};
+$("z0").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.zoom(1.25);else if(ready)map.zoomOut();};
+$("rot").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.rotate();else if(ready)map.rotateTo(map.getBearing()+25);};
+$("td").onclick=()=>{if(window.macauTerrain?.active){window.macauTerrain.flat();return;}flat=!flat;$("td").textContent=flat?"立體":"平面";if(ready)map.easeTo({pitch:flat?0:45});};
 $("full").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{$("full").textContent="可橫向觀看";}};
 for(const b of document.querySelectorAll("[data-area]"))b.onclick=()=>switchArea(Number(b.dataset.area));
 window.addEventListener("keydown",e=>{
@@ -562,6 +571,8 @@ window.addEventListener("keydown",e=>{
   show(current<0?0:(current+(e.key==="ArrowRight"?1:-1)+length)%length);
  }
 });
+document.addEventListener('macau-view-change',e=>{if(!e.detail.terrain&&ready){map.resize();$('td').textContent=flat?'立體':'平面';}if(e.detail.terrain)stopWar();});
+document.addEventListener('macau-street-overview',reset);
 switchArea(0);
 document.addEventListener("DOMContentLoaded",()=>{
  if(!window.maplibregl){$("status").textContent="地圖元件未載入，仍可使用時間軸瀏覽資料。";return;}
@@ -580,4 +591,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   pins();spacePins();if(current>=0)locate(groups[area].events[current],current);else map.jumpTo(camera());
  });
 });
-</script></body></html>
+</script><script type="module" src="terrain-view.js"></script></body></html>
