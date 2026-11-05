@@ -1,17 +1,17 @@
 #photo-switch[hidden],#modern-photo[hidden],#photo-original[hidden]{display:none!important}
-#info #photo-switch{display:flex;gap:3px;margin:0 0 13px;padding:3px;border:1px solid #aeb5a046;border-radius:8px;background:#142832;max-width:330px}
-#info #photo-switch button{flex:1;min-height:33px;padding:6px 10px;border:0;border-radius:5px;background:transparent;color:#aebdb4;font-size:11px;line-height:1.45;cursor:pointer;transition:background .35s cubic-bezier(.2,.8,.2,1),color .35s ease,box-shadow .35s ease}
-#info #photo-switch button[aria-pressed="true"]{color:#f2e7ca;background:#526052;box-shadow:0 2px 8px #0819206b}
+#info #photo-switch{display:flex;gap:3px;margin:0 0 10px;padding:3px;border:1px solid var(--atlas-border);border-radius:999px;background:#0a1628a8;max-width:330px}
+#info #photo-switch button{flex:1;min-height:33px;padding:6px 10px;border:0;border-radius:999px;background:transparent;color:#c6d4e4;font-size:11px;font-weight:600;line-height:1.45;cursor:pointer;transition:background .35s cubic-bezier(.2,.8,.2,1),color .35s ease,box-shadow .35s ease}
+#info #photo-switch button[aria-pressed="true"]{color:#fff3db;background:linear-gradient(145deg,#586d83,#364960);box-shadow:0 2px 8px #0819206b,inset 0 1px #dfefff2b}
 #info #photo-switch button:hover{color:#f1e3c7}
 #info #modern-photo{margin:5px 0 20px;animation:modern-photo-in .5s cubic-bezier(.2,.8,.2,1) both}
-#info #modern-photo #modern-open{display:block;width:100%;padding:0;border:1px solid #c1b38c55;border-radius:4px;background:#10232b;overflow:hidden;cursor:zoom-in}
-#modern-photo #modern-thumb{display:block;width:100%;height:auto;max-height:min(42vh,430px);object-fit:contain;background:#10232b;filter:saturate(.9);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+#info #modern-photo #modern-open{display:block;width:100%;padding:0;border:1px solid var(--atlas-border);border-radius:14px;background:#0a1628;overflow:hidden;cursor:zoom-in}
+#modern-photo #modern-thumb{display:block;width:100%;height:auto;max-height:min(42vh,520px);object-fit:contain;background:#0a1628;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
 #modern-photo #modern-open:hover img{transform:scale(1.025)}
 #modern-photo figcaption{margin:9px 0 6px;font-size:11px;line-height:1.7;color:#ead9b6}
 #modern-photo .modern-photo-credit{font-size:10px;line-height:1.8;color:#a9b6ae}
 #modern-photo .modern-photo-credit a{font-size:10px}
 #modern-photo .modern-photo-credit small{display:block;margin-top:3px;color:#879e9a;font-size:9px;line-height:1.5}
-#modern-dialog{max-width:min(92vw,940px);max-height:92vh;padding:22px;background:#172831;color:#e9dfc8;border:1px solid #b3ad876b;border-radius:8px;box-shadow:0 20px 60px #041017a8}
+#modern-dialog{max-width:min(92vw,1100px);max-height:92vh;padding:22px;background:var(--atlas-glass);color:#e9dfc8;border:1px solid var(--atlas-border);border-radius:22px;box-shadow:var(--atlas-shadow)}
 #modern-dialog .modern-dialog-close{float:right;background:#34453e;color:#f1e6ce;border:1px solid #c2ae806e;border-radius:4px;padding:8px 10px;cursor:pointer}
 #modern-dialog h2{margin:7px 0 18px;font:500 clamp(20px,3vw,30px)/1.4 "Songti TC","Noto Serif TC",serif}
 #modern-dialog img{display:block;width:100%;max-height:65vh;object-fit:contain;background:#0e1b22}
@@ -20,8 +20,8 @@
 @keyframes modern-photo-in{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:650px){.stage.battle-playing .info:not(.expanded) #modern-photo{display:none}#modern-dialog{padding:15px}#modern-dialog img{max-height:58vh}}
 @media(min-width:1101px){
- #info #photo-switch{max-width:none;margin-bottom:19px}
- #info #photo-switch button{min-height:44px;font-size:clamp(13px,.68vw,19px)}
+ #info #photo-switch{max-width:none;margin-bottom:12px}
+ #info #photo-switch button{min-height:38px;font-size:clamp(13px,.68vw,19px)}
  #modern-photo figcaption{font-size:clamp(13px,.72vw,20px)}
  #modern-photo .modern-photo-credit,#modern-photo .modern-photo-credit a{font-size:clamp(11px,.58vw,16px)}
  #modern-photo .modern-photo-credit small{font-size:clamp(10px,.5vw,14px)}

@@ -10,8 +10,7 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobile=matchMedia('(max-width: 800px)').matches;
 const exaggeration=1.65, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
-// The model anchors follow the mapped roof footprints; the nearby text labels use
-// the familiar visitor coordinates. All dimensions below are in kilometres.
+// The models and labels share the mapped roof coordinates. Distances are in kilometres.
 const cityModelSites={tower:[113.5368,22.17982],lisboa:[113.54336,22.19099]};
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#263a40');
@@ -29,10 +28,10 @@ const ready=new Promise(resolve=>{resolveReady=resolve;});
 const api={
  get active(){return active;},get initialized(){return initialized;},ready,
  terrainPoint(lonLat,lift=.08){if(!initialized)return null;const [x,z]=project(...lonLat);return new THREE.Vector3(x,heightAt(x,z)+lift,z);},
- addFeatureLabel(element,lonLat){
+ addFeatureLabel(element,lonLat,lift=.22){
   if(!element||!Array.isArray(lonLat)||lonLat.length<2)return;
   const add=()=>{if(!initialized||featureLabels.some(item=>item.element===element))return;
-   featureLabels.push({element,point:api.terrainPoint(lonLat,.22)});$('terrain-labels').append(element);requestRender();};
+   featureLabels.push({element,point:api.terrainPoint(lonLat,lift)});$('terrain-labels').append(element);requestRender();};
   if(initialized)add();else ready.then(ok=>{if(ok)add();});
  },
  addOverlay(object){scene.add(object);requestRender();},
@@ -45,8 +44,8 @@ const api={
   const radius=Math.max(...sites.map(p=>Math.hypot(p.x-center.x,p.z-center.z)));
   const distance=Math.max(3.15,Math.min(18,radius*4.5));
   const offset=new THREE.Vector3(1.35,2.45,3.55).normalize().multiplyScalar(distance);
-  const target=center.clone(),panel=$('info');
-  if(panel&&!panel.hidden){
+  const target=center.clone();
+  if(overlappingPanel()){
    if(view.clientWidth<=800){target.z+=Math.min(1.15,.52+radius*.28);target.y-=.24;}
    else target.addScaledVector(new THREE.Vector3(offset.z,0,-offset.x).normalize(),Math.min(1.5,.65+radius*.4));
   }
@@ -78,14 +77,14 @@ const api={
   const [x,z]=project(...lonLat),height=heightAt(x,z);
   const point=new THREE.Vector3(x,height,z);
   const target=point.clone();
-  const width=view.clientWidth,heightPx=view.clientHeight;
+  const width=view.clientWidth;
   const baseOffset=options.overview?new THREE.Vector3(2.35,4.15,6.15):new THREE.Vector3(1.45,2.55,3.6);
   let offset=baseOffset.multiplyScalar((width<650?(options.overview?1.16:1.25):1)*(options.timeline ? .72 : 1));
   // Keep the selected landmark visible beside the desktop archive or above its mobile sheet.
-  const info=$('info');
-  if(info&&!info.hidden){
+  const card=overlappingPanel();
+  if(card){
    const screenRight=new THREE.Vector3(offset.z,0,-offset.x).normalize();
-   const card=info.getBoundingClientRect(),bounds=view.getBoundingClientRect();
+   const bounds=view.getBoundingClientRect();
    const sidePanel=card.left-bounds.left>width*.4&&card.width<width*.7;
    if(sidePanel)target.addScaledVector(screenRight,1.05);
    else {target.z+=.6;target.y-=.28;}
@@ -106,6 +105,13 @@ const api={
  resize
 };
 window.macauTerrain=api;
+
+function overlappingPanel(){
+ const panel=$('info');
+ if(panel.hidden)return null;
+ const card=panel.getBoundingClientRect(),map=view.getBoundingClientRect();
+ return card.left<map.right&&card.right>map.left&&card.top<map.bottom&&card.bottom>map.top?card:null;
+}
 
 function progress(value,label){
  if($('terrain-loading'))$('terrain-loading').textContent=label;
@@ -233,11 +239,26 @@ function addRegion(name,sub,lon,lat,areaIndex){
  if(areaIndex!==undefined){element.type='button';element.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('macau-area-request',{detail:{area:areaIndex}})));}
  $('terrain-labels').append(element);regions.push({element,point:new THREE.Vector3(x,heightAt(x,z)+.23,z),region:true});
 }
-function addCityLandmark(name,sub,lon,lat){
- const element=document.createElement('span');element.className='terrain-label terrain-city-landmark';
+function addCityLandmark(name,sub,lon,lat,height){
+ const element=document.createElement(height?'button':'span');element.className='terrain-label terrain-city-landmark';
  const strong=document.createElement('strong');strong.textContent=name;
  const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
- api.addFeatureLabel(element,[lon,lat]);
+ if(height){
+  element.type='button';
+  element.setAttribute('aria-label',`近看${name}`);
+  element.title=`近看${name}`;
+  element.addEventListener('click',()=>{
+   window.historyExhibit?.stopWar();
+   window.exhibitionUI?.closePanel();
+   api.clearSelection();
+   stopAuto();flat=false;initialView=false;controls.enableRotate=true;
+   const target=api.terrainPoint([lon,lat],height*.5);
+   const offset=new THREE.Vector3(.63,.37,.88).multiplyScalar(view.clientWidth<650?1.35:1);
+   fly(target,target.clone().add(offset),reduced?0:1250,'ios');
+   updateButtons();
+  });
+ }
+ api.addFeatureLabel(element,[lon,lat],height?height+.07:.22);
 }
 function addCitySilhouettes(){
  const stone=new THREE.MeshStandardMaterial({color:'#d7cbb2',roughness:.87,metalness:.04});
@@ -467,8 +488,8 @@ async function init(){
   sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
   await loadModel();initialized=true;
   addCitySilhouettes();
-  addCityLandmark('澳門旅遊塔','MACAU TOWER',...cityModelSites.tower);
-  addCityLandmark('新葡京','GRAND LISBOA',...cityModelSites.lisboa);
+  addCityLandmark('澳門旅遊塔','MACAU TOWER',...cityModelSites.tower,.338);
+  addCityLandmark('新葡京','GRAND LISBOA',...cityModelSites.lisboa,.260);
   addCityLandmark('東望洋山','GUIA HILL',113.54977,22.19651);
   resize();
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);

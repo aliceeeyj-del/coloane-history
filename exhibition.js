@@ -5,6 +5,7 @@
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  let view='terrain',closeTimer=0,selectedTrigger=null,loaderFinished=false;
  const panel=$('info'),stage=document.querySelector('.stage');
+ const stationPrev=$('station-prev'),stationNext=$('station-next'),stationCount=$('station-count');
  const sourceNames=new Map([['www.macaumemory.mo','澳門記憶'],['macaumemory.mo','澳門記憶'],['www.macaotourism.gov.mo','澳門旅遊局'],['www.library.gov.mo','澳門公共圖書館'],['www.gov.mo','澳門特區政府'],['www.iam.gov.mo','澳門市政署'],['whc.unesco.org','UNESCO 世界遺產中心'],['www.gcs.gov.mo','澳門新聞局']]);
  const sourceName=url=>{try{return sourceNames.get(new URL(url).hostname)||new URL(url).hostname;}catch{return '原始資料連結';}};
  function setView(next,{locate=true}={}){
@@ -18,6 +19,7 @@
    requestAnimationFrame(()=>{$('timeline-gallery').scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});});
   }else if(view==='terrain'){
    window.macauTerrain?.setActive(true);
+   clampPanel();
    if(locate&&previous!==view&&history.current>=0){const e=history.groups[history.area].events[history.current];window.macauTerrain?.focusPoint(e[2],{label:e[1],date:e[0],index:history.current,area:history.area});}
   }else{
    window.macauTerrain?.setActive(false);history.initStreet();history.setFlat(true);
@@ -30,11 +32,19 @@
   panel.classList.remove('panel-open');void panel.offsetWidth;panel.classList.add('panel-open');
   const {area,item}=detail;
   $('panel-location').textContent=area===0?'路環 · 歷史檔案':'澳門半島 · 歷史檔案';
-  $('panel-era').textContent=item[0];$('panel-coordinate').textContent=`${item[2][1].toFixed(5)}° N · ${item[2][0].toFixed(5)}° E`;
+  $('panel-coordinate').textContent=`${item[2][1].toFixed(5)}° N · ${item[2][0].toFixed(5)}° E`;
   $('event-source').textContent=`${sourceName(item[4])} · 閱讀原文 ↗`;
   panel.scrollTop=0;selectedTrigger=document.activeElement;
+  updateStationNav();
   clampPanel();
   document.querySelectorAll('.archive-card').forEach(card=>card.classList.toggle('is-selected',Number(card.dataset.areaIndex)===area&&Number(card.dataset.eventIndex)===detail.index));
+ }
+ function updateStationNav(){
+  const total=history.groups[history.area].events.length;
+  const index=history.current;
+  stationPrev.disabled=index<=0;
+  stationNext.disabled=index>=total-1;
+  stationCount.textContent=index<0?`共 ${total} 站`:`第 ${index+1} ／ ${total} 站`;
  }
  function closePanel(){
   clearTimeout(closeTimer);if(panel.hidden)return;
@@ -63,6 +73,8 @@
  // A failed WebGL or module download never traps visitors behind a loading screen.
  setTimeout(()=>finishLoading('可開始閱讀歷史，地形仍在載入時請稍候'),14000);
  document.addEventListener('exhibit-selection',e=>showPanel(e.detail));
+ document.addEventListener('exhibit-reset',updateStationNav);
+ document.addEventListener('fullscreenchange',clampPanel);
  document.addEventListener('exhibit-area',e=>{
   panel.style.removeProperty('left');panel.style.removeProperty('top');panel.style.removeProperty('bottom');panel.style.removeProperty('right');
   const inColoane=e.detail.area===0;
@@ -78,6 +90,14 @@
  });
  $('timeline-prev').onclick=()=>$('tl').scrollBy({left:-Math.min(480,$('tl').clientWidth*.75),behavior:reduced?'instant':'smooth'});
  $('timeline-next').onclick=()=>$('tl').scrollBy({left:Math.min(480,$('tl').clientWidth*.75),behavior:reduced?'instant':'smooth'});
+ for(const [button,direction] of [[stationPrev,-1],[stationNext,1]]){
+  button.onclick=()=>{
+   if(view==='timeline')setView('terrain',{locate:false});
+   history.select(history.current+direction,'timeline');
+   if(button.disabled)(direction>0?stationPrev:stationNext).focus({preventScroll:true});
+  };
+ }
+ updateStationNav();
  $('tl').addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&$('tl').scrollWidth>$('tl').clientWidth){e.preventDefault();$('tl').scrollLeft+=e.deltaY;}},{passive:false});
  $('tl').addEventListener('keydown',e=>{if(e.key==='Home'||e.key==='End'){e.preventDefault();$('tl').children[e.key==='Home'?0:$('tl').children.length-1].focus();}});
  // Full original records, not summaries: the archive gives an alternate reading path.
@@ -100,7 +120,7 @@
  let drag=null;
  const handle=$('panel-handle');
  handle.addEventListener('pointerdown',e=>{
-  if(e.button!==0||matchMedia('(max-width: 800px)').matches)return;
+  if(e.button!==0||panelIsDocked()||matchMedia('(max-width: 800px)').matches)return;
   const bounds=panel.getBoundingClientRect(),parent=stage.getBoundingClientRect();
   drag={x:e.clientX,y:e.clientY,left:bounds.left-parent.left,top:bounds.top-parent.top};handle.setPointerCapture(e.pointerId);panel.classList.add('is-dragging');e.preventDefault();
  });
@@ -112,8 +132,11 @@
  });
  function endDrag(){drag=null;panel.classList.remove('is-dragging');}
  handle.addEventListener('pointerup',endDrag);handle.addEventListener('pointercancel',endDrag);handle.addEventListener('lostpointercapture',endDrag);
+ function panelIsDocked(){
+  return getComputedStyle(stage).getPropertyValue('--panel-docked').trim()==='1';
+ }
  function clampPanel(){
-  if(matchMedia('(max-width: 800px)').matches){['left','top','bottom','right'].forEach(p=>panel.style.removeProperty(p));return;}
+  if(panelIsDocked()||matchMedia('(max-width: 800px)').matches){['left','top','bottom','right'].forEach(p=>panel.style.removeProperty(p));return;}
   if(!panel.style.left)return;
   panel.style.left=`${Math.max(12,Math.min(parseFloat(panel.style.left),stage.clientWidth-panel.offsetWidth-12))}px`;
   panel.style.top=`${Math.max(72,Math.min(parseFloat(panel.style.top),stage.clientHeight-panel.offsetHeight-12))}px`;

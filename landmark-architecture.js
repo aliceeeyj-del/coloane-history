@@ -111,4 +111,4 @@ async function select(detail){
 document.addEventListener('macau-terrain-focus',event=>select(event.detail));
 document.addEventListener('exhibit-area',()=>retire(true));
 document.addEventListener('macau-view-change',event=>{if(!event.detail.terrain)retire(true);});
-document.addEventListener('click',event=>{if(event.target.closest('#zr,#macau-overview,.exhibition-brand'))retire();});
+document.addEventListener('click',event=>{if(event.target.closest('#zr,#macau-overview,.exhibition-brand,button.terrain-city-landmark'))retire();});
