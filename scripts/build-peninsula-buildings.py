@@ -27,6 +27,7 @@ TREE = cKDTree(VERTICES[:, [0, 2]])
 Z = 14
 N = 2 ** Z
 BUILDING_HEIGHT_SCALE = 1.0
+TERRAIN_VERTICAL_EXAGGERATION = 1.65
 
 
 def project(lon, lat):
@@ -63,7 +64,25 @@ def fetch(url, name):
 
 
 def base_height(x, z):
-    return float(VERTICES[TREE.query([x, z])[1], 1]) * 2.6 + .028
+    return float(VERTICES[TREE.query([x, z])[1], 1]) * TERRAIN_VERTICAL_EXAGGERATION + .028
+
+
+def building_colour(metres, x, z):
+    """Muted contemporary massing colours; deterministic, not façade claims."""
+    if metres >= 120:
+        palette = ((.47, .56, .57), (.55, .57, .54), (.57, .53, .46), (.42, .52, .55))
+    elif metres >= 45:
+        palette = ((.59, .62, .59), (.63, .59, .52), (.55, .62, .61), (.67, .63, .55))
+    elif metres >= 18:
+        palette = ((.69, .67, .60), (.72, .64, .53), (.62, .68, .63), (.72, .69, .61))
+    else:
+        palette = ((.76, .70, .59), (.72, .63, .52), (.68, .69, .61), (.78, .73, .64))
+    seed = abs(int(round(x * 10000)) * 31 + int(round(z * 10000)) * 17)
+    return palette[seed % len(palette)]
+
+
+def tint(colour, factor):
+    return tuple(min(1, max(0, channel * factor)) for channel in colour)
 
 
 tilejson = json.loads(fetch('https://tiles.openfreemap.org/planet', 'tilejson.json'))
@@ -73,7 +92,7 @@ east, north = unproject(PENINSULA.bounds[2], PENINSULA.bounds[1])
 x0, y0 = tile_xy(west, north)
 x1, y1 = tile_xy(east, south)
 
-positions, indices = [], []
+positions, colours, indices = [], [], []
 seen = set()
 count = 0
 height_counts = {'nominal': 0, 'other': 0}
@@ -99,7 +118,7 @@ for tx in range(x0, x1 + 1):
                     continue
                 seen.add(key)
                 props = feature['properties']
-                metres = max(3, min(85, float(props.get('render_height', 5))))
+                metres = max(3, min(330, float(props.get('render_height', 5))))
                 height_counts['nominal' if metres == 5 else 'other'] += 1
                 ground = base_height(centroid.x, centroid.y) + .001
                 # The terrain is exaggerated to make Macau's hills legible, but
@@ -111,7 +130,11 @@ for tx in range(x0, x1 + 1):
                 rings.extend(list(hole.coords)[:-1] for hole in polygon.interiors)
                 roof_vertices = list(dict.fromkeys(point for ring in rings for point in ring))
                 roof_offset = len(positions) // 3
-                positions.extend(value for x, z in roof_vertices for value in (x, top, z))
+                wall_colour = building_colour(metres, centroid.x, centroid.y)
+                roof_colour = tint(wall_colour, 1.12)
+                base_colour = tint(wall_colour, .72)
+                for x, z in roof_vertices:
+                    positions.extend((x, top, z));colours.extend(roof_colour)
                 roof_index = {point: roof_offset + i for i, point in enumerate(roof_vertices)}
                 before = len(indices)
                 for triangle in triangulate(polygon):
@@ -129,6 +152,7 @@ for tx in range(x0, x1 + 1):
                     wall_offset = len(positions) // 3
                     for x, z in ring:
                         positions.extend((x, ground, z, x, top, z))
+                        colours.extend(base_colour);colours.extend(wall_colour)
                     for i in range(len(ring)):
                         j = (i + 1) % len(ring)
                         ai, at = wall_offset + i*2, wall_offset + i*2 + 1
@@ -141,10 +165,11 @@ positions = [round(value, 5) for value in positions]
 output = {
     'source': 'OpenStreetMap footprints via OpenFreeMap z14; render_height when available, otherwise nominal height',
     'buildingHeightScale': BUILDING_HEIGHT_SCALE,
-    'terrainVerticalExaggeration': 2.6,
+    'terrainVerticalExaggeration': TERRAIN_VERTICAL_EXAGGERATION,
     'buildingCount': count,
     'heightCounts': height_counts,
     'positions': positions,
+    'colors': [round(value, 3) for value in colours],
     'indices': indices,
 }
 (ROOT / 'terrain' / 'peninsula-buildings.json').write_text(
