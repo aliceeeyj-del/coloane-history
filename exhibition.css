@@ -1056,3 +1056,53 @@ main > .rail .station-nav button:not(:disabled):hover, .timeline-shell > button:
   .exhibition-header { min-height: 65px; }
   .stage > .tools { top: 18px; left: auto; right: 16px; }
 }
+
+#cotai-heading, #cotai-landmarks { display: none; }
+.cotai-view #terrain-heading > :not(#cotai-heading), .cotai-view #terrain-hint { display: none; }
+.cotai-view #cotai-heading { display: block; }
+#cotai-heading > small {
+  display: block;
+  width: fit-content;
+  padding: 3px 11px;
+  border: 1px solid #c4d9ef39;
+  border-radius: 999px;
+  background: #182d4496;
+  color: #e2d6bc;
+}
+.stage.terrain-mode.cotai-view #cotai-landmarks {
+  position: absolute;
+  z-index: 5;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  max-width: calc(100% - 30px);
+  border: 1px solid var(--atlas-border);
+  border-radius: 24px;
+  background: #12253aeb;
+  box-shadow: var(--atlas-shadow);
+  backdrop-filter: blur(16px);
+}
+#cotai-landmarks button {
+  min-height: 40px;
+  padding: 7px clamp(10px, 1vw, 24px);
+  border: 1px solid #c4d9ef30;
+  border-radius: 999px;
+  background: #47658155;
+  color: #f4e8d0;
+  font-size: clamp(12px, .72vw, 17px);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#cotai-landmarks button:hover { background: #4e6c87; }
+@media (max-width: 800px) {
+  .stage.terrain-mode.cotai-view #cotai-landmarks {
+    bottom: 92px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #cotai-landmarks button { min-height: 36px; padding-inline: 12px; }
+}

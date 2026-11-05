@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
+import { cotaiLandmarks, makeCotaiLandmark } from './cotai-landmarks.js';
 
 // Local tangent-plane coordinates in kilometres, referenced to Macau.
 // Elevations originate in the supplied DEM; material detail never changes geometry.
@@ -39,6 +40,7 @@ const api={
  invalidate:requestRender,
  frameGeoPath(points){
   if(!initialized||!Array.isArray(points)||!points.length)return;
+  stage.classList.remove('cotai-view');
   const sites=points.map(p=>api.terrainPoint(p,0));
   const center=sites.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/sites.length);
   const radius=Math.max(...sites.map(p=>Math.hypot(p.x-center.x,p.z-center.z)));
@@ -61,6 +63,12 @@ const api={
  },
  reset(){resetColoane();},
  overview(){ensurePeninsulaBuildings();resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),true);},
+ cotaiOverview(){
+  if(!initialized){ready.then(ok=>{if(ok)api.cotaiOverview();});return;}
+  resetView(api.terrainPoint([113.55895,22.14730],.05),new THREE.Vector3(.30,.93,1.55));
+  stage.classList.add('cotai-view');
+  updateButtons();
+ },
  rotate(){if(!controls)return;cameraTween=null;flat=false;auto=!auto;controls.enableRotate=true;controls.autoRotate=auto;updateButtons();requestRender();},
  flat(){
   if(!controls)return;stopAuto();flat=!flat;initialView=false;
@@ -72,6 +80,7 @@ const api={
   if(!Array.isArray(lonLat)||lonLat.length<2||!lonLat.every(Number.isFinite))return;
   if(!initialized){ready.then(ok=>{if(ok)api.focusPoint(lonLat,options);});return;}
   if(lonLat[1]>22.17)ensurePeninsulaBuildings();
+  stage.classList.remove('cotai-view');
   stopAuto();flat=false;initialView=false;controls.enableRotate=true;
   activeIndex=Number.isInteger(options.index)?options.index:-1;
   const [x,z]=project(...lonLat),height=heightAt(x,z);
@@ -120,6 +129,7 @@ function progress(value,label){
 function updateButtons(){
  if($('td'))$('td').textContent=active?(flat?'立體視角':'俯視'):'平面';
  if($('rot')){$('rot').textContent=active?(auto?'暫停旋轉':'360° 旋轉'):'旋轉';$('rot').setAttribute('aria-pressed',String(active&&auto));}
+ $('cotai-overview')?.setAttribute('aria-pressed',String(active&&stage.classList.contains('cotai-view')));
 }
 function setActive(value){
  const changed=active!==Boolean(value);active=Boolean(value);stage.classList.toggle('terrain-mode',active);
@@ -136,7 +146,7 @@ function presentationZoom(){const aspect=view.clientWidth/view.clientHeight;retu
 function resetColoane(){resetView(coloaneTarget,new THREE.Vector3(2.25,4.65,5.45));}
 function resetView(target,offset,overview=false){
  if(!controls)return;stopAuto();flat=false;initialView=true;api.clearSelection();
- stage.classList.remove('timeline-zooming');
+ stage.classList.remove('timeline-zooming','cotai-view');
  currentTarget.copy(target);currentOffset.copy(offset);
  controls.enableRotate=true;
  // A wide presentation screen has room to show Coloane closer without
@@ -239,7 +249,7 @@ function addRegion(name,sub,lon,lat,areaIndex){
  if(areaIndex!==undefined){element.type='button';element.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('macau-area-request',{detail:{area:areaIndex}})));}
  $('terrain-labels').append(element);regions.push({element,point:new THREE.Vector3(x,heightAt(x,z)+.23,z),region:true});
 }
-function addCityLandmark(name,sub,lon,lat,height){
+function addCityLandmark(name,sub,coordinates,{height,target=coordinates,offset=[.63,.37,.88],cotai=false}={}){
  const element=document.createElement(height?'button':'span');element.className='terrain-label terrain-city-landmark';
  const strong=document.createElement('strong');strong.textContent=name;
  const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
@@ -247,18 +257,37 @@ function addCityLandmark(name,sub,lon,lat,height){
   element.type='button';
   element.setAttribute('aria-label',`近看${name}`);
   element.title=`近看${name}`;
-  element.addEventListener('click',()=>{
-   window.historyExhibit?.stopWar();
-   window.exhibitionUI?.closePanel();
-   api.clearSelection();
-   stopAuto();flat=false;initialView=false;controls.enableRotate=true;
-   const target=api.terrainPoint([lon,lat],height*.5);
-   const offset=new THREE.Vector3(.63,.37,.88).multiplyScalar(view.clientWidth<650?1.35:1);
-   fly(target,target.clone().add(offset),reduced?0:1250,'ios');
-   updateButtons();
-  });
+  element.addEventListener('click',()=>focusCityLandmark(target,height,offset,cotai));
  }
- api.addFeatureLabel(element,[lon,lat],height?height+.07:.22);
+ const lift=height ? height+(cotai ? .026 : .07) : .22;
+ api.addFeatureLabel(element,coordinates,lift);
+}
+function focusCityLandmark(coordinates,height,offset,cotai){
+ window.historyExhibit?.stopWar();
+ window.exhibitionUI?.closePanel();
+ api.clearSelection();
+ stopAuto();flat=false;initialView=false;controls.enableRotate=true;
+ stage.classList.remove('macau-overview','timeline-zooming');
+ stage.classList.toggle('cotai-view',cotai);
+ const target=api.terrainPoint(coordinates,height*.48);
+ const distance=new THREE.Vector3(...offset).multiplyScalar(view.clientWidth<650?1.35:1);
+ fly(target,target.clone().add(distance),reduced?0:1250,'ios');
+ updateButtons();
+}
+function addCotaiLandmarks(){
+ const navigation=$('cotai-landmarks');
+ if(!navigation)return;
+ for(const landmark of cotaiLandmarks){
+  const {name,english,coordinates,target,offset}=landmark;
+  const height=landmark.height/1000;
+  scene.add(makeCotaiLandmark(landmark,api.terrainPoint,!mobile));
+  addCityLandmark(name,english,coordinates,{height,target,offset,cotai:true});
+  const button=document.createElement('button');
+  button.type='button';
+  button.textContent=name;
+  button.addEventListener('click',()=>focusCityLandmark(target,height,offset,true));
+  navigation.append(button);
+ }
 }
 function addCitySilhouettes(){
  const stone=new THREE.MeshStandardMaterial({color:'#d7cbb2',roughness:.87,metalness:.04});
@@ -374,7 +403,10 @@ function resize(){
  if(!renderer||!active||!view.clientWidth||!view.clientHeight)return;
  const previousAspect=camera.aspect;camera.aspect=view.clientWidth/view.clientHeight;camera.updateProjectionMatrix();renderer.setSize(view.clientWidth,view.clientHeight);
  if(initialized&&initialView&&Math.abs(previousAspect-camera.aspect)>.1){
-  const target=currentTarget.clone();cameraTween=null;controls.target.copy(target);camera.position.copy(target).add(currentOffset.clone().multiplyScalar(fitFactor()));controls.update();
+  const zoom=stage.classList.contains('macau-overview') ? 1 : presentationZoom();
+  const destination=currentTarget.clone().addScaledVector(currentOffset,fitFactor()*zoom);
+  if(cameraTween)cameraTween.to.copy(destination);
+  else {controls.target.copy(currentTarget);camera.position.copy(destination);controls.update();}
  }
  requestRender();
 }
@@ -488,9 +520,10 @@ async function init(){
   sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
   await loadModel();initialized=true;
   addCitySilhouettes();
-  addCityLandmark('澳門旅遊塔','MACAU TOWER',...cityModelSites.tower,.338);
-  addCityLandmark('新葡京','GRAND LISBOA',...cityModelSites.lisboa,.260);
-  addCityLandmark('東望洋山','GUIA HILL',113.54977,22.19651);
+  addCityLandmark('澳門旅遊塔','MACAU TOWER',cityModelSites.tower,{height:.338});
+  addCityLandmark('新葡京','GRAND LISBOA',cityModelSites.lisboa,{height:.260});
+  addCityLandmark('東望洋山','GUIA HILL',[113.54977,22.19651]);
+  addCotaiLandmarks();
   resize();
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
   fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor()*presentationZoom())),reduced?0:1800);

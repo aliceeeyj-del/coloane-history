@@ -148,14 +148,18 @@ dialog a{color:#f8ce87}dialog svg{height:auto;transform:none}
 <div id="terrain-view" aria-label="澳門立體地形" aria-busy="true">
 <div id="terrain-labels"></div><p id="terrain-loading" role="status">正在建立澳門立體地形…</p><button id="terrain-retry" hidden>重新載入</button>
 </div>
-<div id="terrain-heading"><small>A LANDSCAPE OF MEMORY</small><h1>路環 · 山海之間</h1><p>COLOANE · MACAU</p><i class="rule"></i><p class="terrain-caption">循著山海，走進歷史</p></div>
+<div id="terrain-heading">
+  <small>A LANDSCAPE OF MEMORY</small><h1>路環 · 山海之間</h1><p>COLOANE · MACAU</p><i class="rule"></i><p class="terrain-caption">循著山海，走進歷史</p>
+  <div id="cotai-heading"><small>TAIPA · COTAI</small><h1>路氹 · 城市地標</h1><p>現代建築輪廓示意</p></div>
+</div>
 <div id="terrain-legend"><strong><i></i>真實高程 · 歷史定位</strong><div class="terrain-gradient"></div><p>低地 ───────── 山地</p><p>高程放大 1.65 倍 · 建築高度 1:1</p></div>
 <div id="terrain-compass"><small>N</small><span id="north-arrow">↑</span><div id="bearing">0°</div></div>
 <div id="terrain-hint">拖曳／單指旋轉 · 滾輪／雙指縮放 · 雙指平移<button id="terrain-detail">閱讀完整時間軸 ↗</button></div>
+<nav id="cotai-landmarks" aria-label="近看路氹地標"></nav>
 <div id="live-map" aria-label="十月初五互動地圖"></div><div id="street-notice" role="status" hidden>正在載入歷史街道地圖…</div>
 <div id="forces-overlay" aria-hidden="true"><div class="force-pirates"></div><div class="force-portuguese"></div></div><div id="forces-key" hidden><b><i class="force-blue"></i>澳葡軍警</b><b><i class="force-purple"></i>海盜團伙</b><span>色彩只示意戰事進程，並非實際控制範圍或退路</span></div><svg id="route-overlay" aria-hidden="true"></svg><div id="stage-vfx" aria-hidden="true"><span class="fx-water"></span><span class="fx-flash"></span><span class="fx-smoke"></span></div>
 <div class="hd"><h1 id="area">路環十月初五馬路</h1><p id="hp">選擇下方地標，探索海旁的歷史</p></div>
-<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr" title="返回路環全景">重置視角</button><button id="macau-overview">澳門總覽</button><button id="td">俯視</button><button id="rot" aria-pressed="false">360° 旋轉</button><button id="labels-toggle" aria-pressed="true">隱藏地名</button><button id="view-switch" aria-pressed="true">街道地圖</button></div>
+<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr" title="返回路環全景">重置視角</button><button id="macau-overview">澳門總覽</button><button id="cotai-overview" aria-pressed="false">路氹地標</button><button id="td">俯視</button><button id="rot" aria-pressed="false">360° 旋轉</button><button id="labels-toggle" aria-pressed="true">隱藏地名</button><button id="view-switch" aria-pressed="true">街道地圖</button></div>
 <aside class="info" id="info" aria-labelledby="tt" hidden>
 <div class="panel-handle" id="panel-handle"><small id="panel-location">路環歷史檔案</small><span aria-hidden="true">拖曳移動 ⠿</span></div>
 <button id="close" aria-label="關閉介紹">×</button><small id="yr"></small><h2 id="tt" tabindex="-1"></h2><div id="panel-meta"><span id="panel-coordinate"></span></div>

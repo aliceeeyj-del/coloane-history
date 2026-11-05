@@ -61,6 +61,12 @@
  for(const b of document.querySelectorAll('[data-view]'))b.onclick=()=>setView(b.dataset.view);
  document.querySelector('.exhibition-brand').onclick=e=>{e.preventDefault();setView('terrain',{locate:false});closePanel();window.macauTerrain?.reset();};
  $('macau-overview').onclick=()=>{setView('terrain',{locate:false});closePanel();window.macauTerrain?.overview();};
+ $('cotai-overview')?.addEventListener('click',()=>{
+  history.stopWar();
+  setView('terrain',{locate:false});
+  closePanel();
+  window.macauTerrain?.cotaiOverview();
+ });
  $('skip-loading').onclick=()=>{finishLoading('可先閱讀完整歷史檔案');setView('timeline');};
  document.addEventListener('macau-terrain-progress',e=>{if(!loaderFinished){$('load-progress').value=e.detail.progress<=1?e.detail.progress*100:e.detail.progress;$('load-status').textContent=e.detail.label;}});
  function terrainReady(){
