@@ -8,7 +8,7 @@ const stage=document.querySelector('.stage');
 const view=$('terrain-view');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobile=matchMedia('(max-width: 800px)').matches;
-const exaggeration=2.6, landDatum=.028;
+const exaggeration=1.65, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#263a40');
@@ -227,6 +227,12 @@ function addRegion(name,sub,lon,lat,areaIndex){
  if(areaIndex!==undefined){element.type='button';element.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('macau-area-request',{detail:{area:areaIndex}})));}
  $('terrain-labels').append(element);regions.push({element,point:new THREE.Vector3(x,heightAt(x,z)+.23,z),region:true});
 }
+function addCityLandmark(name,sub,lon,lat){
+ const element=document.createElement('span');element.className='terrain-label terrain-city-landmark';
+ const strong=document.createElement('strong');strong.textContent=name;
+ const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
+ api.addFeatureLabel(element,[lon,lat]);
+}
 function positionLabels(){
  const width=view.clientWidth,height=view.clientHeight,viewRect=view.getBoundingClientRect();
  const card=$('info'),cardRect=card&&!card.hidden?card.getBoundingClientRect():null;
@@ -318,8 +324,10 @@ async function loadPeninsulaBuildings(){
  try{
   const response=await fetch('./terrain/peninsula-buildings.json');if(!response.ok)return;
   const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%3||!Array.isArray(data.indices)||data.indices.length%3)return;
-  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(data.indices);geometry.computeVertexNormals();
-  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#cfc6ae',roughness:1,metalness:0,side:THREE.DoubleSide}));
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(data.indices);
+  const hasColours=Array.isArray(data.colors)&&data.colors.length===data.positions.length;
+  if(hasColours)geometry.setAttribute('color',new THREE.Float32BufferAttribute(data.colors,3));geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:hasColours?'#ffffff':'#cfc6ae',vertexColors:hasColours,roughness:.96,metalness:0,side:THREE.DoubleSide}));
   mesh.castShadow=!mobile;mesh.receiveShadow=true;scene.add(mesh);requestRender();
  }catch(error){console.warn('Peninsula building detail unavailable:',error);}
 }
@@ -334,12 +342,12 @@ async function init(){
   renderer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.06;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.domElement.setAttribute('aria-label','路環三維地形。拖曳旋轉、滾輪縮放、雙指平移；聚焦後可用方向鍵調整視角。');renderer.domElement.tabIndex=0;
+  renderer.domElement.setAttribute('aria-label','澳門三維地形。拖曳或單指旋轉、滾輪或雙指縮放、雙指平移；聚焦後可用方向鍵調整視角。');renderer.domElement.tabIndex=0;
   view.prepend(renderer.domElement);
   camera.position.copy(coloaneTarget).add(currentOffset.clone().multiplyScalar(fitFactor()*1.12));
   controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(coloaneTarget);controls.enableDamping=!reduced;controls.dampingFactor=.075;
-  controls.minDistance=1.6;controls.maxDistance=40;controls.minPolarAngle=.025;controls.maxPolarAngle=Math.PI*.46;
-  controls.rotateSpeed=.5;controls.zoomSpeed=.65;controls.panSpeed=.6;controls.screenSpacePanning=false;controls.autoRotateSpeed=.36;
+  controls.minDistance=mobile?.58:.44;controls.maxDistance=40;controls.minPolarAngle=.025;controls.maxPolarAngle=Math.PI*.485;
+  controls.rotateSpeed=.56;controls.zoomSpeed=.85;controls.panSpeed=.6;controls.screenSpacePanning=false;controls.autoRotateSpeed=.36;
   controls.addEventListener('change',requestRender);
   controls.addEventListener('start',()=>{cameraTween=null;initialView=false;stage.classList.remove('timeline-zooming');if(activeGroundMarker)activeGroundMarker.scale.setScalar(1);stopAuto();requestRender();});
   controls.addEventListener('end',requestRender);
@@ -364,6 +372,9 @@ async function init(){
   const sea=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:'#2b414a',roughness:1,metalness:0}));
   sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
   await loadModel();initialized=true;
+  addCityLandmark('澳門旅遊塔','MACAU TOWER',113.53667,22.17972);
+  addCityLandmark('新葡京','GRAND LISBOA',113.54308,22.19067);
+  addCityLandmark('東望洋山','GUIA HILL',113.54977,22.19651);
   resize();
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
   fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor())),reduced?0:1800);
