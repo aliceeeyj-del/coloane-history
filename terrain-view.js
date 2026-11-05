@@ -16,8 +16,8 @@ scene.fog=new THREE.FogExp2('#263a40',.017);
 const camera=new THREE.PerspectiveCamera(38,1,.04,100);
 let renderer,controls,model,rawPositions,animation=0,lastTime=0,rendering=false;
 let active=true,auto=false,flat=false,initialized=false,contextLost=false;
-let cameraTween=null,activeIndex=-1,area=0,landmarkData=[],onSelect=()=>{},groups=[],regions=[];
-let surfaceMesh,activeGroundMarker,initialView=true;
+let cameraTween=null,activeIndex=-1,area=0,landmarkData=[],onSelect=()=>{},groups=[],regions=[],featureLabels=[];
+let surfaceMesh,activeGroundMarker,initialView=true,peninsulaBuildingsRequested=false;
 const coloaneTarget=new THREE.Vector3(.65,.08,3.62);
 const macauTarget=new THREE.Vector3(.1,.04,-.34);
 let currentTarget=coloaneTarget.clone(), currentOffset=new THREE.Vector3(2.25,4.65,5.45);
@@ -26,6 +26,12 @@ const ready=new Promise(resolve=>{resolveReady=resolve;});
 const api={
  get active(){return active;},get initialized(){return initialized;},ready,
  terrainPoint(lonLat,lift=.08){if(!initialized)return null;const [x,z]=project(...lonLat);return new THREE.Vector3(x,heightAt(x,z)+lift,z);},
+ addFeatureLabel(element,lonLat){
+  if(!element||!Array.isArray(lonLat)||lonLat.length<2)return;
+  const add=()=>{if(!initialized||featureLabels.some(item=>item.element===element))return;
+   featureLabels.push({element,point:api.terrainPoint(lonLat,.22)});$('terrain-labels').append(element);requestRender();};
+  if(initialized)add();else ready.then(ok=>{if(ok)add();});
+ },
  addOverlay(object){scene.add(object);requestRender();},
  removeOverlay(object){scene.remove(object);requestRender();},
  invalidate:requestRender,
@@ -52,7 +58,7 @@ const api={
   fly(controls.target.clone(),controls.target.clone().add(offset),reduced?0:450);
  },
  reset(){resetColoane();},
- overview(){resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),true);},
+ overview(){ensurePeninsulaBuildings();resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),true);},
  rotate(){if(!controls)return;cameraTween=null;flat=false;auto=!auto;controls.enableRotate=true;controls.autoRotate=auto;updateButtons();requestRender();},
  flat(){
   if(!controls)return;stopAuto();flat=!flat;initialView=false;
@@ -63,6 +69,7 @@ const api={
  focusPoint(lonLat,options={}){
   if(!Array.isArray(lonLat)||lonLat.length<2||!lonLat.every(Number.isFinite))return;
   if(!initialized){ready.then(ok=>{if(ok)api.focusPoint(lonLat,options);});return;}
+  if(lonLat[1]>22.17)ensurePeninsulaBuildings();
   stopAuto();flat=false;initialView=false;controls.enableRotate=true;
   activeIndex=Number.isInteger(options.index)?options.index:-1;
   const [x,z]=project(...lonLat),height=heightAt(x,z);
@@ -80,7 +87,7 @@ const api={
    else {target.z+=.6;target.y-=.28;}
   }
   currentTarget.copy(point);currentOffset.copy(offset);
-  fly(target,target.clone().add(offset),reduced?0:(options.timeline?1800:1500),options.timeline?'ios':'smooth');
+  fly(target,target.clone().add(offset),reduced?0:(options.timeline?1800:options.ios?1650:1500),options.timeline||options.ios?'ios':'smooth');
   stage.classList.toggle('timeline-zooming',Boolean(options.timeline&&!reduced));
   if(activeGroundMarker){activeGroundMarker.visible=true;activeGroundMarker.position.set(x,height+.012,z);activeGroundMarker.scale.setScalar(options.timeline&&!reduced?1.5:1);}
   updateMarkers();updateButtons();
@@ -225,7 +232,7 @@ function positionLabels(){
  const toolbar=stage.querySelector('.tools')?.getBoundingClientRect();
  const minY=toolbar?Math.max(95,toolbar.bottom-viewRect.top+28):(width<800&&height>width*.8?180:110);
  const placed=[];
- const entries=[...groups].sort((a,b)=>Number(b.element.classList.contains('is-active'))-Number(a.element.classList.contains('is-active'))).concat(regions);
+ const entries=[...groups.filter(g=>g.element.classList.contains('is-active')),...featureLabels,...groups.filter(g=>!g.element.classList.contains('is-active')),...regions];
  for(const item of entries){
   const p=item.point.clone().project(camera);let x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;
   const selected=item.element.classList.contains('is-active');
@@ -249,6 +256,7 @@ function render(now){
   if(t>=1){cameraTween=null;stage.classList.remove('timeline-zooming');document.dispatchEvent(new CustomEvent('macau-terrain-camera-settled',{detail:{target:[controls.target.x,controls.target.y,controls.target.z]}}));}else tweening=true;
  }
  const moved=controls.update(delta);
+ if(controls.target.z< -1.2)ensurePeninsulaBuildings();
  renderer.render(scene,camera);positionLabels();
  const bearing=THREE.MathUtils.radToDeg(Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z));
  if($('north-arrow'))$('north-arrow').style.transform=`rotate(${-bearing}deg)`;
@@ -304,6 +312,19 @@ async function loadVillageBuildings(){
   const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#d1c9ad',roughness:1,metalness:0,side:THREE.DoubleSide}));
   mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);requestRender();
  }catch(error){console.warn('Village building detail unavailable:',error);}
+}
+async function loadPeninsulaBuildings(){
+ try{
+  const response=await fetch('./terrain/peninsula-buildings.json');if(!response.ok)return;
+  const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%3||!Array.isArray(data.indices)||data.indices.length%3)return;
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(data.indices);geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#cfc6ae',roughness:1,metalness:0,side:THREE.DoubleSide}));
+  mesh.castShadow=!mobile;mesh.receiveShadow=true;scene.add(mesh);requestRender();
+ }catch(error){console.warn('Peninsula building detail unavailable:',error);}
+}
+function ensurePeninsulaBuildings(){
+ if(peninsulaBuildingsRequested||!initialized)return;
+ peninsulaBuildingsRequested=true;loadPeninsulaBuildings();
 }
 async function init(){
  try{

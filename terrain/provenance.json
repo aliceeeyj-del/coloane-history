@@ -15,5 +15,7 @@
   "coastlineSimplificationMetres": 3,
   "shoreWater": "Distance-based visual treatment, not surveyed bathymetry.",
   "texture": "OSM cartographic land cover, roads and mapped building footprints; not satellite imagery.",
-  "elevationSmoothing": "Gaussian sigma 0.45 raster pixel before bilinear sampling; negative elevations clamped on modern land."
+  "elevationSmoothing": "Gaussian sigma 0.45 raster pixel before bilinear sampling; negative elevations clamped on modern land.",
+  "peninsulaBuildings": "Modern OSM building footprints via OpenFreeMap z14. Render height is used where supplied; untagged heights may be nominal. This is a present-day building massing visualisation, not a historic reconstruction or surveyed height model.",
+  "catPhotoMarker": "Approximate position near Rua de Cinco de Outubro from user-supplied screenshots; photos supplied by the user. Individual shop and photo coordinates are unverified."
 }
