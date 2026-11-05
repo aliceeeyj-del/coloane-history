@@ -1,133 +1,366 @@
 import * as THREE from './vendor/three.module.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 
+// Local tangent-plane coordinates in kilometres, referenced to Macau.
+// Elevations originate in the supplied DEM; material detail never changes geometry.
 const $=id=>document.getElementById(id);
 const stage=document.querySelector('.stage');
+const view=$('terrain-view');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile=matchMedia('(max-width: 800px)').matches;
+const exaggeration=2.6, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(38,1,.1,150);
-let renderer,controls,model,animation=0,lastTime=0,flat=false,active=true,auto=false,exaggeration=4;
-let surface,rawPositions,sideMeshes=[],labels=[];
-const target=new THREE.Vector3(0,0,-.35);
-const overview=new THREE.Vector3(6.8,9.6,11.5);
-const api={get active(){return active},toggle:()=>setActive(!active),setActive,
- zoom(factor){if(controls){camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);controls.update();render();}},
- reset(){if(!controls)return;flat=false;$('td').textContent='俯視';controls.target.copy(target);camera.position.copy(overview).multiplyScalar(fitFactor());controls.enableRotate=true;controls.update();render();},
- rotate(){if(!controls)return;auto=!auto;$('rot').textContent=auto?'暫停旋轉':'360° 旋轉';$('rot').setAttribute('aria-pressed',String(auto));render();},
- flat(){if(!controls)return;flat=!flat;auto=false;$('rot').textContent='360° 旋轉';$('rot').setAttribute('aria-pressed','false');$('td').textContent=flat?'立體視角':'俯視';camera.position.copy(flat?new THREE.Vector3(0,21,.001):overview).multiplyScalar(fitFactor());controls.target.copy(target);controls.enableRotate=!flat;controls.update();render();}
+scene.background=new THREE.Color('#263a40');
+scene.fog=new THREE.FogExp2('#263a40',.017);
+const camera=new THREE.PerspectiveCamera(38,1,.04,100);
+let renderer,controls,model,rawPositions,animation=0,lastTime=0,rendering=false;
+let active=true,auto=false,flat=false,initialized=false,contextLost=false;
+let cameraTween=null,activeIndex=-1,area=0,landmarkData=[],onSelect=()=>{},groups=[],regions=[];
+let surfaceMesh,activeGroundMarker,initialView=true;
+const coloaneTarget=new THREE.Vector3(.65,.08,3.62);
+const macauTarget=new THREE.Vector3(.1,.04,-.34);
+let currentTarget=coloaneTarget.clone(), currentOffset=new THREE.Vector3(2.25,4.65,5.45);
+let resolveReady;
+const ready=new Promise(resolve=>{resolveReady=resolve;});
+const api={
+ get active(){return active;},get initialized(){return initialized;},ready,
+ terrainPoint(lonLat,lift=.08){if(!initialized)return null;const [x,z]=project(...lonLat);return new THREE.Vector3(x,heightAt(x,z)+lift,z);},
+ addOverlay(object){scene.add(object);requestRender();},
+ removeOverlay(object){scene.remove(object);requestRender();},
+ invalidate:requestRender,
+ frameGeoPath(points){
+  if(!initialized||!Array.isArray(points)||!points.length)return;
+  const sites=points.map(p=>api.terrainPoint(p,0));
+  const center=sites.reduce((sum,p)=>sum.add(p),new THREE.Vector3()).multiplyScalar(1/sites.length);
+  const radius=Math.max(...sites.map(p=>Math.hypot(p.x-center.x,p.z-center.z)));
+  const distance=Math.max(3.15,Math.min(18,radius*4.5));
+  const offset=new THREE.Vector3(1.35,2.45,3.55).normalize().multiplyScalar(distance);
+  const target=center.clone(),panel=$('info');
+  if(panel&&!panel.hidden){
+   if(view.clientWidth<=800){target.z+=Math.min(1.15,.52+radius*.28);target.y-=.24;}
+   else target.addScaledVector(new THREE.Vector3(offset.z,0,-offset.x).normalize(),Math.min(1.5,.65+radius*.4));
+  }
+  stopAuto();flat=false;initialView=false;controls.enableRotate=true;
+  fly(target,target.clone().add(offset),reduced?0:1450);updateButtons();
+ },
+ toggle:()=>setActive(!active),setActive,
+ zoom(factor){
+  if(!controls)return;stopAuto();initialView=false;
+  const offset=camera.position.clone().sub(controls.target);
+  offset.setLength(THREE.MathUtils.clamp(offset.length()*factor,controls.minDistance,controls.maxDistance));
+  fly(controls.target.clone(),controls.target.clone().add(offset),reduced?0:450);
+ },
+ reset(){resetColoane();},
+ overview(){resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),true);},
+ rotate(){if(!controls)return;cameraTween=null;flat=false;auto=!auto;controls.enableRotate=true;controls.autoRotate=auto;updateButtons();requestRender();},
+ flat(){
+  if(!controls)return;stopAuto();flat=!flat;initialView=false;
+  const target=controls.target.clone(),distance=camera.position.distanceTo(target);
+  const offset=flat?new THREE.Vector3(0,Math.max(distance,6),.01):currentOffset.clone().normalize().multiplyScalar(distance);
+  controls.enableRotate=!flat;fly(target,target.clone().add(offset),reduced?0:1000);updateButtons();
+ },
+ focusPoint(lonLat,options={}){
+  if(!Array.isArray(lonLat)||lonLat.length<2||!lonLat.every(Number.isFinite))return;
+  if(!initialized){ready.then(ok=>{if(ok)api.focusPoint(lonLat,options);});return;}
+  stopAuto();flat=false;initialView=false;controls.enableRotate=true;
+  activeIndex=Number.isInteger(options.index)?options.index:-1;
+  const [x,z]=project(...lonLat),height=heightAt(x,z);
+  const point=new THREE.Vector3(x,height,z);
+  const target=point.clone();
+  const width=view.clientWidth,heightPx=view.clientHeight;
+  let offset=new THREE.Vector3(1.45,2.55,3.6).multiplyScalar((width<650?1.25:1)*(options.timeline ? .72 : 1));
+  // Keep the selected landmark visible beside the desktop archive or above its mobile sheet.
+  const info=$('info');
+  if(info&&!info.hidden){
+   const screenRight=new THREE.Vector3(offset.z,0,-offset.x).normalize();
+   const card=info.getBoundingClientRect(),bounds=view.getBoundingClientRect();
+   const sidePanel=card.left-bounds.left>width*.4&&card.width<width*.7;
+   if(sidePanel)target.addScaledVector(screenRight,1.05);
+   else {target.z+=.6;target.y-=.28;}
+  }
+  currentTarget.copy(point);currentOffset.copy(offset);
+  fly(target,target.clone().add(offset),reduced?0:(options.timeline?1800:1500),options.timeline?'ios':'smooth');
+  stage.classList.toggle('timeline-zooming',Boolean(options.timeline&&!reduced));
+  if(activeGroundMarker){activeGroundMarker.visible=true;activeGroundMarker.position.set(x,height+.012,z);activeGroundMarker.scale.setScalar(options.timeline&&!reduced?1.5:1);}
+  updateMarkers();updateButtons();
+  document.dispatchEvent(new CustomEvent('macau-terrain-focus',{detail:{...options,coordinates:lonLat}}));
+ },
+ setLandmarks(events,callback){
+  if(events!==landmarkData){activeIndex=-1;if(activeGroundMarker)activeGroundMarker.visible=false;}
+  landmarkData=Array.isArray(events)?events:[];onSelect=typeof callback==='function'?callback:()=>{};
+  if(initialized)buildLandmarks();
+ },
+ clearSelection(){activeIndex=-1;if(activeGroundMarker)activeGroundMarker.visible=false;updateMarkers();requestRender();},
+ resize
 };
 window.macauTerrain=api;
-$('view-switch').onclick=api.toggle;
-$('terrain-retry').onclick=()=>location.reload();
-$('terrain-detail').onclick=()=>{setActive(false);document.dispatchEvent(new Event('macau-street-overview'));};
-function fitFactor(){return Math.max(1,Math.min(1.8,1.2/Math.max(.5,$('terrain-view').clientWidth/$('terrain-view').clientHeight)));}
+
+function progress(value,label){
+ if($('terrain-loading'))$('terrain-loading').textContent=label;
+ document.dispatchEvent(new CustomEvent('macau-terrain-progress',{detail:{progress:value,label}}));
+}
+function updateButtons(){
+ if($('td'))$('td').textContent=active?(flat?'立體視角':'俯視'):'平面';
+ if($('rot')){$('rot').textContent=active?(auto?'暫停旋轉':'360° 旋轉'):'旋轉';$('rot').setAttribute('aria-pressed',String(active&&auto));}
+}
 function setActive(value){
- active=value;stage.classList.toggle('terrain-mode',active);
- $('view-switch').textContent=active?'街道地圖':'立體澳門';$('view-switch').setAttribute('aria-pressed',String(active));
- $('terrain-view').setAttribute('aria-hidden',String(!active));$('live-map').inert=active;
- $('td').textContent=active?(flat?'立體視角':'俯視'):'平面';
- $('rot').textContent=active?(auto?'暫停旋轉':'360° 旋轉'):'旋轉';
- $('rot').setAttribute('aria-pressed',String(active&&auto));
- document.dispatchEvent(new CustomEvent('macau-view-change',{detail:{terrain:active}}));
- if(active){resize();render();}else{cancelAnimationFrame(animation);animation=0;}
+ const changed=active!==Boolean(value);active=Boolean(value);stage.classList.toggle('terrain-mode',active);
+ view.setAttribute('aria-hidden',String(!active));
+ if($('live-map'))$('live-map').inert=active;
+ if($('view-switch')){$('view-switch').textContent=active?'2D 歷史地圖':'3D 地形視圖';$('view-switch').setAttribute('aria-pressed',String(active));}
+ updateButtons();
+ if(active){resize();requestRender();}else{cancelAnimationFrame(animation);animation=0;lastTime=0;stage.classList.remove('timeline-zooming');if(activeGroundMarker)activeGroundMarker.scale.setScalar(1);}
+ if(changed)document.dispatchEvent(new CustomEvent('macau-view-change',{detail:{terrain:active}}));
 }
-function geometry(positions,indices){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));if(indices)g.setIndex(indices);g.computeVertexNormals();return g;}
-function makeSides(rings){
- const palette=[0x9c8052,0x6e5139,0x47372c];
- for(let band=0;band<3;band++){
-  const pos=[],idx=[];
-  for(const ring of rings){for(let i=0;i<ring.length;i++){
-   const a=ring[i],b=ring[(i+1)%ring.length],offset=pos.length/3;
-   const upper=p=>band===0?p[1]*exaggeration+.095:-.09-(band-1)*.20;
-   const lower=-.09-band*.20;
-   pos.push(a[0],upper(a),a[2],b[0],upper(b),b[2],a[0],lower,a[2],b[0],lower,b[2]);
-   idx.push(offset,offset+2,offset+1,offset+1,offset+2,offset+3);
-  }}
-  const mesh=new THREE.Mesh(geometry(pos,idx),new THREE.MeshStandardMaterial({color:palette[band],roughness:1,side:THREE.DoubleSide}));
-  mesh.castShadow=true;model.add(mesh);sideMeshes.push(mesh);
+function stopAuto(){auto=false;if(controls)controls.autoRotate=false;updateButtons();}
+function fitFactor(){return Math.max(1,Math.min(2.6,1.3/Math.max(.5,view.clientWidth/view.clientHeight)));}
+function resetColoane(){resetView(coloaneTarget,new THREE.Vector3(2.25,4.65,5.45));}
+function resetView(target,offset,overview=false){
+ if(!controls)return;stopAuto();flat=false;initialView=true;api.clearSelection();
+ stage.classList.remove('timeline-zooming');
+ currentTarget.copy(target);currentOffset.copy(offset);
+ controls.enableRotate=true;
+ fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor())),reduced?0:1250);
+ stage.classList.toggle('macau-overview',overview);updateButtons();
+}
+function fly(target,position,duration=1200,easing='smooth'){
+ if(!controls)return;
+ // Let residual input damping settle before beginning a deterministic camera move.
+ const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;
+ if(!duration){controls.target.copy(target);camera.position.copy(position);controls.update();cameraTween=null;requestRender();return;}
+ cameraTween={start:performance.now(),duration,easing,from:camera.position.clone(),to:position,fromTarget:controls.target.clone(),toTarget:target};requestRender();
+}
+function makeGeometry(positions,indices){
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+ if(indices)g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function heightAt(x,z){
+ let distance=Infinity,elevation=0;
+ for(let i=0;i<rawPositions.length;i+=3){const d=(rawPositions[i]-x)**2+(rawPositions[i+2]-z)**2;if(d<distance){distance=d;elevation=rawPositions[i+1];}}
+ return elevation*exaggeration+landDatum;
+}
+function makeRockCoast(rings){
+ const positions=[],indices=[],uv=[];
+ for(const ring of rings){
+  let along=0;
+  for(let i=0;i<ring.length;i++){
+   const a=ring[i],b=ring[(i+1)%ring.length],offset=positions.length/3;
+   const length=Math.hypot(a[0]-b[0],a[2]-b[2]);
+   const topA=a[1]*exaggeration+landDatum-.001,topB=b[1]*exaggeration+landDatum-.001;
+   positions.push(a[0],topA,a[2],b[0],topB,b[2],a[0],-.055,a[2],b[0],-.055,b[2]);
+   uv.push(along*15,1,(along+length)*15,1,along*15,0,(along+length)*15,0);along+=length;
+   indices.push(offset,offset+2,offset+1,offset+1,offset+2,offset+3);
+  }
+ }
+ const geo=makeGeometry(positions,indices);geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+ const stone=makeGrainTexture('#8a8c76','#4c5751',128);
+ stone.wrapS=THREE.RepeatWrapping;stone.wrapT=THREE.RepeatWrapping;
+ const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:stone,color:'#8c907c',roughness:1,metalness:0,side:THREE.DoubleSide}));
+ mesh.castShadow=true;mesh.receiveShadow=true;model.add(mesh);
+}
+function makeGrainTexture(a,b,size=256){
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const ctx=canvas.getContext('2d'),image=ctx.createImageData(size,size),one=new THREE.Color(a),two=new THREE.Color(b);
+ let seed=8191;
+ for(let i=0;i<image.data.length;i+=4){seed=(seed*1664525+1013904223)>>>0;const f=(seed/4294967296)*.42;const c=one.clone().lerp(two,f);image.data[i]=c.r*255;image.data[i+1]=c.g*255;image.data[i+2]=c.b*255;image.data[i+3]=255;}
+ ctx.putImageData(image,0,0);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;return texture;
+}
+function makeLocator(){
+ const group=new THREE.Group();
+ const circle=new THREE.Mesh(new THREE.RingGeometry(.095,.108,48),new THREE.MeshBasicMaterial({color:'#f0d09a',transparent:true,opacity:.95,depthTest:false,side:THREE.DoubleSide}));
+ circle.rotation.x=-Math.PI/2;group.add(circle);
+ const inner=new THREE.Mesh(new THREE.RingGeometry(.03,.038,24),new THREE.MeshBasicMaterial({color:'#f7e4b7',depthTest:false,side:THREE.DoubleSide}));inner.rotation.x=-Math.PI/2;group.add(inner);
+ const stem=new THREE.Line(makeGeometry([0,0,0,0,.25,0]),new THREE.LineBasicMaterial({color:'#f0d4a5',transparent:true,opacity:.94,depthTest:false}));group.add(stem);
+ const glow=new THREE.Mesh(new THREE.CylinderGeometry(.018,.055,.24,18,1,true),new THREE.MeshBasicMaterial({color:'#ead2a5',transparent:true,opacity:.22,depthWrite:false,depthTest:false,side:THREE.DoubleSide}));glow.position.y=.12;glow.renderOrder=9;group.add(glow);
+ group.renderOrder=8;group.visible=false;model.add(group);return group;
+}
+function buildLandmarks(){
+ for(const g of groups)g.element.remove();groups=[];
+ const locations=new Map();
+ landmarkData.forEach((event,index)=>{
+  if(!Array.isArray(event[2])||!event[2].every(Number.isFinite))return;
+  const key=event[2].map(v=>v.toFixed(5)).join(',');
+  if(!locations.has(key))locations.set(key,{coords:event[2],records:[]});
+  locations.get(key).records.push({event,index});
+ });
+ for(const location of locations.values()){
+  const [x,z]=project(...location.coords),height=heightAt(x,z);
+  const element=document.createElement('button');element.type='button';element.className='terrain-label terrain-marker';element.setAttribute('aria-pressed','false');
+  const number=document.createElement('span');number.className='marker-index';
+  const body=document.createElement('span'),title=document.createElement('strong'),date=document.createElement('small');body.append(title,date);element.append(number,body);
+  const g={...location,element,title,date,number,point:new THREE.Vector3(x,height+.20,z),displayed:0};
+  element.addEventListener('click',()=>{
+   const previous=g.records.findIndex(r=>r.index===activeIndex);
+   const next=previous<0?0:(previous+1)%g.records.length;
+   g.displayed=next;onSelect(g.records[next].index);
+  });
+  $('terrain-labels').append(element);groups.push(g);
+ }
+ updateMarkers();requestRender();
+}
+function updateMarkers(){
+ for(const g of groups){
+  const selected=g.records.findIndex(r=>r.index===activeIndex);
+  if(selected>=0)g.displayed=selected;
+  const record=g.records[g.displayed];
+  g.title.textContent=record.event[1];
+  g.date.textContent=record.event[0]+(g.records.length>1?` · 同址 ${g.displayed+1}/${g.records.length}`:'');
+  g.number.textContent=String(record.index+1).padStart(2,'0');
+  g.element.setAttribute('aria-label',`${record.event[1]}，${record.event[0]}${g.records.length>1?`，同址有 ${g.records.length} 則史料，再點可切換`:''}`);
+  g.element.setAttribute('aria-pressed',String(selected>=0));g.element.classList.toggle('is-active',selected>=0);
  }
 }
-function nearestHeight(x,z){let closest=Infinity,h=0;for(let i=0;i<rawPositions.length;i+=3){const d=(rawPositions[i]-x)**2+(rawPositions[i+2]-z)**2;if(d<closest){closest=d;h=rawPositions[i+1];}}return h*exaggeration+.12;}
-function addLabel(text,sub,lon,lat,area){
- const [x,z]=project(lon,lat),h=nearestHeight(x,z);
- const element=document.createElement(area===undefined?'span':'button');element.className='terrain-label';
- const title=document.createElement('strong');title.textContent=text;element.append(title);
- if(sub){const small=document.createElement('small');small.textContent=sub;element.append(small);}
- if(area!==undefined){element.type='button';element.title=`探索${text}歷史`;element.onclick=()=>{setActive(false);document.querySelector(`[data-area="${area}"]`).click();};}
- $('terrain-labels').append(element);
- labels.push({element,point:new THREE.Vector3(x,h+.23,z),x,z});
- const pin=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),new THREE.MeshBasicMaterial({color:0xffdf9f}));pin.position.set(x,h+.05,z);model.add(pin);
- const line=new THREE.Line(geometry([x,h,z,x,h+.25,z]),new THREE.LineBasicMaterial({color:0xd8bd82,transparent:true,opacity:.7}));model.add(line);
+function addRegion(name,sub,lon,lat,areaIndex){
+ const [x,z]=project(lon,lat),element=document.createElement(areaIndex===undefined?'span':'button');
+ element.className='terrain-label terrain-region-label';
+ const strong=document.createElement('strong');strong.textContent=name;
+ const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
+ if(areaIndex!==undefined){element.type='button';element.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('macau-area-request',{detail:{area:areaIndex}})));}
+ $('terrain-labels').append(element);regions.push({element,point:new THREE.Vector3(x,heightAt(x,z)+.23,z),region:true});
 }
-function render(time=performance.now()){
- if(!active||!renderer)return;
- cancelAnimationFrame(animation);animation=0;
- const delta=Math.min((time-lastTime)/1000,.05);lastTime=time;
- if(auto&&!flat&&!document.hidden){
-  const relative=camera.position.clone().sub(controls.target);relative.applyAxisAngle(new THREE.Vector3(0,1,0),delta*.16);camera.position.copy(controls.target).add(relative);
- }
- controls.update();renderer.render(scene,camera);
- const width=$('terrain-view').clientWidth,height=$('terrain-view').clientHeight;
+function positionLabels(){
+ const width=view.clientWidth,height=view.clientHeight,viewRect=view.getBoundingClientRect();
+ const card=$('info'),cardRect=card&&!card.hidden?card.getBoundingClientRect():null;
+ const toolbar=stage.querySelector('.tools')?.getBoundingClientRect();
+ const minY=toolbar?Math.max(95,toolbar.bottom-viewRect.top+28):(width<800&&height>width*.8?180:110);
  const placed=[];
- for(const item of labels){
-  const p=item.point.clone().project(camera);const x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;
-  const hidden=p.z>1||p.z<-1||x<30||x>width-30||y<90||y>height-35||placed.some(a=>Math.abs(a[0]-x)<85&&Math.abs(a[1]-y)<38);
+ const entries=[...groups].sort((a,b)=>Number(b.element.classList.contains('is-active'))-Number(a.element.classList.contains('is-active'))).concat(regions);
+ for(const item of entries){
+  const p=item.point.clone().project(camera);let x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;
+  const selected=item.element.classList.contains('is-active');
+  const inFocusRegion=item.region&&camera.position.distanceTo(controls.target)<10;
+  const panelOverlap=cardRect&&x>cardRect.left-viewRect.left-75&&x<cardRect.right-viewRect.left+75&&y>cardRect.top-viewRect.top-20&&y<cardRect.bottom-viewRect.top+45;
+  const overlap=placed.some(([px,py])=>Math.abs(px-x)<(mobile?116:140)&&Math.abs(py-y)<59);
+  const hidden=p.z>1||p.z<-1||x<38||x>width-38||y<minY||y>height-40||panelOverlap||(!selected&&overlap)||inFocusRegion;
   item.element.hidden=hidden;
-  if(!hidden){placed.push([x,y]);item.element.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;}
+  if(!hidden){placed.push([x,y]);item.element.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-100%)`;}
  }
- const bearing=THREE.MathUtils.radToDeg(Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z));
- $('north-arrow').style.transform=`rotate(${-bearing}deg)`;
- $('bearing').textContent=`${((Math.round(bearing)%360)+360)%360}°`;
- if(auto&&!document.hidden){cancelAnimationFrame(animation);animation=requestAnimationFrame(render);}
 }
-function resize(){if(!renderer||!active)return;const view=$('terrain-view');camera.aspect=view.clientWidth/view.clientHeight;camera.updateProjectionMatrix();renderer.setSize(view.clientWidth,view.clientHeight);render();}
+function requestRender(){if(active&&renderer&&!contextLost&&!document.hidden&&!animation&&!rendering)animation=requestAnimationFrame(render);}
+function render(now){
+ animation=0;if(!active||!renderer||contextLost||document.hidden)return;rendering=true;
+ const delta=lastTime?Math.min((now-lastTime)/1000,.05):1/60;lastTime=now;
+ let tweening=false;
+ if(cameraTween){
+  const t=THREE.MathUtils.clamp((now-cameraTween.start)/cameraTween.duration,0,1),smooth=cameraTween.easing==='ios'?(1-(1+8*t)*Math.exp(-8*t))/(1-9*Math.exp(-8)):t*t*t*(t*(t*6-15)+10);
+  camera.position.lerpVectors(cameraTween.from,cameraTween.to,smooth);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,smooth);
+  if(cameraTween.easing==='ios'&&activeGroundMarker?.visible)activeGroundMarker.scale.setScalar(1+.5*(1-smooth));
+  if(t>=1){cameraTween=null;stage.classList.remove('timeline-zooming');document.dispatchEvent(new CustomEvent('macau-terrain-camera-settled',{detail:{target:[controls.target.x,controls.target.y,controls.target.z]}}));}else tweening=true;
+ }
+ const moved=controls.update(delta);
+ renderer.render(scene,camera);positionLabels();
+ const bearing=THREE.MathUtils.radToDeg(Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z));
+ if($('north-arrow'))$('north-arrow').style.transform=`rotate(${-bearing}deg)`;
+ if($('bearing'))$('bearing').textContent=`${((Math.round(bearing)%360)+360)%360}°`;
+ rendering=false;if(moved||tweening||auto)requestRender();
+}
+function resize(){
+ if(!renderer||!active||!view.clientWidth||!view.clientHeight)return;
+ const previousAspect=camera.aspect;camera.aspect=view.clientWidth/view.clientHeight;camera.updateProjectionMatrix();renderer.setSize(view.clientWidth,view.clientHeight);
+ if(initialized&&initialView&&Math.abs(previousAspect-camera.aspect)>.1){
+  const target=currentTarget.clone();cameraTween=null;controls.target.copy(target);camera.position.copy(target).add(currentOffset.clone().multiplyScalar(fitFactor()));controls.update();
+ }
+ requestRender();
+}
+async function loadModel(){
+ progress(.16,'讀取澳門海岸與高程資料');
+ const response=await fetch('./terrain/macau.json');if(!response.ok)throw Error('地形資料未能載入');const data=await response.json();rawPositions=data.positions;
+ progress(.45,'載入山林、道路與近岸材質');
+ const loader=new THREE.TextureLoader();
+ const [texture,waterTexture]=await Promise.all([loader.loadAsync('./terrain/surface.png'),data.waterTexture?loader.loadAsync('./terrain/'+data.waterTexture).catch(()=>null):Promise.resolve(null)]);
+ texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+ const positions=rawPositions.map((v,i)=>i%3===1?v*exaggeration+landDatum:v),uv=[],colors=[];
+ const [minx,minz,maxx,maxz]=data.textureBounds;
+ const low=new THREE.Color('#f5efdd'),high=new THREE.Color('#aab99a');
+ for(let i=0;i<positions.length;i+=3){
+  uv.push((positions[i]-minx)/(maxx-minx),1-(positions[i+2]-minz)/(maxz-minz));
+  const h=rawPositions[i+1],grain=Math.sin(positions[i]*57+positions[i+2]*19)*.018;
+  const color=low.clone().lerp(high,Math.min(.35,h*1.8+Math.max(0,grain)));colors.push(color.r,color.g,color.b);
+ }
+ const geometry=makeGeometry(positions,data.indices);geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+ model=new THREE.Group();scene.add(model);
+ surfaceMesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:texture,vertexColors:true,roughness:1,metalness:0}));
+ surfaceMesh.castShadow=true;surfaceMesh.receiveShadow=true;model.add(surfaceMesh);makeRockCoast(data.rings);
+ if(waterTexture){
+  waterTexture.colorSpace=THREE.SRGBColorSpace;
+  const shore=new THREE.Mesh(new THREE.PlaneGeometry(maxx-minx,maxz-minz),new THREE.MeshStandardMaterial({map:waterTexture,transparent:true,roughness:1,metalness:0,depthWrite:false}));
+  shore.rotation.x=-Math.PI/2;shore.position.set((maxx+minx)/2,.008,(maxz+minz)/2);shore.renderOrder=1;scene.add(shore);
+ }
+ for(const points of data.bridges||[]){
+  const geometry=makeGeometry(points.flatMap(([x,y,z])=>[x,.055,z]));
+  model.add(new THREE.Line(geometry,new THREE.LineBasicMaterial({color:'#bdbba3',transparent:true,opacity:.6})));
+ }
+ activeGroundMarker=makeLocator();
+ addRegion('澳門半島','MACAU PENINSULA',113.544,22.194,1);addRegion('氹仔','TAIPA',113.558,22.158);addRegion('路氹','COTAI',113.566,22.145);addRegion('路環','COLOANE',113.577,22.123,0);
+ progress(.82,'整理歷史地標與閱讀視角');
+ buildLandmarks();
+}
+async function loadVillageBuildings(){
+ try{
+  const response=await fetch('./terrain/street-details.json');if(!response.ok)return;
+  const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%9)return;
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#d1c9ad',roughness:1,metalness:0,side:THREE.DoubleSide}));
+  mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);requestRender();
+ }catch(error){console.warn('Village building detail unavailable:',error);}
+}
 async function init(){
  try{
-  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;
+  progress(.05,'準備路環歷史地景');
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:mobile?'low-power':'default'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.06;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.domElement.setAttribute('aria-label','澳門三維地形：拖曳旋轉，滾輪縮放，雙指平移與縮放');renderer.domElement.tabIndex=0;
-  $('terrain-view').prepend(renderer.domElement);
-  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=false;
-  controls.minDistance=5;controls.maxDistance=45;controls.maxPolarAngle=Math.PI*.48;controls.minPolarAngle=.03;controls.screenSpacePanning=true;controls.rotateSpeed=.65;controls.zoomSpeed=.85;
-  controls.addEventListener('change',()=>{if(!animation)animation=requestAnimationFrame(render);});
-  controls.addEventListener('start',()=>{if(auto){auto=false;$('rot').textContent='360° 旋轉';$('rot').setAttribute('aria-pressed','false');}});
-  renderer.domElement.addEventListener('keydown',e=>{
-   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Home'].includes(e.key))return;e.preventDefault();e.stopPropagation();
-   if(e.key==='Home')api.reset();else if(e.key==='+'||e.key==='-')api.zoom(e.key==='+'?.85:1.15);else{
-    const offset=camera.position.clone().sub(controls.target);const spherical=new THREE.Spherical().setFromVector3(offset);
-    if(e.key==='ArrowLeft')spherical.theta-=.15;if(e.key==='ArrowRight')spherical.theta+=.15;
-    if(e.key==='ArrowUp')spherical.phi=Math.max(.04,spherical.phi-.12);if(e.key==='ArrowDown')spherical.phi=Math.min(Math.PI*.48,spherical.phi+.12);
-    camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));controls.update();render();
-   }
+  renderer.domElement.setAttribute('aria-label','路環三維地形。拖曳旋轉、滾輪縮放、雙指平移；聚焦後可用方向鍵調整視角。');renderer.domElement.tabIndex=0;
+  view.prepend(renderer.domElement);
+  camera.position.copy(coloaneTarget).add(currentOffset.clone().multiplyScalar(fitFactor()*1.12));
+  controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(coloaneTarget);controls.enableDamping=!reduced;controls.dampingFactor=.075;
+  controls.minDistance=1.6;controls.maxDistance=40;controls.minPolarAngle=.025;controls.maxPolarAngle=Math.PI*.46;
+  controls.rotateSpeed=.5;controls.zoomSpeed=.65;controls.panSpeed=.6;controls.screenSpacePanning=false;controls.autoRotateSpeed=.36;
+  controls.addEventListener('change',requestRender);
+  controls.addEventListener('start',()=>{cameraTween=null;initialView=false;stage.classList.remove('timeline-zooming');if(activeGroundMarker)activeGroundMarker.scale.setScalar(1);stopAuto();requestRender();});
+  controls.addEventListener('end',requestRender);
+  renderer.domElement.addEventListener('keydown',event=>{
+   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Home'].includes(event.key))return;
+   event.preventDefault();event.stopPropagation();
+   if(event.key==='Home'){api.reset();return;}if(event.key==='+'||event.key==='-'){api.zoom(event.key==='+'?.85:1.15);return;}
+   stopAuto();cameraTween=null;initialView=false;
+   const spherical=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+   if(event.key==='ArrowLeft')spherical.theta-=.12;if(event.key==='ArrowRight')spherical.theta+=.12;
+   if(event.key==='ArrowUp')spherical.phi=Math.max(.03,spherical.phi-.1);if(event.key==='ArrowDown')spherical.phi=Math.min(Math.PI*.46,spherical.phi+.1);
+   fly(controls.target.clone(),controls.target.clone().add(new THREE.Vector3().setFromSpherical(spherical)),reduced?0:350);
   });
-  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('terrain-loading').hidden=false;$('terrain-loading').textContent='顯示暫停，請重新載入，或切換街道地圖。';});
-  scene.add(new THREE.HemisphereLight(0xffedce,0x34404a,2));
-  const sun=new THREE.DirectionalLight(0xffe2b0,3.1);sun.position.set(-6,12,5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-9;sun.shadow.camera.right=9;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-10;sun.shadow.bias=-.0008;scene.add(sun);
-  const fill=new THREE.DirectionalLight(0xabcbd3,1);fill.position.set(7,4,-7);scene.add(fill);
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.ShadowMaterial({opacity:.28}));ground.rotation.x=-Math.PI/2;ground.position.y=-.52;ground.receiveShadow=true;scene.add(ground);
-  const response=await fetch('./terrain/macau.json');if(!response.ok)throw Error('地形資料未能載入');const data=await response.json();
-  rawPositions=data.positions;
-  const texture=await new THREE.TextureLoader().loadAsync('./terrain/surface.png');texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
-  model=new THREE.Group();scene.add(model);
-  const pos=rawPositions.map((v,i)=>i%3===1?v*exaggeration+.1:v);
-  const geom=geometry(pos,data.indices),uv=[],colors=[];const [minx,minz,maxx,maxz]=data.textureBounds;
-  for(let i=0;i<pos.length;i+=3){uv.push((pos[i]-minx)/(maxx-minx),1-(pos[i+2]-minz)/(maxz-minz));const h=rawPositions[i+1];const c=new THREE.Color().lerpColors(new THREE.Color(0xffffff),new THREE.Color(0x77935b),Math.min(.65,h*4));colors.push(c.r,c.g,c.b);}
-  geom.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geom.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-  surface=new THREE.Mesh(geom,new THREE.MeshStandardMaterial({map:texture,vertexColors:true,roughness:.93,side:THREE.DoubleSide}));surface.receiveShadow=true;surface.castShadow=true;model.add(surface);makeSides(data.rings);
-  for(const points of data.bridges){const g=geometry(points.flatMap(([x,y,z])=>[x,.13,z]));model.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0xd9bd83,transparent:true,opacity:.65})));}
-  addLabel('澳門半島','MACAU PENINSULA',113.544,22.194,1);
-  addLabel('氹仔','TAIPA',113.558,22.158);
-  addLabel('路氹','COTAI',113.566,22.145);
-  addLabel('路環','COLOANE',113.566,22.122,0);
-  addLabel('十月初五馬路','探索海旁歷史 ↗',113.551,22.116,0);
-  addLabel('澳門國際機場','',113.593,22.147);
-  $('terrain-loading').hidden=true;$('terrain-view').setAttribute('aria-busy','false');
-  api.reset();resize();new ResizeObserver(resize).observe($('terrain-view'));
-  document.addEventListener('visibilitychange',()=>{lastTime=performance.now();if(!document.hidden)render();});
-  $('labels-toggle').onclick=()=>{const hidden=$('terrain-labels').classList.toggle('labels-hidden');$('labels-toggle').setAttribute('aria-pressed',String(!hidden));$('labels-toggle').textContent=hidden?'顯示地名':'隱藏地名';};
- }catch(error){console.error('Macau terrain:',error);$('terrain-loading').hidden=false;$('terrain-loading').textContent='此裝置暫時無法載入立體地形。可重新載入，或使用街道地圖及歷史時間軸。';$('terrain-retry').hidden=false;$('terrain-view').setAttribute('aria-busy','false');}
+  renderer.domElement.addEventListener('webglcontextlost',event=>{
+   event.preventDefault();contextLost=true;cancelAnimationFrame(animation);animation=0;
+   $('terrain-loading').hidden=false;$('terrain-loading').textContent='顯示暫停。請重新載入，或切換 2D 歷史地圖繼續閱讀。';$('terrain-retry').hidden=false;
+  });
+  scene.add(new THREE.HemisphereLight('#e1e7d9','#33443e',2.0));
+  const sun=new THREE.DirectionalLight('#f0dfc4',2.15);sun.position.set(-5,9,6);sun.castShadow=true;
+  sun.shadow.mapSize.set(mobile?1024:2048,mobile?1024:2048);sun.shadow.camera.left=-7;sun.shadow.camera.right=7;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-8;sun.shadow.camera.near=.5;sun.shadow.camera.far=28;sun.shadow.bias=-.00015;sun.shadow.normalBias=.015;sun.shadow.radius=3;scene.add(sun);
+  const fill=new THREE.DirectionalLight('#9db5bb',.55);fill.position.set(6,4,-6);scene.add(fill);
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:'#2b414a',roughness:1,metalness:0}));
+  sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
+  await loadModel();initialized=true;
+  resize();
+  currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
+  fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor())),reduced?0:1800);
+  $('terrain-loading').hidden=true;view.setAttribute('aria-busy','false');stage.classList.add('terrain-ready');
+  loadVillageBuildings();
+  progress(1,'地景已就緒');resolveReady(true);document.dispatchEvent(new CustomEvent('macau-terrain-ready',{detail:{dataSource:'OSM / AWS Terrain Tiles',exaggeration}}));
+  new ResizeObserver(resize).observe(view);
+  const card=$('info');if(card)new MutationObserver(requestRender).observe(card,{attributes:true,attributeFilter:['hidden','class','style']});
+  document.addEventListener('visibilitychange',()=>{lastTime=0;if(document.hidden){cancelAnimationFrame(animation);animation=0;}else requestRender();});
+ }catch(error){
+  console.error('Macau terrain:',error);view.setAttribute('aria-busy','false');stage.classList.add('terrain-error');
+  $('terrain-loading').hidden=false;$('terrain-loading').textContent='此裝置暫時無法載入 3D 地形。歷史全文、圖片與時間軸仍可於 2D 地圖閱讀。';$('terrain-retry').hidden=false;
+  resolveReady(false);document.dispatchEvent(new CustomEvent('macau-terrain-error',{detail:{message:error.message}}));
+ }
 }
+if($('view-switch'))$('view-switch').onclick=api.toggle;
+if($('terrain-retry'))$('terrain-retry').onclick=()=>location.reload();
+if($('terrain-detail'))$('terrain-detail').onclick=()=>window.exhibitionUI?.setView('timeline');
+if($('labels-toggle'))$('labels-toggle').onclick=()=>{
+ const hidden=$('terrain-labels').classList.toggle('labels-hidden');$('labels-toggle').setAttribute('aria-pressed',String(!hidden));$('labels-toggle').textContent=hidden?'顯示地名':'隱藏地名';
+};
 setActive(true);init();

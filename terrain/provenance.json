@@ -1,0 +1,19 @@
+{
+  "localCoordinates": "x=(lon-113.56)*111.32*cos(22.16deg), z=(22.16-lat)*111.32; units km; this is not WGS84 GeoJSON.",
+  "source": "OpenStreetMap via OpenFreeMap / OpenMapTiles; AWS Terrain Tiles (Terrarium)",
+  "elevationTileZoom": 13,
+  "elevationPixelSpacingMetres": 17.7,
+  "underlyingDemResolution": "Varies by upstream source; tile spacing is not a survey accuracy claim.",
+  "meshSpacingMetres": {
+    "Coloane": 26,
+    "widerMacau": 52
+  },
+  "coastlineVectorZoom": {
+    "Coloane": 14,
+    "widerMacau": 12
+  },
+  "coastlineSimplificationMetres": 3,
+  "shoreWater": "Distance-based visual treatment, not surveyed bathymetry.",
+  "texture": "OSM cartographic land cover, roads and mapped building footprints; not satellite imagery.",
+  "elevationSmoothing": "Gaussian sigma 0.45 raster pixel before bilinear sampling; negative elevations clamped on modern land."
+}
