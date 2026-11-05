@@ -10,6 +10,9 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobile=matchMedia('(max-width: 800px)').matches;
 const exaggeration=1.65, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
+// The model anchors follow the mapped roof footprints; the nearby text labels use
+// the familiar visitor coordinates. All dimensions below are in kilometres.
+const cityModelSites={tower:[113.5368,22.17982],lisboa:[113.54336,22.19099]};
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#263a40');
 scene.fog=new THREE.FogExp2('#263a40',.017);
@@ -123,13 +126,16 @@ function setActive(value){
 }
 function stopAuto(){auto=false;if(controls)controls.autoRotate=false;updateButtons();}
 function fitFactor(){return Math.max(1,Math.min(2.6,1.3/Math.max(.5,view.clientWidth/view.clientHeight)));}
+function presentationZoom(){const aspect=view.clientWidth/view.clientHeight;return aspect>2.4?Math.max(.8,1-(aspect-2.4)*.22):1;}
 function resetColoane(){resetView(coloaneTarget,new THREE.Vector3(2.25,4.65,5.45));}
 function resetView(target,offset,overview=false){
  if(!controls)return;stopAuto();flat=false;initialView=true;api.clearSelection();
  stage.classList.remove('timeline-zooming');
  currentTarget.copy(target);currentOffset.copy(offset);
  controls.enableRotate=true;
- fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor())),reduced?0:1250);
+ // A wide presentation screen has room to show Coloane closer without
+ // cropping the full-Macau overview used by the other navigation button.
+ fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor()*(overview?1:presentationZoom()))),reduced?0:1250);
  stage.classList.toggle('macau-overview',overview);updateButtons();
 }
 function fly(target,position,duration=1200,easing='smooth'){
@@ -233,6 +239,79 @@ function addCityLandmark(name,sub,lon,lat){
  const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
  api.addFeatureLabel(element,[lon,lat]);
 }
+function addCitySilhouettes(){
+ const stone=new THREE.MeshStandardMaterial({color:'#d7cbb2',roughness:.87,metalness:.04});
+ const towerGlass=new THREE.MeshStandardMaterial({color:'#547a7b',roughness:.38,metalness:.35});
+ const brass=new THREE.MeshStandardMaterial({color:'#dec287',roughness:.54,metalness:.28,side:THREE.DoubleSide});
+ const gold=new THREE.MeshStandardMaterial({color:'#b99963',roughness:.46,metalness:.3,side:THREE.DoubleSide});
+ const goldGlass=new THREE.MeshStandardMaterial({color:'#927c5d',roughness:.35,metalness:.4});
+ function add(group,geometry,material,y=0){
+  const object=new THREE.Mesh(geometry,material);object.position.y=y;object.castShadow=!mobile;object.receiveShadow=true;group.add(object);return object;
+ }
+ function collar(group,radius,y,material,tube=.002){
+  const ring=add(group,new THREE.TorusGeometry(radius,tube,6,28),material,y);ring.rotation.x=Math.PI/2;return ring;
+ }
+ function atSite(lonLat){
+  const [x,z]=project(...lonLat),group=new THREE.Group();
+  group.position.set(x,heightAt(x,z)+.002,z);scene.add(group);return group;
+ }
+ // Macau Tower: tapered concrete stem, three-level glazed observation pod and
+ // the long aerial above it. The top is 338 m above the mapped ground.
+ const tower=atSite(cityModelSites.tower);
+ add(tower,new THREE.CylinderGeometry(.027,.031,.012,24),stone,.006);
+ add(tower,new THREE.LatheGeometry([
+  [0,.01],[.016,.01],[.013,.035],[.009,.105],[.007,.185],[.007,.215]
+ ].map(([r,y])=>new THREE.Vector2(r,y)),24),stone);
+ add(tower,new THREE.LatheGeometry([
+  [.007,.210],[.014,.214],[.024,.219],[.028,.224],
+  [.028,.230],[.024,.236],[.013,.241],[.006,.244]
+ ].map(([r,y])=>new THREE.Vector2(r,y)),32),towerGlass);
+ for(const [r,y] of [[.024,.219],[.028,.230],[.021,.238]])collar(tower,r,y,brass,.0015);
+ for(let i=0;i<12;i++){
+  const a=i*Math.PI/6,points=[[.022,.218],[.028,.225],[.027,.231],[.021,.238]].map(([r,y])=>new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r));
+  tower.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#e6d6af'})));
+ }
+ add(tower,new THREE.CylinderGeometry(.0022,.005,.081,12),stone,.2845);
+ add(tower,new THREE.CylinderGeometry(.0007,.0022,.013,10),brass,.3315);
+ collar(tower,.0037,.294,brass,.0008);
+ tower.name='Macau Tower, interpretive 338 m silhouette';
+
+ // Grand Lisboa: the oval casino podium supports a narrow stem that opens
+ // into overlapping, gold lotus plumes. Its crown is 260 m above ground.
+ const lisboa=atSite(cityModelSites.lisboa);
+ add(lisboa,new THREE.CylinderGeometry(.062,.066,.012,32),stone,.006);
+ const podium=add(lisboa,new THREE.SphereGeometry(.057,28,14),goldGlass,.044);
+ podium.scale.set(1.18,.61,.86);
+ for(const [r,y] of [[.058,.029],[.066,.044],[.059,.059]]){
+  const ring=collar(lisboa,r,y,brass,.0015);ring.scale.y=.86;
+ }
+ const core=add(lisboa,new THREE.LatheGeometry([
+  [0,.063],[.019,.063],[.021,.095],[.026,.125],[.035,.16],
+  [.044,.194],[.05,.221],[.041,.239],[.016,.254],[0,.260]
+ ].map(([r,y])=>new THREE.Vector2(r,y)),32),goldGlass);
+ core.scale.z=.74;
+ const levels=[
+  [.066,.023,.006],[.105,.029,.009],[.145,.044,.011],
+  [.185,.064,.013],[.215,.077,.012],[.238,.069,.007],[.254,.016,.001]
+ ];
+ for(let petal=0;petal<10;petal++){
+  const angle=petal*Math.PI/5,vertices=[],indices=[],rib=[];
+  for(let i=0;i<levels.length;i++){
+   const [y,r,width]=levels[i],twist=angle+(y-.066)*.6;
+   const cx=Math.cos(twist)*r,cz=Math.sin(twist)*r*.76;
+   const tx=-Math.sin(twist)*width,tz=Math.cos(twist)*width*.76;
+   vertices.push(cx-tx,y,cz-tz,cx+tx,y,cz+tz);
+   rib.push(new THREE.Vector3(cx,y,cz));
+   if(i<levels.length-1){const n=i*2;indices.push(n,n+1,n+2,n+1,n+3,n+2);}
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+  add(lisboa,geometry,petal%2?gold:brass);
+  add(lisboa,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rib),14,.0015,4,false),brass);
+ }
+ add(lisboa,new THREE.CylinderGeometry(.001,.004,.012,10),brass,.254);
+ lisboa.name='Grand Lisboa, interpretive 260 m lotus silhouette';
+}
 function positionLabels(){
  const width=view.clientWidth,height=view.clientHeight,viewRect=view.getBoundingClientRect();
  const card=$('info'),cardRect=card&&!card.hidden?card.getBoundingClientRect():null;
@@ -324,7 +403,22 @@ async function loadPeninsulaBuildings(){
  try{
   const response=await fetch('./terrain/peninsula-buildings.json');if(!response.ok)return;
   const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%3||!Array.isArray(data.indices)||data.indices.length%3)return;
-  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(data.indices);
+  // Remove the generic tall prisms at these two footprints so they do not
+  // obscure the recognisable landmark forms drawn above.
+  const replacements=[
+   {point:project(...cityModelSites.tower),radius:.038,minTop:.18},
+   {point:project(...cityModelSites.lisboa),radius:.082,minTop:.09}
+  ];
+  const kept=[];
+  for(let i=0;i<data.indices.length;i+=3){
+   const a=data.indices[i]*3,b=data.indices[i+1]*3,c=data.indices[i+2]*3;
+   const x=(data.positions[a]+data.positions[b]+data.positions[c])/3;
+   const z=(data.positions[a+2]+data.positions[b+2]+data.positions[c+2])/3;
+   const top=Math.max(data.positions[a+1],data.positions[b+1],data.positions[c+1]);
+   if(replacements.some(({point,radius,minTop})=>top>minTop&&(x-point[0])**2+(z-point[1])**2<radius**2))continue;
+   kept.push(data.indices[i],data.indices[i+1],data.indices[i+2]);
+  }
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(kept);
   const hasColours=Array.isArray(data.colors)&&data.colors.length===data.positions.length;
   if(hasColours)geometry.setAttribute('color',new THREE.Float32BufferAttribute(data.colors,3));geometry.computeVertexNormals();
   const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:hasColours?'#ffffff':'#cfc6ae',vertexColors:hasColours,roughness:.96,metalness:0,side:THREE.DoubleSide}));
@@ -372,12 +466,13 @@ async function init(){
   const sea=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:'#2b414a',roughness:1,metalness:0}));
   sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
   await loadModel();initialized=true;
-  addCityLandmark('澳門旅遊塔','MACAU TOWER',113.53667,22.17972);
-  addCityLandmark('新葡京','GRAND LISBOA',113.54308,22.19067);
+  addCitySilhouettes();
+  addCityLandmark('澳門旅遊塔','MACAU TOWER',...cityModelSites.tower);
+  addCityLandmark('新葡京','GRAND LISBOA',...cityModelSites.lisboa);
   addCityLandmark('東望洋山','GUIA HILL',113.54977,22.19651);
   resize();
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
-  fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor())),reduced?0:1800);
+  fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor()*presentationZoom())),reduced?0:1800);
   $('terrain-loading').hidden=true;view.setAttribute('aria-busy','false');stage.classList.add('terrain-ready');
   loadVillageBuildings();
   progress(1,'地景已就緒');resolveReady(true);document.dispatchEvent(new CustomEvent('macau-terrain-ready',{detail:{dataSource:'OSM / AWS Terrain Tiles',exaggeration}}));

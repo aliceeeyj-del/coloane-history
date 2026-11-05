@@ -5,7 +5,7 @@
 #info #photo-switch button:hover{color:#f1e3c7}
 #info #modern-photo{margin:5px 0 20px;animation:modern-photo-in .5s cubic-bezier(.2,.8,.2,1) both}
 #info #modern-photo #modern-open{display:block;width:100%;padding:0;border:1px solid #c1b38c55;border-radius:4px;background:#10232b;overflow:hidden;cursor:zoom-in}
-#modern-photo #modern-thumb{display:block;width:100%;max-height:220px;aspect-ratio:4/3;object-fit:cover;filter:saturate(.85);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+#modern-photo #modern-thumb{display:block;width:100%;height:auto;max-height:min(42vh,430px);object-fit:contain;background:#10232b;filter:saturate(.9);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
 #modern-photo #modern-open:hover img{transform:scale(1.025)}
 #modern-photo figcaption{margin:9px 0 6px;font-size:11px;line-height:1.7;color:#ead9b6}
 #modern-photo .modern-photo-credit{font-size:10px;line-height:1.8;color:#a9b6ae}
@@ -19,4 +19,12 @@
 #modern-dialog a{color:#d9bf87;font-size:11px}
 @keyframes modern-photo-in{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:650px){.stage.battle-playing .info:not(.expanded) #modern-photo{display:none}#modern-dialog{padding:15px}#modern-dialog img{max-height:58vh}}
+@media(min-width:1101px){
+ #info #photo-switch{max-width:none;margin-bottom:19px}
+ #info #photo-switch button{min-height:44px;font-size:clamp(13px,.68vw,19px)}
+ #modern-photo figcaption{font-size:clamp(13px,.72vw,20px)}
+ #modern-photo .modern-photo-credit,#modern-photo .modern-photo-credit a{font-size:clamp(11px,.58vw,16px)}
+ #modern-photo .modern-photo-credit small{font-size:clamp(10px,.5vw,14px)}
+}
+@media(max-width:800px){#modern-photo #modern-thumb{max-height:300px}}
 @media(prefers-reduced-motion:reduce){#info #modern-photo{animation:none!important}}

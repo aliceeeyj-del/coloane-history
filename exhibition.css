@@ -26,7 +26,7 @@ body {
   font: 15px/1.8 "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-body > main { max-width: 1760px; padding: 0; margin: 0 auto; min-width: 0; }
+body > main { max-width: none; width: 100%; padding: 0; margin: 0 auto; min-width: 0; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { font-family: inherit; }
 button, a {
@@ -136,7 +136,7 @@ button[hidden], [hidden] { display: none !important; }
 #exhibit-intro p { margin: 0; }
 #exhibit-intro strong { font-weight: 500; color: #d1d5c9; }
 .stage {
-  height: clamp(570px, 72vh, 860px);
+  height: clamp(570px, 72svh, 1300px);
   min-height: 570px;
   border-radius: 0;
   background: #293e46;
@@ -478,7 +478,51 @@ body.exhibit-ready #terrain-labels { animation: ex-reveal .9s var(--ex-ease) .45
 @keyframes ex-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes ex-scene-in { from { opacity: .15; } to { opacity: 1; } }
 @keyframes ex-panel-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
-@media (min-width: 1761px) { body > main { border-left: 1px solid var(--ex-line); border-right: 1px solid var(--ex-line); } }
+@media (min-width: 1101px) {
+  .exhibition-header { min-height: clamp(90px, 7vh, 116px); padding-inline: clamp(32px, 2vw, 68px); }
+  .exhibition-header .exhibition-brand strong { font-size: clamp(29px, 1.35vw, 42px); }
+  .exhibition-header .exhibition-brand small { font-size: clamp(8px, .43vw, 13px); }
+  #view-nav button, .exhibition-header #full { min-height: 46px; font-size: clamp(12px, .65vw, 18px); padding-inline: clamp(13px, .75vw, 24px); }
+  #exhibit-intro { padding-inline: clamp(32px, 2vw, 68px); font-size: clamp(11px, .58vw, 16px); }
+  #exhibit-intro .intro-kicker, #exhibit-intro .intro-count { font-size: clamp(10px, .52vw, 15px); }
+  #terrain-heading, .stage > .hd { left: clamp(32px, 2vw, 68px); top: clamp(31px, 3vh, 50px); max-width: clamp(330px, 25vw, 560px); }
+  #terrain-heading h1, .stage > .hd h1 { font-size: clamp(40px, 1.9vw, 64px); }
+  #terrain-heading p, .stage > .hd p { font-size: clamp(12px, .67vw, 20px); }
+  #terrain-heading > small, #terrain-heading .terrain-caption { font-size: clamp(10px, .52vw, 16px); }
+  .stage > .tools { right: clamp(24px, 1.8vw, 60px); top: clamp(24px, 2.5vh, 38px); max-width: min(660px, 53%); }
+  .stage > .tools button { min-height: 44px; padding: 8px 13px; font-size: clamp(11px, .59vw, 17px); }
+  .stage > #info, .stage.terrain-mode > #info:not([hidden]) {
+    top: clamp(136px, 12vh, 170px);
+    right: clamp(24px, 1.8vw, 60px);
+    bottom: 28px;
+    width: clamp(420px, 24vw, 700px);
+    max-height: calc(100% - clamp(136px, 12vh, 170px) - 28px);
+    padding: clamp(24px, 1.45vw, 42px);
+  }
+  #info #tt { font-size: clamp(29px, 1.45vw, 43px); }
+  #info #yr { font-size: clamp(12px, .62vw, 18px); }
+  #info #panel-location, #info #panel-meta, #info .panel-section-label { font-size: clamp(11px, .56vw, 16px); }
+  #info #tx { font-size: clamp(15px, .8vw, 22px); line-height: 1.85; }
+  #info p, #info li { font-size: clamp(13px, .72vw, 20px); }
+  #info #event-art img { max-height: min(38vh, 430px); }
+  #info #event-art figcaption { font-size: clamp(11px, .56vw, 16px); }
+  #terrain-labels .terrain-label strong, #terrain-labels .terrain-landmark strong { font-size: clamp(11px, .65vw, 19px); }
+  #terrain-labels .terrain-label small, #terrain-labels .terrain-landmark small { font-size: clamp(8px, .46vw, 13px); }
+  #terrain-legend, #terrain-hint { font-size: clamp(10px, .52vw, 15px); }
+  main > .rail { padding-inline: clamp(29px, 2vw, 68px); }
+  main > .rail strong, main > .rail button { font-size: clamp(12px, .65vw, 18px); }
+  #tl { padding-inline: clamp(24px, 1.5vw, 52px); }
+  #tl button { min-height: 92px; font-size: clamp(12px, .68vw, 19px); }
+  #tl button b { font-size: clamp(10px, .55vw, 15px); }
+  #timeline-gallery { padding: clamp(40px, 2vw, 68px); }
+  #timeline-gallery h2 { font-size: clamp(32px, 1.6vw, 50px); }
+  .archive-card { padding: clamp(25px, 1.4vw, 42px); }
+  .archive-card h3, #timeline-gallery .archive-card h2 { font-size: clamp(24px, 1.2vw, 38px); }
+  .archive-card p { font-size: clamp(14px, .75vw, 22px); }
+  .archive-card img { max-height: min(34vh, 480px); }
+  .archive-card figcaption, .archive-card a, .archive-card button { font-size: clamp(12px, .62vw, 18px); }
+  main > #status.note, .exhibition-footer { font-size: clamp(10px, .53vw, 15px); }
+}
 @media (max-width: 1100px) {
   .exhibition-header { padding: 16px 24px; gap: 18px; }
   .exhibition-header > span { display: none; }

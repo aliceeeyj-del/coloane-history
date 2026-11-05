@@ -41,12 +41,18 @@
    record.photo = photo;
    record.context = context;
    record.title = $('tt').textContent;
-   image.alt = `${context}，${photo.year} 年攝影`; 
-   $('modern-caption').textContent = `${context} · ${photo.year} 年照片`;
+   const dateLabel = photo.dateLabel || `${photo.year} 年`;
+   image.alt = `${context}（${dateLabel}）`;
+   $('modern-caption').textContent = `${context} · ${dateLabel}`;
+   $('modern-credit-label').textContent = photo.creditLabel || '攝影';
    $('modern-author').textContent = photo.author;
-   $('modern-license').textContent = photo.license;
-   $('modern-license').href = photo.licenseUrl || photo.source;
-   $('modern-source').href = photo.source;
+   $('modern-license-wrap').hidden = !photo.license;
+   if (photo.license) {
+    $('modern-license').textContent = photo.license;
+    $('modern-license').href = photo.licenseUrl || photo.source;
+   }
+   $('modern-source').hidden = !photo.source;
+   if (photo.source) $('modern-source').href = photo.source;
    originalButton.hidden = !record.art;
    switcher.hidden = false;
    if (record.art) showOriginal(); else showModern();
@@ -59,8 +65,10 @@
   $('modern-large').src = record.photo.file;
   $('modern-large').alt = image.alt;
   $('modern-dialog-title').textContent = `現代照片 · ${record.title}`;
-  $('modern-dialog-caption').textContent = `${record.context} · 攝影：${record.photo.author} · ${record.photo.year} · ${record.photo.license}；${record.photo.changes}`;
-  $('modern-dialog-source').href = record.photo.source;
+  const photo = record.photo;
+  $('modern-dialog-caption').textContent = [record.context, `${photo.creditLabel || '攝影'}：${photo.author}`, photo.dateLabel || `${photo.year} 年`, photo.license, photo.changes].filter(Boolean).join(' · ');
+  $('modern-dialog-source').hidden = !photo.source;
+  if (photo.source) $('modern-dialog-source').href = photo.source;
   dialog.showModal();
  });
  document.addEventListener('exhibit-selection', event => select(event.detail.area, event.detail.index, event.detail.item[5]));

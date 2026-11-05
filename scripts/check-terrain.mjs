@@ -23,10 +23,10 @@ for(const [w,h] of [[1280,650],[390,600],[844,390]]){
  assert(maximum<1,`Overview clips the terrain at ${w}×${h}: ${maximum}`);
  console.log(`Overview ${w}×${h}: fits (${maximum.toFixed(2)})`);
 }
-const html=read('index.html'),js=read('terrain-view.js');
+const html=read('index.html'),js=read('terrain-view.js'),ui=read('exhibition.js');
 const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);assert.equal(new Set(ids).size,ids.length,'Duplicate HTML ids');
 for(const match of js.matchAll(/\$\('([^']+)'\)/g))assert(ids.includes(match[1]),`Missing DOM id ${match[1]}`);
-assert(html.includes('window.macauTerrain?.setActive(false);'),'Timeline must open the street map');
+assert(ui.includes("if(view==='street'||view==='timeline')window.macauTerrain.setActive(false);"),'Timeline must deactivate the terrain view');
 for(const match of html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').matchAll(/(?:src|href)="([^"#]+)"/g)){
  const path=match[1];if(/^(https?:|data:)/.test(path))continue;
  assert(fs.existsSync(new URL(path,root)),`Missing local file ${path}`);

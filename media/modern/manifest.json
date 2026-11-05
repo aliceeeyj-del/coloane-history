@@ -89,6 +89,34 @@
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "changes": "縮放及轉為 WebP 格式"
+    },
+    "hong_kung_night_market": {
+      "file": "media/modern/hong_kung_night_market.jpg",
+      "author": "用戶提供；攝影者未註明",
+      "dateLabel": "拍攝年份未註明",
+      "creditLabel": "圖片",
+      "changes": "以提供的原檔展示"
+    },
+    "october_street_1": {
+      "file": "media/modern/october_street_1.jpg",
+      "author": "用戶提供；攝影者未註明",
+      "dateLabel": "拍攝年份未註明",
+      "creditLabel": "圖片",
+      "changes": "以提供的原檔展示"
+    },
+    "october_street_2": {
+      "file": "media/modern/october_street_2.jpg",
+      "author": "用戶提供；攝影者未註明",
+      "dateLabel": "拍攝年份未註明",
+      "creditLabel": "圖片",
+      "changes": "以提供的原檔展示"
+    },
+    "october_street_3": {
+      "file": "media/modern/october_street_3.jpg",
+      "author": "用戶提供；攝影者未註明",
+      "dateLabel": "拍攝年份未註明",
+      "creditLabel": "圖片",
+      "changes": "以提供的原檔展示"
     }
   },
   "records": [
@@ -148,19 +176,19 @@
         "今日十月初五日街；並非 1860 年代海灣"
       ],
       [
-        "hong",
-        "康真君廟一帶；並非 1895 年墟集照片"
+        "hong_kung_night_market",
+        "康公夜市近年街景；並非 1895 年墟集照片"
       ],
       [
-        "peninsula_street",
+        "october_street_1",
         "今日十月初五日街；並非 1910 年改名場景"
       ],
       [
-        "peninsula_street",
+        "october_street_2",
         "今日十月初五日街街景"
       ],
       [
-        "peninsula_street",
+        "october_street_3",
         "今日十月初五日街；並非抗戰時期照片"
       ],
       [
