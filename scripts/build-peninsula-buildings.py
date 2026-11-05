@@ -26,6 +26,7 @@ VERTICES = np.asarray(BASE['positions']).reshape(-1, 3)
 TREE = cKDTree(VERTICES[:, [0, 2]])
 Z = 14
 N = 2 ** Z
+BUILDING_HEIGHT_SCALE = 1.0
 
 
 def project(lon, lat):
@@ -101,7 +102,11 @@ for tx in range(x0, x1 + 1):
                 metres = max(3, min(85, float(props.get('render_height', 5))))
                 height_counts['nominal' if metres == 5 else 'other'] += 1
                 ground = base_height(centroid.x, centroid.y) + .001
-                top = ground + metres * 2.6 / 1000
+                # The terrain is exaggerated to make Macau's hills legible, but
+                # building height must stay at a normal 1:1 scale. Applying the
+                # terrain factor here turns the peninsula into an implausible
+                # forest of towers and hides the street pattern.
+                top = ground + metres * BUILDING_HEIGHT_SCALE / 1000
                 rings = [list(polygon.exterior.coords)[:-1]]
                 rings.extend(list(hole.coords)[:-1] for hole in polygon.interiors)
                 roof_vertices = list(dict.fromkeys(point for ring in rings for point in ring))
@@ -135,7 +140,8 @@ assert count > 1000, f'Only {count} peninsula buildings found; check source tile
 positions = [round(value, 5) for value in positions]
 output = {
     'source': 'OpenStreetMap footprints via OpenFreeMap z14; render_height when available, otherwise nominal height',
-    'verticalExaggeration': 2.6,
+    'buildingHeightScale': BUILDING_HEIGHT_SCALE,
+    'terrainVerticalExaggeration': 2.6,
     'buildingCount': count,
     'heightCounts': height_counts,
     'positions': positions,

@@ -76,7 +76,8 @@ const api={
   const point=new THREE.Vector3(x,height,z);
   const target=point.clone();
   const width=view.clientWidth,heightPx=view.clientHeight;
-  let offset=new THREE.Vector3(1.45,2.55,3.6).multiplyScalar((width<650?1.25:1)*(options.timeline ? .72 : 1));
+  const baseOffset=options.overview?new THREE.Vector3(2.35,4.15,6.15):new THREE.Vector3(1.45,2.55,3.6);
+  let offset=baseOffset.multiplyScalar((width<650?(options.overview?1.16:1.25):1)*(options.timeline ? .72 : 1));
   // Keep the selected landmark visible beside the desktop archive or above its mobile sheet.
   const info=$('info');
   if(info&&!info.hidden){
