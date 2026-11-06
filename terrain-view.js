@@ -9,10 +9,11 @@ const stage=document.querySelector('.stage');
 const view=$('terrain-view');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobile=matchMedia('(max-width: 800px)').matches;
+const defaultMinDistance=mobile?.58:.44;
 const exaggeration=1.65, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
-// The models and labels share the mapped roof coordinates. Distances are in kilometres.
-const cityModelSites={tower:[113.5368,22.17982],lisboa:[113.54336,22.19099]};
+// Each model and its label use the same mapped footprint.
+const cityModelSites={tower:[113.5368,22.17982],lisboa:[113.54336,22.19099],guia:[113.549706,22.196434]};
 const scene=new THREE.Scene();
 scene.background=new THREE.Color('#263a40');
 scene.fog=new THREE.FogExp2('#263a40',.017);
@@ -52,7 +53,7 @@ const api={
    else target.addScaledVector(new THREE.Vector3(offset.z,0,-offset.x).normalize(),Math.min(1.5,.65+radius*.4));
   }
   stopAuto();flat=false;initialView=false;controls.enableRotate=true;
-  fly(target,target.clone().add(offset),reduced?0:1450);updateButtons();
+  fly(target,target.clone().add(offset),reduced?0:1450,'smooth',defaultMinDistance);updateButtons();
  },
  toggle:()=>setActive(!active),setActive,
  zoom(factor){
@@ -99,7 +100,7 @@ const api={
    else {target.z+=.6;target.y-=.28;}
   }
   currentTarget.copy(point);currentOffset.copy(offset);
-  fly(target,target.clone().add(offset),reduced?0:(options.timeline?1800:options.ios?1650:1500),options.timeline||options.ios?'ios':'smooth');
+  fly(target,target.clone().add(offset),reduced?0:(options.timeline?1800:options.ios?1650:1500),options.timeline||options.ios?'ios':'smooth',defaultMinDistance);
   stage.classList.toggle('timeline-zooming',Boolean(options.timeline&&!reduced));
   if(activeGroundMarker){activeGroundMarker.visible=true;activeGroundMarker.position.set(x,height+.012,z);activeGroundMarker.scale.setScalar(options.timeline&&!reduced?1.5:1);}
   updateMarkers();updateButtons();
@@ -151,15 +152,18 @@ function resetView(target,offset,overview=false){
  controls.enableRotate=true;
  // A wide presentation screen has room to show Coloane closer without
  // cropping the full-Macau overview used by the other navigation button.
- fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor()*(overview?1:presentationZoom()))),reduced?0:1250);
+ fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor()*(overview?1:presentationZoom()))),reduced?0:1250,'smooth',defaultMinDistance);
  stage.classList.toggle('macau-overview',overview);updateButtons();
 }
-function fly(target,position,duration=1200,easing='smooth'){
+function fly(target,position,duration=1200,easing='smooth',minDistance){
  if(!controls)return;
  // Let residual input damping settle before beginning a deterministic camera move.
  const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;
+ minDistance??=controls.minDistance;
+ // A flight can start or end inside the normal zoom limit at a close-up landmark.
+ controls.minDistance=duration?Math.min(controls.minDistance,minDistance):minDistance;
  if(!duration){controls.target.copy(target);camera.position.copy(position);controls.update();cameraTween=null;requestRender();return;}
- cameraTween={start:performance.now(),duration,easing,from:camera.position.clone(),to:position,fromTarget:controls.target.clone(),toTarget:target};requestRender();
+ cameraTween={start:performance.now(),duration,easing,minDistance,from:camera.position.clone(),to:position,fromTarget:controls.target.clone(),toTarget:target};requestRender();
 }
 function makeGeometry(positions,indices){
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
@@ -249,7 +253,7 @@ function addRegion(name,sub,lon,lat,areaIndex){
  if(areaIndex!==undefined){element.type='button';element.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('macau-area-request',{detail:{area:areaIndex}})));}
  $('terrain-labels').append(element);regions.push({element,point:new THREE.Vector3(x,heightAt(x,z)+.23,z),region:true});
 }
-function addCityLandmark(name,sub,coordinates,{height,target=coordinates,offset=[.63,.37,.88],cotai=false}={}){
+function addCityLandmark(name,sub,coordinates,{height,target=coordinates,labelLift,...viewOptions}={}){
  const element=document.createElement(height?'button':'span');element.className='terrain-label terrain-city-landmark';
  const strong=document.createElement('strong');strong.textContent=name;
  const small=document.createElement('small');small.textContent=sub;element.append(strong,small);
@@ -257,21 +261,21 @@ function addCityLandmark(name,sub,coordinates,{height,target=coordinates,offset=
   element.type='button';
   element.setAttribute('aria-label',`近看${name}`);
   element.title=`近看${name}`;
-  element.addEventListener('click',()=>focusCityLandmark(target,height,offset,cotai));
+  element.addEventListener('click',()=>focusCityLandmark(target,{height,...viewOptions}));
  }
- const lift=height ? height+(cotai ? .026 : .07) : .22;
+ const lift=labelLift??(height ? height+(viewOptions.cotai ? .026 : .07) : .22);
  api.addFeatureLabel(element,coordinates,lift);
 }
-function focusCityLandmark(coordinates,height,offset,cotai){
+function focusCityLandmark(coordinates,{height,offset=[.63,.37,.88],cotai=false,targetLift=height*.48,minDistance=defaultMinDistance}){
  window.historyExhibit?.stopWar();
  window.exhibitionUI?.closePanel();
  api.clearSelection();
  stopAuto();flat=false;initialView=false;controls.enableRotate=true;
  stage.classList.remove('macau-overview','timeline-zooming');
  stage.classList.toggle('cotai-view',cotai);
- const target=api.terrainPoint(coordinates,height*.48);
+ const target=api.terrainPoint(coordinates,targetLift);
  const distance=new THREE.Vector3(...offset).multiplyScalar(view.clientWidth<650?1.35:1);
- fly(target,target.clone().add(distance),reduced?0:1250,'ios');
+ fly(target,target.clone().add(distance),reduced?0:1250,'ios',minDistance);
  updateButtons();
 }
 function addCotaiLandmarks(){
@@ -285,7 +289,7 @@ function addCotaiLandmarks(){
   const button=document.createElement('button');
   button.type='button';
   button.textContent=name;
-  button.addEventListener('click',()=>focusCityLandmark(target,height,offset,true));
+  button.addEventListener('click',()=>focusCityLandmark(target,{height,offset,cotai:true}));
   navigation.append(button);
  }
 }
@@ -362,6 +366,76 @@ function addCitySilhouettes(){
  add(lisboa,new THREE.CylinderGeometry(.001,.004,.012,10),brass,.254);
  lisboa.name='Grand Lisboa, interpretive 260 m lotus silhouette';
 }
+function addGuiaLighthouse(){
+ const [x,z]=project(...cityModelSites.guia);
+ const ray=new THREE.Raycaster(new THREE.Vector3(x,1,z),new THREE.Vector3(0,-1,0));
+ const ground=ray.intersectObject(surfaceMesh,false)[0]?.point.y??heightAt(x,z);
+ const group=new THREE.Group();
+ group.name='Guia Lighthouse';
+ group.position.set(x,ground,z);
+ group.scale.setScalar(.001); // Construct in metres, then place on the kilometre-scale terrain.
+ const plaster=new THREE.MeshStandardMaterial({color:'#f7f4e9',roughness:.85});
+ const ochre=new THREE.MeshStandardMaterial({color:'#cb9d52',roughness:.68});
+ const iron=new THREE.MeshStandardMaterial({color:'#343f44',roughness:.62});
+ const glass=new THREE.MeshStandardMaterial({color:'#355b6d',roughness:.24,metalness:.3});
+ const roof=new THREE.MeshStandardMaterial({color:'#a53232',roughness:.58});
+ function add(geometry,material,y=0){
+  const mesh=new THREE.Mesh(geometry,material);
+  mesh.position.y=y;group.add(mesh);return mesh;
+ }
+ function drum(top,bottom,height,y,material){
+  return add(new THREE.CylinderGeometry(top,bottom,height,32),material,y);
+ }
+ function profile(points,material){
+  return add(new THREE.LatheGeometry(points.map(([r,y])=>new THREE.Vector2(r,y)),32),material);
+ }
+ // The tapered shaft supports two ringed galleries and a red lantern cupola.
+ profile([[0,-.5],[3.54,-.5],[3.5,.2],[3.2,2.9],[2.85,6.1],[2.49,9.08]],plaster);
+ drum(3.66,3.7,.38,.05,plaster);
+ drum(2.46,2.51,2.63,10.44,plaster);
+ for(const [radius,y] of [[2.96,9.13],[2.72,11.77]]){
+  drum(radius-.04,radius-.28,.38,y-.27,ochre);
+  drum(radius,radius,.19,y,plaster);
+  for(const lift of [.36,.72])add(new THREE.TorusGeometry(radius-.1,.034,6,32),iron,y+lift).rotation.x=Math.PI/2;
+  const posts=new THREE.InstancedMesh(new THREE.CylinderGeometry(.043,.048,.67,6),iron,16);
+  const transform=new THREE.Matrix4();
+  for(let i=0;i<posts.count;i++){
+   const angle=i*Math.PI/8;
+   posts.setMatrixAt(i,transform.makeTranslation(Math.sin(angle)*(radius-.1),y+.415,Math.cos(angle)*(radius-.1)));
+  }
+  group.add(posts);
+ }
+ drum(1.33,1.33,1.43,12.55,glass);
+ const mullion=new THREE.BoxGeometry(.072,1.43,.10);
+ for(let i=0;i<8;i++){
+  const angle=i*Math.PI/4;
+  const frame=add(mullion,plaster);
+  frame.position.set(1.33*Math.sin(angle),12.55,1.33*Math.cos(angle));frame.rotation.y=angle;
+ }
+ drum(1.45,1.45,.14,11.91,plaster);
+ drum(1.6,1.6,.13,13.3,plaster);
+ profile([[0,13.34],[1.59,13.34],[1.48,13.48],[1.15,13.68],[.75,13.94],[.34,14.24],[0,14.34]],roof);
+ add(new THREE.SphereGeometry(.27,12,8),roof,14.42);
+ add(new THREE.CylinderGeometry(.025,.037,.52,8),iron,14.88);
+ add(new THREE.BoxGeometry(.53,.055,.07),iron,14.94);
+ // Ochre surrounds frame the door and the narrow windows visible from the hill path.
+ function opening(angle,radius,y,width,height){
+  for(const [inset,material] of [[0,ochre],[.1,iron]]){
+   const half=width/2-inset,top=height-inset;
+   const arch=new THREE.Shape();
+   arch.moveTo(-half,inset);arch.lineTo(half,inset);arch.lineTo(half,top-half*.5);
+   arch.quadraticCurveTo(0,top+half*.5,-half,top-half*.5);arch.closePath();
+   const panel=add(new THREE.ShapeGeometry(arch),material);
+   const face=radius+inset*.3;
+   panel.position.set(face*Math.sin(angle),y,face*Math.cos(angle));
+   panel.rotation.y=angle;panel.rotateX(-.105);
+  }
+ }
+ opening(.13,3.53,.22,1.09,1.82);
+ opening(1.25,3.22,2.95,.54,.91);
+ opening(.50,2.86,6.08,.62,1.03);
+ scene.add(group);
+}
 function positionLabels(){
  const width=view.clientWidth,height=view.clientHeight,viewRect=view.getBoundingClientRect();
  const card=$('info'),cardRect=card&&!card.hidden?card.getBoundingClientRect():null;
@@ -389,7 +463,7 @@ function render(now){
   const t=THREE.MathUtils.clamp((now-cameraTween.start)/cameraTween.duration,0,1),smooth=cameraTween.easing==='ios'?(1-(1+8*t)*Math.exp(-8*t))/(1-9*Math.exp(-8)):t*t*t*(t*(t*6-15)+10);
   camera.position.lerpVectors(cameraTween.from,cameraTween.to,smooth);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,smooth);
   if(cameraTween.easing==='ios'&&activeGroundMarker?.visible)activeGroundMarker.scale.setScalar(1+.5*(1-smooth));
-  if(t>=1){cameraTween=null;stage.classList.remove('timeline-zooming');document.dispatchEvent(new CustomEvent('macau-terrain-camera-settled',{detail:{target:[controls.target.x,controls.target.y,controls.target.z]}}));}else tweening=true;
+  if(t>=1){controls.minDistance=cameraTween.minDistance;cameraTween=null;stage.classList.remove('timeline-zooming');document.dispatchEvent(new CustomEvent('macau-terrain-camera-settled',{detail:{target:[controls.target.x,controls.target.y,controls.target.z]}}));}else tweening=true;
  }
  const moved=controls.update(delta);
  if(controls.target.z< -1.2)ensurePeninsulaBuildings();
@@ -456,11 +530,12 @@ async function loadPeninsulaBuildings(){
  try{
   const response=await fetch('./terrain/peninsula-buildings.json');if(!response.ok)return;
   const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%3||!Array.isArray(data.indices)||data.indices.length%3)return;
-  // Remove the generic tall prisms at these two footprints so they do not
+  // Remove the generic tall prisms at these footprints so they do not
   // obscure the recognisable landmark forms drawn above.
   const replacements=[
    {point:project(...cityModelSites.tower),radius:.038,minTop:.18},
-   {point:project(...cityModelSites.lisboa),radius:.082,minTop:.09}
+   {point:project(...cityModelSites.lisboa),radius:.082,minTop:.09},
+   {point:project(...cityModelSites.guia),radius:.009,minTop:.20}
   ];
   const kept=[];
   for(let i=0;i<data.indices.length;i+=3){
@@ -470,6 +545,13 @@ async function loadPeninsulaBuildings(){
    const top=Math.max(data.positions[a+1],data.positions[b+1],data.positions[c+1]);
    if(replacements.some(({point,radius,minTop})=>top>minTop&&(x-point[0])**2+(z-point[1])**2<radius**2))continue;
    kept.push(data.indices[i],data.indices[i+1],data.indices[i+2]);
+  }
+  // A second footprint at the fort has an elevation entered as its height.
+  // Retain the footprint at the dataset's nominal five-metre building height.
+  const [fortX,fortZ]=project(113.5497919,22.19670274);
+  const fortRoof=heightAt(fortX,fortZ)+.006;
+  for(let i=0;i<data.positions.length;i+=3){
+   if(data.positions[i+1]>.20&&(data.positions[i]-fortX)**2+(data.positions[i+2]-fortZ)**2<.012**2)data.positions[i+1]=fortRoof;
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(kept);
   const hasColours=Array.isArray(data.colors)&&data.colors.length===data.positions.length;
@@ -493,7 +575,7 @@ async function init(){
   view.prepend(renderer.domElement);
   camera.position.copy(coloaneTarget).add(currentOffset.clone().multiplyScalar(fitFactor()*1.12));
   controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(coloaneTarget);controls.enableDamping=!reduced;controls.dampingFactor=.075;
-  controls.minDistance=mobile?.58:.44;controls.maxDistance=40;controls.minPolarAngle=.025;controls.maxPolarAngle=Math.PI*.485;
+  controls.minDistance=defaultMinDistance;controls.maxDistance=40;controls.minPolarAngle=.025;controls.maxPolarAngle=Math.PI*.485;
   controls.rotateSpeed=.56;controls.zoomSpeed=.85;controls.panSpeed=.6;controls.screenSpacePanning=false;controls.autoRotateSpeed=.36;
   controls.addEventListener('change',requestRender);
   controls.addEventListener('start',()=>{cameraTween=null;initialView=false;stage.classList.remove('timeline-zooming');if(activeGroundMarker)activeGroundMarker.scale.setScalar(1);stopAuto();requestRender();});
@@ -520,9 +602,12 @@ async function init(){
   sea.rotation.x=-Math.PI/2;sea.receiveShadow=true;scene.add(sea);
   await loadModel();initialized=true;
   addCitySilhouettes();
+  addGuiaLighthouse();
+  addCityLandmark('東望洋燈塔','GUIA LIGHTHOUSE',cityModelSites.guia,{
+   height:.015,offset:[.035,.022,.047],labelLift:.0175,targetLift:.011,minDistance:.053
+  });
   addCityLandmark('澳門旅遊塔','MACAU TOWER',cityModelSites.tower,{height:.338});
   addCityLandmark('新葡京','GRAND LISBOA',cityModelSites.lisboa,{height:.260});
-  addCityLandmark('東望洋山','GUIA HILL',[113.54977,22.19651]);
   addCotaiLandmarks();
   resize();
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
