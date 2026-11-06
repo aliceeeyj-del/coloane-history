@@ -12,6 +12,8 @@ const mobile=matchMedia('(max-width: 800px)').matches;
 const defaultMinDistance=mobile?.58:.44;
 const exaggeration=1.65, landDatum=.028;
 const project=(lon,lat)=>[(lon-113.56)*111.32*Math.cos(22.16*Math.PI/180),(22.16-lat)*111.32];
+// The relief omits the opposite bank, but older detail layers still include it.
+const westOfColoane=(x,z)=>x < -1.2 && z > 1.3;
 // Each model and its label use the same mapped footprint.
 const cityModelSites={tower:[113.5368,22.17982],lisboa:[113.54336,22.19099],guia:[113.549706,22.196434]};
 const scene=new THREE.Scene();
@@ -509,6 +511,7 @@ async function loadModel(){
   shore.rotation.x=-Math.PI/2;shore.position.set((maxx+minx)/2,.008,(maxz+minz)/2);shore.renderOrder=1;scene.add(shore);
  }
  for(const points of data.bridges||[]){
+  if(points.every(([x,,z])=>westOfColoane(x,z)))continue;
   const geometry=makeGeometry(points.flatMap(([x,y,z])=>[x,.055,z]));
   model.add(new THREE.Line(geometry,new THREE.LineBasicMaterial({color:'#bdbba3',transparent:true,opacity:.6})));
  }
@@ -521,7 +524,13 @@ async function loadVillageBuildings(){
  try{
   const response=await fetch('./terrain/street-details.json');if(!response.ok)return;
   const data=await response.json();if(!Array.isArray(data.positions)||data.positions.length%9)return;
-  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.computeVertexNormals();
+  const vertices=data.positions,positions=[];
+  for(let i=0;i<vertices.length;i+=9){
+   const x=(vertices[i]+vertices[i+3]+vertices[i+6])/3;
+   const z=(vertices[i+2]+vertices[i+5]+vertices[i+8])/3;
+   if(!westOfColoane(x,z))positions.push(...vertices.slice(i,i+9));
+  }
+  const geometry=makeGeometry(positions);
   const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#d1c9ad',roughness:1,metalness:0,side:THREE.DoubleSide}));
   mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);requestRender();
  }catch(error){console.warn('Village building detail unavailable:',error);}
