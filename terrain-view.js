@@ -1,6 +1,8 @@
 import * as THREE from './vendor/three.module.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { cotaiLandmarks, makeCotaiLandmark } from './cotai-landmarks.js';
+import { airportDetail, makeAirportDetail } from './airport-detail.js';
+import { connectedBridgePaths } from './terrain-bridges.js';
 
 // Local tangent-plane coordinates in kilometres, referenced to Macau.
 // Elevations originate in the supplied DEM; material detail never changes geometry.
@@ -65,12 +67,11 @@ const api={
   fly(controls.target.clone(),controls.target.clone().add(offset),reduced?0:450);
  },
  reset(){resetColoane();},
- overview(){ensurePeninsulaBuildings();resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),true);},
+ overview(){ensurePeninsulaBuildings();resetView(macauTarget,new THREE.Vector3(6.8,9.6,11.5),'macau');},
  cotaiOverview(){
   if(!initialized){ready.then(ok=>{if(ok)api.cotaiOverview();});return;}
-  resetView(api.terrainPoint([113.55895,22.14730],.05),new THREE.Vector3(.30,.93,1.55));
-  stage.classList.add('cotai-view');
-  updateButtons();
+  ensurePeninsulaBuildings();
+  resetView(api.terrainPoint([113.5688,22.149],.05),new THREE.Vector3(-.42,3.8,5.2),'cotai');
  },
  rotate(){if(!controls)return;cameraTween=null;flat=false;auto=!auto;controls.enableRotate=true;controls.autoRotate=auto;updateButtons();requestRender();},
  flat(){
@@ -144,18 +145,22 @@ function setActive(value){
  if(changed)document.dispatchEvent(new CustomEvent('macau-view-change',{detail:{terrain:active}}));
 }
 function stopAuto(){auto=false;if(controls)controls.autoRotate=false;updateButtons();}
-function fitFactor(){return Math.max(1,Math.min(2.6,1.3/Math.max(.5,view.clientWidth/view.clientHeight)));}
+function fitFactor(){
+ const width=stage.classList.contains('cotai-view')?1.7:1.3;
+ return Math.max(1,width/Math.max(.5,view.clientWidth/view.clientHeight));
+}
 function presentationZoom(){const aspect=view.clientWidth/view.clientHeight;return aspect>2.4?Math.max(.8,1-(aspect-2.4)*.22):1;}
 function resetColoane(){resetView(coloaneTarget,new THREE.Vector3(2.25,4.65,5.45));}
-function resetView(target,offset,overview=false){
+function resetView(target,offset,region='coloane'){
  if(!controls)return;stopAuto();flat=false;initialView=true;api.clearSelection();
- stage.classList.remove('timeline-zooming','cotai-view');
+ stage.classList.remove('timeline-zooming');
+ stage.classList.toggle('cotai-view',region==='cotai');
+ stage.classList.toggle('macau-overview',region==='macau');
  currentTarget.copy(target);currentOffset.copy(offset);
  controls.enableRotate=true;
- // A wide presentation screen has room to show Coloane closer without
- // cropping the full-Macau overview used by the other navigation button.
- fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor()*(overview?1:presentationZoom()))),reduced?0:1250,'smooth',defaultMinDistance);
- stage.classList.toggle('macau-overview',overview);updateButtons();
+ const zoom=region==='coloane'?presentationZoom():1;
+ fly(target.clone(),target.clone().add(offset.clone().multiplyScalar(fitFactor()*zoom)),reduced?0:1250,'smooth',defaultMinDistance);
+ updateButtons();
 }
 function fly(target,position,duration=1200,easing='smooth',minDistance){
  if(!controls)return;
@@ -284,14 +289,17 @@ function addCotaiLandmarks(){
  const navigation=$('cotai-landmarks');
  if(!navigation)return;
  for(const landmark of cotaiLandmarks){
-  const {name,english,coordinates,target,offset}=landmark;
-  const height=landmark.height/1000;
   scene.add(makeCotaiLandmark(landmark,api.terrainPoint,!mobile));
-  addCityLandmark(name,english,coordinates,{height,target,offset,cotai:true});
+ }
+ scene.add(makeAirportDetail(api.terrainPoint,mobile));
+ for(const landmark of [...cotaiLandmarks,airportDetail]){
+  const {name,english,coordinates,target=coordinates,offset,labelLift,targetLift,minDistance}=landmark;
+  const options={height:landmark.height/1000,offset,cotai:true,labelLift,targetLift,minDistance};
+  addCityLandmark(name,english,coordinates,{...options,target});
   const button=document.createElement('button');
   button.type='button';
   button.textContent=name;
-  button.addEventListener('click',()=>focusCityLandmark(target,{height,offset,cotai:true}));
+  button.addEventListener('click',()=>focusCityLandmark(target,options));
   navigation.append(button);
  }
 }
@@ -479,16 +487,41 @@ function resize(){
  if(!renderer||!active||!view.clientWidth||!view.clientHeight)return;
  const previousAspect=camera.aspect;camera.aspect=view.clientWidth/view.clientHeight;camera.updateProjectionMatrix();renderer.setSize(view.clientWidth,view.clientHeight);
  if(initialized&&initialView&&Math.abs(previousAspect-camera.aspect)>.1){
-  const zoom=stage.classList.contains('macau-overview') ? 1 : presentationZoom();
+  const zoom=stage.matches('.macau-overview,.cotai-view')?1:presentationZoom();
   const destination=currentTarget.clone().addScaledVector(currentOffset,fitFactor()*zoom);
   if(cameraTween)cameraTween.to.copy(destination);
   else {controls.target.copy(currentTarget);camera.position.copy(destination);controls.update();}
  }
  requestRender();
 }
+function levelAirportRunway(data){
+ // The offshore runway is a separate reclaimed island. The DEM is noisy
+ // there, so use the airport's published 6.2 m runway elevation.
+ function insideRing(x,z,ring){
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+   const [ax,,az]=ring[j],[bx,,bz]=ring[i];
+   if((az>z)!==(bz>z)&&x<ax+(bx-ax)*(z-az)/(bz-az))inside=!inside;
+  }
+  return inside;
+ }
+ const [nx,nz]=project(...airportDetail.runwayNorth),[sx,sz]=project(...airportDetail.runwaySouth);
+ const island=data.rings.find(ring=>ring.every(([x])=>x>2.5)&&insideRing((nx+sx)/2,(nz+sz)/2,ring));
+ if(!island)return;
+ const coast=new Set(island.map(([x,,z])=>`${x},${z}`));
+ const xs=island.map(point=>point[0]),zs=island.map(point=>point[2]);
+ const west=Math.min(...xs),east=Math.max(...xs),north=Math.min(...zs),south=Math.max(...zs);
+ for(let i=0;i<data.positions.length;i+=3){
+  const x=data.positions[i],z=data.positions[i+2];
+  if(x<west||x>east||z<north||z>south)continue;
+  if(coast.has(`${x},${z}`)||insideRing(x,z,island))data.positions[i+1]=.0062;
+ }
+ for(const point of island)point[1]=.0062;
+}
 async function loadModel(){
  progress(.16,'讀取澳門海岸與高程資料');
- const response=await fetch('./terrain/macau.json');if(!response.ok)throw Error('地形資料未能載入');const data=await response.json();rawPositions=data.positions;
+ const response=await fetch('./terrain/macau.json');if(!response.ok)throw Error('地形資料未能載入');const data=await response.json();
+ levelAirportRunway(data);rawPositions=data.positions;
  progress(.45,'載入山林、道路與近岸材質');
  const loader=new THREE.TextureLoader();
  const [texture,waterTexture]=await Promise.all([loader.loadAsync('./terrain/surface.png'),data.waterTexture?loader.loadAsync('./terrain/'+data.waterTexture).catch(()=>null):Promise.resolve(null)]);
@@ -510,11 +543,17 @@ async function loadModel(){
   const shore=new THREE.Mesh(new THREE.PlaneGeometry(maxx-minx,maxz-minz),new THREE.MeshStandardMaterial({map:waterTexture,transparent:true,roughness:1,metalness:0,depthWrite:false}));
   shore.rotation.x=-Math.PI/2;shore.position.set((maxx+minx)/2,.008,(maxz+minz)/2);shore.renderOrder=1;scene.add(shore);
  }
- for(const points of data.bridges||[]){
-  if(points.every(([x,,z])=>westOfColoane(x,z)))continue;
-  const geometry=makeGeometry(points.flatMap(([x,y,z])=>[x,.055,z]));
-  model.add(new THREE.Line(geometry,new THREE.LineBasicMaterial({color:'#bdbba3',transparent:true,opacity:.6})));
+ const bridgePaths=(data.bridges||[]).filter(path=>path.length>1&&!path.every(([x,,z])=>westOfColoane(x,z)));
+ const bridgeVertices=[];
+ for(const path of connectedBridgePaths(bridgePaths,data.rings)){
+  for(let i=1;i<path.length;i++){
+   const [ax,,az]=path[i-1],[bx,,bz]=path[i];
+   bridgeVertices.push(ax,.055,az,bx,.055,bz);
+  }
  }
+ const bridgeGeometry=new THREE.BufferGeometry();
+ bridgeGeometry.setAttribute('position',new THREE.Float32BufferAttribute(bridgeVertices,3));
+ model.add(new THREE.LineSegments(bridgeGeometry,new THREE.LineBasicMaterial({color:'#bdbba3',transparent:true,opacity:.6})));
  activeGroundMarker=makeLocator();
  addRegion('澳門半島','MACAU PENINSULA',113.544,22.194,1);addRegion('氹仔','TAIPA',113.558,22.158);addRegion('路氹','COTAI',113.566,22.145);addRegion('路環','COLOANE',113.577,22.123,0);
  progress(.82,'整理歷史地標與閱讀視角');
@@ -534,6 +573,38 @@ async function loadVillageBuildings(){
   const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:'#d1c9ad',roughness:1,metalness:0,side:THREE.DoubleSide}));
   mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);requestRender();
  }catch(error){console.warn('Village building detail unavailable:',error);}
+}
+function addBuildingMesh(geometry,fallbackColour='#cfc6ae'){
+ const vertexColors=geometry.hasAttribute('color');
+ geometry.computeVertexNormals();
+ const material=new THREE.MeshStandardMaterial({
+  color:vertexColors?'#ffffff':fallbackColour,vertexColors,roughness:.96,metalness:0,side:THREE.DoubleSide
+ });
+ const mesh=new THREE.Mesh(geometry,material);
+ mesh.castShadow=!mobile;mesh.receiveShadow=true;scene.add(mesh);requestRender();
+}
+async function loadSouthernBuildings(){
+ try{
+  const response=await fetch('./terrain/southern-buildings.bin');
+  if(!response.ok)throw Error('Southern building data unavailable');
+  const buffer=await response.arrayBuffer();
+  if(buffer.byteLength<8)throw Error('Incomplete building data header');
+  const header=new DataView(buffer);
+  const vertexCount=header.getUint32(0,true),indexCount=header.getUint32(4,true);
+  const colourOffset=8+vertexCount*3*Float32Array.BYTES_PER_ELEMENT;
+  const indexOffset=Math.ceil((colourOffset+vertexCount*3)/4)*4;
+  if(!vertexCount||!indexCount||indexCount%3||indexOffset+indexCount*4!==buffer.byteLength){
+   throw Error('Unexpected building data size');
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(buffer,8,vertexCount*3),3));
+  geometry.setAttribute('color',new THREE.BufferAttribute(new Uint8Array(buffer,colourOffset,vertexCount*3),3,true));
+  geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(buffer,indexOffset,indexCount),1));
+  addBuildingMesh(geometry);
+ }catch(error){
+  console.warn('Southern building detail unavailable:',error);
+  loadVillageBuildings();
+ }
 }
 async function loadPeninsulaBuildings(){
  try{
@@ -564,9 +635,8 @@ async function loadPeninsulaBuildings(){
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(data.positions,3));geometry.setIndex(kept);
   const hasColours=Array.isArray(data.colors)&&data.colors.length===data.positions.length;
-  if(hasColours)geometry.setAttribute('color',new THREE.Float32BufferAttribute(data.colors,3));geometry.computeVertexNormals();
-  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:hasColours?'#ffffff':'#cfc6ae',vertexColors:hasColours,roughness:.96,metalness:0,side:THREE.DoubleSide}));
-  mesh.castShadow=!mobile;mesh.receiveShadow=true;scene.add(mesh);requestRender();
+  if(hasColours)geometry.setAttribute('color',new THREE.Float32BufferAttribute(data.colors,3));
+  addBuildingMesh(geometry);
  }catch(error){console.warn('Peninsula building detail unavailable:',error);}
 }
 function ensurePeninsulaBuildings(){
@@ -622,7 +692,7 @@ async function init(){
   currentTarget.copy(coloaneTarget);currentOffset.set(2.25,4.65,5.45);
   fly(coloaneTarget.clone(),coloaneTarget.clone().add(currentOffset.clone().multiplyScalar(fitFactor()*presentationZoom())),reduced?0:1800);
   $('terrain-loading').hidden=true;view.setAttribute('aria-busy','false');stage.classList.add('terrain-ready');
-  loadVillageBuildings();
+  loadSouthernBuildings();
   progress(1,'地景已就緒');resolveReady(true);document.dispatchEvent(new CustomEvent('macau-terrain-ready',{detail:{dataSource:'OSM / AWS Terrain Tiles',exaggeration}}));
   new ResizeObserver(resize).observe(view);
   const card=$('info');if(card)new MutationObserver(requestRender).observe(card,{attributes:true,attributeFilter:['hidden','class','style']});
