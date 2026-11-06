@@ -22,7 +22,7 @@
   const token=serial;
   const coloane=area===0;
   main.textContent=coloane?'路環':'澳門半島';
-  sub.textContent=coloane?'山海之间':'街巷之間';
+  sub.textContent=coloane?'山海之间':'街巷記憶';
   overline.textContent=coloane?'COLOANE · A LANDSCAPE OF MEMORY':'MACAU PENINSULA · AN ATLAS OF MEMORY';
   layer.classList.toggle('is-long',!coloane);
   layer.classList.add('is-visible');stage.classList.add('cine-active');
