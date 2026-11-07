@@ -1,664 +1,796 @@
-<!DOCTYPE html>
-<html lang="zh-Hant-MO"><head><meta charset="utf-8">
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>十月初五 · 路環歷史地景</title>
-<meta name="description" content="沿著山海與街巷，閱讀路環及澳門半島的歷史。真實地形、18項完整歷史記錄與路環戰役史料。">
-<link rel="stylesheet" href="vendor/maplibre-gl.css"><script defer src="vendor/maplibre-gl.js"></script><style>
-:root{--bg:#e9eff5;--ink:#12243a;--mute:#566a80;--acc:#f2b134;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08121e;--ink:#e9f0f7;--mute:#9bb0c6;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#08121e;--ink:#e9f0f7;--mute:#9bb0c6;color-scheme:dark}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
-main{max-width:620px;margin:0 auto;padding:12px 12px 28px}
-.stage{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:14px;background:#05101c}
-.stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#05101c 0,#05101c00 22%),radial-gradient(ellipse at 50% 45%,#0000 55%,#05101ccc 100%)}
-.persp{position:absolute;inset:0;perspective:900px}
-svg{width:100%;height:100%;display:block;transform-origin:50% 75%;transition:transform .9s}
-svg.t{transform:rotateX(24deg) scale(1.22)}
-.hd{position:absolute;left:14px;top:10px;z-index:2;color:#f2d28a;text-shadow:0 2px 8px #000}
-.hd h1{margin:0;font:700 28px/1.2 "Songti SC","Noto Serif SC",serif}
-.hd p{margin:2px 0 0;font-size:12px;color:#d9c9a0}
-.ov{position:absolute;right:10px;top:10px;width:28%;z-index:2;border:2px solid #fff8;border-radius:8px;overflow:hidden;line-height:0}
-.ov img{width:100%;display:block}
-.ov i{position:absolute;left:36.3%;top:71.5%;width:12px;height:12px;margin:-7px;border:3px solid var(--acc);border-radius:50%}
-.tools{position:absolute;left:10px;top:78px;z-index:2;display:flex;flex-direction:column;gap:6px}
-.tools button{font:inherit;font-size:12px;color:#eaf1f8;background:#06101cbb;border:1px solid #fff4;border-radius:8px;padding:5px 10px;cursor:pointer}
-.info{position:absolute;left:10px;right:10px;bottom:10px;z-index:3;max-height:42%;overflow:auto;background:#06101ccf;backdrop-filter:blur(6px);color:#eaf1f8;border:1px solid #f2b13559;border-radius:12px;padding:10px 14px}
-.info.in{animation:up .5s}
-@keyframes up{from{opacity:0;transform:translateY(16px)}}
-.info small{color:var(--acc);font-size:13px}
-.info h2{margin:0;font:700 18px/1.4 "Songti SC","Noto Serif SC",serif;color:#f2d28a}
-.info p{margin:4px 0 8px;font-size:14px;line-height:1.65}
-.info button{font:inherit;font-size:13px;color:#06101c;background:var(--acc);border:0;border-radius:8px;padding:5px 14px;margin-right:8px;cursor:pointer}
-.lb{fill:#fff;stroke:#0b1826;stroke-width:9px;paint-order:stroke;font-size:42px;font-weight:600}
-.nd{fill:#fff;stroke:#0b1826;stroke-width:6}
-.rg{fill:none;stroke:var(--acc);stroke-width:6;opacity:0;transform-box:fill-box;transform-origin:center}
-g.on .nd{fill:var(--acc)}
-g.on .rg{animation:pu 1.6s infinite}
-@keyframes pu{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.9);opacity:0}}
-#hl{fill:none;stroke:var(--acc);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px var(--acc))}
-#dot{fill:#fff;stroke:var(--acc);stroke-width:8;opacity:0}
-.tl{display:flex;overflow-x:auto;background:#0a1626;border-radius:12px;margin-top:10px;padding:6px}
-.tl button{flex:0 0 auto;min-width:98px;background:none;border:0;border-radius:8px;color:#cfd9e6;font:inherit;font-size:13px;line-height:1.4;padding:16px 6px 8px;position:relative;cursor:pointer}
-.tl button::before{content:"";position:absolute;top:4px;left:50%;width:9px;height:9px;margin-left:-4px;border-radius:50%;background:#b8a46a}
-.tl button b{display:block;font-weight:400;font-size:11px;color:#8fa3b8}
-.tl button.on{background:#4a1d1d;color:#fff}
-.tl button.on::before{background:#ff5a4a}
-button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.note{color:var(--mute);font-size:12px;margin:12px 4px 0}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-.sg{transition:opacity .6s}.sg.off{opacity:0;pointer-events:none}
-
-:root{color-scheme:dark;--bg:#0a1015;--ink:#eee4ce;--mute:#a99e8c;--acc:#f4bc75}
-body{background:#0a1015;color:#eee4ce}
-main{max-width:1600px;padding:0 0 10px}
-header,.rail{display:flex;align-items:center;gap:18px;padding:10px 22px;background:#0e171f;border-bottom:1px solid #d5ae7333}
-header strong{font:700 clamp(22px,3vw,36px) Georgia,serif;color:#f2cd91}
-header span,.rail span{font-size:13px;color:#b7ab99}
-header button{margin-left:auto}
-header button,.tools button{border:1px solid #e5bc793d;border-radius:5px;background:#101a23;color:#f3e4c6;padding:6px 10px;white-space:nowrap;cursor:pointer}
-.stage{aspect-ratio:auto;height:clamp(430px,66vh,850px);border-radius:0;background:radial-gradient(ellipse at 52% 38%,#494037,#222327 54%,#10161a)}
-.stage::after{background:radial-gradient(ellipse at center,transparent 48%,#080e1466 100%)}
-.persp{perspective:1100px;inset:0 8%;touch-action:none;cursor:grab}
-.persp:active{cursor:grabbing}
-svg{transform-origin:50% 50%;transform:none}
-svg.t{transform:rotateX(33deg) rotateZ(var(--az,-9deg)) scale(1.14)}
-svg image{filter:sepia(.27) saturate(.85) brightness(.91)}
-svg:not(.t) .relief{display:none}
-.hd{left:26px;top:22px;pointer-events:none}
-.hd h1{font-size:clamp(22px,3vw,40px)}
-.ov{top:auto;bottom:18px;left:22px;width:105px;right:auto;opacity:.85}
-.tools{left:auto;right:18px;top:17px;flex-direction:row;flex-wrap:wrap;justify-content:flex-end}
-.info{left:auto;right:20px;bottom:24px;width:min(285px,32%);max-height:48%;border-radius:7px;background:#101a23ed;box-shadow:0 10px 34px #0009}
-.info #close{float:right;margin:0;background:transparent;color:#eee4ce;padding:0 5px}
-.info[hidden]{display:none}
-.tl{margin:0;border-radius:0;background:#0e171f;padding:8px 16px 12px}
-.tl button{flex:1 0 116px;padding:18px 8px 8px;border-top:1px solid #806b4b55;border-radius:4px}
-.tl button.on{background:linear-gradient(#6e3025,#281d1e)}
-/* A quiet reveal when the timeline is populated, followed by an animated active marker. */
-.tl{scrollbar-color:#826344 #17232c;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
-.tl button{isolation:isolate;scroll-snap-align:center;transition:background .35s ease,color .35s ease,border-color .5s ease,transform .3s ease,box-shadow .35s ease;animation:tl-reveal .52s ease backwards;animation-delay:var(--tl-delay,0ms)}
-.tl button::before{z-index:2;transition:background .4s ease,box-shadow .4s ease,transform .4s ease}
-.tl button::after{content:"";position:absolute;z-index:1;top:0;left:50%;width:17px;height:17px;margin-left:-8px;border:1px solid #ffa178;border-radius:50%;opacity:0;pointer-events:none}
-.tl button.past{border-top-color:#cf9a5b;color:#ead9bc}.tl button.past::before{background:#f1c77e;box-shadow:0 0 8px #e4a85a88}
-.tl button.on{border-top-color:#ff8261;transform:translateY(-2px);box-shadow:0 4px 16px #0006,inset 0 1px #e17c64a0}
-.tl button.on::before{background:#ff6f56;transform:scale(1.25);box-shadow:0 0 7px #ff8f69,0 0 16px #ff684aaa}
-.tl button.on::after{animation:tl-halo 2s ease-out infinite}
-.tl button.on b{color:#f2c19d}.tl button:focus-visible{z-index:3}
-@keyframes tl-reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes tl-halo{0%{transform:scale(.65);opacity:.85}100%{transform:scale(1.8);opacity:0}}
-@media(prefers-reduced-motion:reduce){.tl button,.tl button.on::after{animation:none!important;transition:none!important}.tl{scroll-behavior:auto}}
-
-.note{padding:0 18px}
-.lb{fill:#fff0d3;stroke:#161717;stroke-width:7px;font-size:32px;pointer-events:none}
-.nd{fill:#ec8660;stroke:#fff1d3;stroke-width:5}
-#hl{stroke:#f16640;stroke-width:10;filter:drop-shadow(0 0 4px #ff5c36)}
-.pin{cursor:pointer}
-.pin:focus-visible .nd{stroke:#fff;stroke-width:10}
-@media(max-width:650px){
- header,.rail{padding:8px 12px;gap:10px}
- header span{display:none}
- .stage{height:67svh;min-height:420px}
- .hd{left:12px;top:10px}
- .tools{top:58px;right:8px;gap:4px}
- .tools button{padding:4px 7px}
- .persp{inset:22px 0 48px}
- .ov{display:none}
- .info{width:auto;left:8px;right:8px;bottom:8px;max-height:30%}
- .info p{font-size:13px}
-}
-
-#live-map{background:#ddd0b6;position:absolute;inset:0;opacity:0;pointer-events:none}
-.stage.live #live-map{opacity:1;pointer-events:auto}
-.stage.live .persp,.stage.live .ov{visibility:hidden}
-.stage.live::after{opacity:.13}
-.map-pin{border:1px solid #f7c785;color:#fff1d2;background:#162027;padding:5px 8px;border-radius:5px;cursor:pointer;font-weight:700}
-.map-pin.active{background:#a8412b;box-shadow:0 0 14px #f16640}
-.maplibregl-ctrl-attrib{color:#172025}
-.direction-arrow{width:30px;height:24px;clip-path:polygon(0 29%,54% 29%,54% 0,100% 50%,54% 100%,54% 71%,0 71%);pointer-events:none}
-#event-source{display:inline-block;color:#f6cf92;margin-top:7px;font-size:12px}
-#event-source[hidden]{display:none}
-
-#battle-controls{position:absolute;z-index:4;left:16px;top:106px;max-width:calc(100% - 32px);padding:8px 11px;background:#101a23f2;color:#fff1da;border:1px solid #d5b27f88;border-radius:8px;font-size:12px}
-#battle-controls button,dialog button{background:#253442;color:#fff1da;border:1px solid #ffffff44;border-radius:4px;padding:4px 8px;cursor:pointer}
-#battle-controls button[aria-pressed=true]{background:#794725}
-#battle-controls p{margin:2px 0 6px}
-.red-force{color:#ff947a}.blue-force{color:#86caff}
-.direction-arrow.counter{clip-path:polygon(0 10%,47% 10%,47% 0,100% 50%,47% 100%,47% 90%,0 90%,38% 50%)}
-.force-label{color:white;background:#142233;padding:4px 7px;border:2px solid var(--force);border-radius:5px;white-space:nowrap;font-size:12px}
-dialog{width:min(680px,90vw);max-height:85vh;overflow:auto;background:#17222b;color:#fff1da;border:1px solid #a58963;border-radius:10px;padding:16px;box-sizing:border-box}
-dialog::backdrop{background:#060b12c9}
-dialog a{color:#f8ce87}dialog svg{height:auto;transform:none}
-@media(max-width:650px){#battle-controls{left:8px;top:99px;max-width:calc(100% - 16px)}}
-#battle-caption{margin:6px 0 0;color:#f5d9ae}
-@media(max-width:650px){.stage.battle-playing .info:not(.expanded) p,.stage.battle-playing .info:not(.expanded) #rp,.stage.battle-playing .info:not(.expanded) #sp,.stage.battle-playing .info:not(.expanded) #event-source,.stage.battle-playing .info:not(.expanded) br{display:none}}
-#battle-details[hidden]{display:none}
-@media(min-width:651px){#battle-details{display:none}}
-#event-art[hidden]{display:none}#event-art{margin:8px 0 7px}#event-art button{display:block;width:100%;padding:0;margin:0;background:none}#event-art img,#art-dialog img{display:block;width:100%;height:auto;border-radius:5px}#event-art figcaption{font-size:11px;color:#dbc9a8}#art-dialog h2{padding-right:105px}@media(max-width:650px){.stage.battle-playing .info:not(.expanded) #event-art{display:none}}#art-nav[hidden]{display:none}#art-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}#art-dialog img{max-height:56vh;object-fit:contain} .era-spotlight{pointer-events:none;text-align:center}
-.era-spotlight strong{display:block;background:#10202b;color:#fff5e4;padding:5px 9px;border:1px solid var(--era-color);border-radius:6px;white-space:nowrap;font-size:13px;box-shadow:0 0 8px var(--era-color),0 0 20px var(--era-color);text-shadow:0 0 9px var(--era-color)}
-.era-spotlight i{display:block;width:22px;height:22px;border:2px solid var(--era-color);border-radius:50%;margin:6px auto 0;box-shadow:0 0 18px var(--era-color);animation:era-pulse 1.8s ease-out infinite}
-@keyframes era-pulse{from{transform:scale(.65);opacity:1}to{transform:scale(2.1);opacity:.25}}
-.landmark-dot.active{background:#a33e29;color:#fff8e0;box-shadow:0 0 0 3px #ffd88c,0 0 16px 7px #ff995cbb;position:relative;z-index:2}.landmark-dot.active::after{content:"";position:absolute;inset:-5px;border:2px solid #ffd88c;border-radius:50%;pointer-events:none;animation:pin-halo 1.8s ease-out infinite}@keyframes pin-halo{0%{transform:scale(.9);opacity:.9}100%{transform:scale(2.1);opacity:0}}.landmark-dot[hidden]{display:none}.landmark-dot{width:22px;height:22px;padding:0;line-height:20px;border-radius:50%;color:#f6ce87;font-size:10px} #laichi-steps[hidden]{display:none}</style><link rel="stylesheet" href="terrain.css"><link rel="stylesheet" href="cat-story.css">
-</head><body>
-<div id="exhibit-loader" role="status" aria-live="polite"><div class="loader-mark" aria-hidden="true">初五</div><p class="loader-kicker">COLOANE · AN ATLAS OF MEMORY</p><h1 class="loader-title">十月初五</h1><p class="loader-copy">山海之間，歷史留下的坐標。</p><progress id="load-progress" max="100" value="8" aria-label="地形載入進度"></progress><p id="load-status">正在準備歷史地景…</p><button id="skip-loading" type="button">先閱讀歷史資料</button></div>
-<main>
-<header class="exhibition-header"><a class="exhibition-brand" href="#" aria-label="十月初五首頁"><span class="brand-seal" aria-hidden="true">澳</span><span><strong>十月初五</strong><small>澳門歷史地景 · COLOANE HERITAGE ATLAS</small></span></a><nav id="view-nav" aria-label="展示模式"><button data-view="terrain" aria-pressed="true">3D 地形視圖</button><button data-view="street" aria-pressed="false">2D 歷史地圖</button><button data-view="timeline" aria-pressed="false">時間軸全景</button></nav><button id="full" title="全螢幕展示">全螢幕</button></header>
-<div id="exhibit-intro"><span class="intro-kicker">山海 · 街巷 · 記憶</span><p>沿著地形，閱讀一座地方的歷史。</p><span class="intro-count">18 項歷史記錄 · 2 條街道</span></div>
-<div class="stage terrain-mode">
-<div id="terrain-view" aria-label="澳門立體地形" aria-busy="true">
-<div id="terrain-labels"></div><p id="terrain-loading" role="status">正在建立澳門立體地形…</p><button id="terrain-retry" hidden>重新載入</button>
-</div>
-<div id="terrain-heading">
-  <small>A LANDSCAPE OF MEMORY</small><h1>路環 · 山海之間</h1><p>COLOANE · MACAU</p><i class="rule"></i><p class="terrain-caption">循著山海，走進歷史</p>
-  <div id="cotai-heading"><small>TAIPA · COTAI</small><h1>氹仔 · 路氹</h1><p>現代城市地景</p></div>
-</div>
-<div id="terrain-legend"><strong><i></i>真實高程 · 歷史定位</strong><div class="terrain-gradient"></div><p>低地 ───────── 山地</p><p>高程放大 1.65 倍 · 建築高度 1:1</p></div>
-<div id="terrain-compass"><small>N</small><span id="north-arrow">↑</span><div id="bearing">0°</div></div>
-<div id="terrain-hint">拖曳／單指旋轉 · 滾輪／雙指縮放 · 雙指平移<button id="terrain-detail">閱讀完整時間軸 ↗</button></div>
-<nav id="cotai-landmarks" aria-label="近看氹仔及路氹地標"></nav>
-<div id="live-map" aria-label="十月初五互動地圖"></div><div id="street-notice" role="status" hidden>正在載入歷史街道地圖…</div>
-<div id="forces-overlay" aria-hidden="true"><div class="force-pirates"></div><div class="force-portuguese"></div></div><div id="forces-key" hidden><b><i class="force-blue"></i>澳葡軍警</b><b><i class="force-purple"></i>海盜團伙</b><span>色彩只示意戰事進程，並非實際控制範圍或退路</span></div><svg id="route-overlay" aria-hidden="true"></svg><div id="stage-vfx" aria-hidden="true"><span class="fx-water"></span><span class="fx-flash"></span><span class="fx-smoke"></span></div>
-<div class="hd"><h1 id="area">路環十月初五馬路</h1><p id="hp">選擇下方地標，探索海旁的歷史</p></div>
-<div class="tools"><button id="z1">放大</button><button id="z0">縮小</button><button id="zr" title="返回路環全景">重置視角</button><button id="macau-overview">澳門總覽</button><button id="cotai-overview" aria-pressed="false">氹仔及路氹</button><button id="td">俯視</button><button id="rot" aria-pressed="false">360° 旋轉</button><button id="labels-toggle" aria-pressed="true">隱藏地名</button><button id="view-switch" aria-pressed="true">街道地圖</button></div>
-<aside class="info" id="info" aria-labelledby="tt" hidden>
-<div class="panel-handle" id="panel-handle"><small id="panel-location">路環歷史檔案</small><span aria-hidden="true">拖曳移動 ⠿</span></div>
-<button id="close" aria-label="關閉介紹">×</button><small id="yr"></small><h2 id="tt" tabindex="-1"></h2><div id="panel-meta"><span id="panel-coordinate"></span></div>
-<button id="coast-film-open" type="button" aria-haspopup="dialog" aria-controls="clip-dialog" hidden>
-  <span aria-hidden="true">▶</span> 觀看路環海旁實景 <small>0:47</small>
-</button>
-<div id="photo-switch" role="group" aria-label="歷史與現代圖片切換" hidden><button id="photo-original" type="button" aria-pressed="true">史料插圖</button><button id="photo-modern" type="button" aria-pressed="false">現代照片</button></div>
-<figure id="event-art" hidden><button id="art-open" aria-label="放大插圖"><img id="art-thumb" alt=""></button><video id="art-motion-video" muted playsinline controls loop preload="none" hidden aria-label="由原圖製作的動態插圖，並非歷史影片"></video><figcaption id="art-credit"></figcaption><button id="art-motion-toggle" type="button" hidden aria-pressed="false">▶ 觀看動態插圖</button><small id="art-motion-note" hidden>原插圖製作的慢鏡展示，並非歷史影片；原圖及史料保持可查閱。</small></figure>
-<figure id="modern-photo" hidden><button id="modern-open" type="button" aria-label="放大現代照片"><img id="modern-thumb" alt="" loading="lazy" decoding="async"></button><figcaption id="modern-caption"></figcaption><div class="modern-photo-credit"><span id="modern-credit-label">攝影</span>：<span id="modern-author"></span><span id="modern-license-wrap"> · <a id="modern-license" target="_blank" rel="noopener"></a></span><br><a id="modern-source" target="_blank" rel="noopener">Wikimedia Commons · 原圖與資料 ↗</a><small>近年街景只作位置與環境對照，不代表歷史時期的原貌。</small></div></figure>
-<div class="panel-section-label">歷史背景</div><p id="tx"></p><div id="war-gallery" hidden aria-label="路環戰役場景插圖"><button id="open-panorama" type="button">◉ 進入 360° 路環海旁</button><p>戰役場景插圖：點選放大</p><p><a href="https://commons.wikimedia.org/wiki/File:Coloane_after_the_1910_bombing.jpg" target="_blank" rel="noopener">查看標註為1910年炮擊後的舊照 ↗</a>（作者及首次發表資料未明）</p><div class="gallery-row"><button data-art="0" aria-label="放大登岸插圖"><img src="media/war-0.webp" alt="登岸場景插圖"></button><button data-art="1" aria-label="放大炮擊插圖"><img src="media/war-1.webp" alt="炮擊場景插圖"></button><button data-art="2" aria-label="放大搜捕插圖"><img src="media/war-2.webp" alt="搜捕場景插圖"></button><button data-art="3" aria-label="放大紀念碑插圖"><img src="media/war-3.webp" alt="紀念碑場景插圖"></button></div></div><div id="laichi-steps" hidden><ul class="war-legend"><li><strong>澳葡巡捕分遣隊</strong> · 藍箭嘴：由水面指向荔枝碗據點，示意進駐方向。</li><li><strong>海盜團伙</strong> · 與葡方交戰；位置及行軍未確認。</li><li><strong>路環居民</strong> · 有居民要求派兵保護。</li></ul><button id="laichi-advance">播放進駐方向</button><p>史料未交代分兵，示意箭嘴不代表實際航線。</p></div><div id="war-steps" hidden><div class="war-player"><button id="war-auto" type="button">▶ 播放戰役全過程</button><button id="war-stop" type="button" hidden>■ 停止播放</button><button id="forces-toggle" type="button" aria-pressed="true">隱藏色彩</button><button id="war-audio" type="button" aria-pressed="false">🔇 開啟音效</button><span id="war-progress" role="status"></span></div><p class="fx-disclaimer">路線、船隻、部隊、聲音與光影為示意，並非確切戰鬥位置。</p><div id="war-villagers" hidden><strong>村民視角</strong><p>炮擊波及路環村落，造成村民傷亡。橙色光圈只標示村落一帶，並非已確認的受害地點。</p><a href="https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db" target="_blank" rel="noopener">閱讀相關記載 ↗</a></div><ul class="war-legend"><li><strong>澳葡軍警</strong> · 藍箭嘴：海上登岸；紅箭嘴：向九澳搜捕。</li><li><strong>綁架者／海盜團伙</strong> · 曾抵抗葡軍；移動路線未確認。</li><li><strong>路環村民及人質</strong> · 受戰事波及；橙圈標示村落一帶。</li></ul><button data-phase="0">① 登陸</button><button data-phase="1">② 炮擊</button><button data-phase="2">③ 向九澳搜捕</button><button data-phase="3">④ 回到紀念碑</button></div><a id="photo-source" href="https://commons.wikimedia.org/wiki/File:Coloane_Village.JPG" target="_blank" rel="noopener" hidden>實景照片來源與 CC BY-SA 3.0 授權 ↗</a> <span class="source-label">史料與延伸閱讀</span><a id="event-source" target="_blank" rel="noopener">查看資料 ↗</a></aside>
-</div>
-<div class="rail">
-  <strong>歷史時間軸</strong>
-  <div class="area-segments" role="group" aria-label="歷史時間軸地區">
-    <button data-area="0" aria-pressed="true">路環馬路</button>
-    <button data-area="1" aria-pressed="false">半島日街</button>
-  </div>
-  <div class="station-nav" role="group" aria-label="展覽站點">
-    <button id="station-prev" type="button" aria-label="上一站" disabled>‹</button>
-    <output id="station-count" aria-live="polite"></output>
-    <button id="station-next" type="button" aria-label="下一站">›</button>
-  </div>
-</div>
-<div class="timeline-shell"><button id="timeline-prev" aria-label="時間軸向前滑動">‹</button><div class="tl" id="tl" aria-label="歷史事件時間軸"></div><button id="timeline-next" aria-label="時間軸向後滑動">›</button></div>
-<section id="timeline-gallery" hidden aria-labelledby="archive-title"><div class="archive-heading"><span>HISTORICAL RECORDS</span><h1 id="archive-title">時間軸全景</h1><p>每一段記錄均保留原有文字與資料連結。選擇地點，回到地圖探索。</p><div id="archive-filter"><button data-filter="all" aria-pressed="true">全部記錄 · 18</button><button data-filter="0" aria-pressed="false">路環 · 10</button><button data-filter="1" aria-pressed="false">澳門半島 · 8</button></div></div><div class="archive-grid" id="archive-grid"></div></section>
-<p class="note" id="status">立體地形：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors / ODbL</a> · <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · <a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">AWS Terrain Tiles 高程資料</a>。現代地形供歷史定位參照，高程放大 1.65 倍。建築依地圖輪廓及樓高製作，缺少樓高的建築採用參考高度。機場細節及飛機供展示示意。</p>
-<dialog id="pano-dialog" aria-labelledby="pano-title"><div class="pano-head"><div><small>沉浸式歷史場景</small><h2 id="pano-title">路環海旁 · 1910</h2></div><button id="close-panorama" type="button">返回地圖 ×</button></div><p class="pano-intro">拖動畫面環視四周；手機可用手指滑動。場景屬藝術重現，並非歷史實拍。</p><div id="panorama" aria-label="路環海旁360度場景"></div><p id="pano-status" role="status">正在載入場景…</p><div class="pano-motion-controls"><button id="pano-rotate" type="button" aria-pressed="false">▶ 自動環視</button><button id="pano-effects" type="button" aria-pressed="true">暫停光影與煙霧</button></div><div class="pano-tabs" aria-label="事件介紹"><button data-pano-info="0">事件背景</button><button data-pano-info="1">海上行動</button><button data-pano-info="2">村民處境</button></div><p id="pano-info">1910年7月，綁架事件引發澳葡當局派兵到路環，其後衝突波及村落。</p><a href="https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db" target="_blank" rel="noopener">查看歷史資料 ↗</a></dialog><dialog id="art-dialog"><form method="dialog"><button style="float:right">返回地圖 ×</button></form><h2 id="art-title"></h2><img id="art-large" alt=""><p id="art-dialog-note">景觀插圖或情景重構。建築、人物及歷史場景細節屬藝術演繹。</p></dialog><dialog id="modern-dialog" aria-labelledby="modern-dialog-title"><form method="dialog"><button class="modern-dialog-close" type="submit">返回資料 ×</button></form><h2 id="modern-dialog-title">近年照片</h2><img id="modern-large" alt=""><p id="modern-dialog-caption"></p><a id="modern-dialog-source" target="_blank" rel="noopener">Wikimedia Commons · 原圖與授權 ↗</a></dialog>
-<dialog id="clip-dialog" aria-labelledby="clip-title">
-  <div class="clip-header">
-    <div><small>現代實景 · 47 秒</small><h2 id="clip-title">路環十月初五馬路 · 海旁漫步</h2></div>
-    <form method="dialog"><button type="submit" autofocus>返回地圖 ×</button></form>
-  </div>
-  <video id="coast-film" controls playsinline preload="none" poster="media/modern/coloane-waterfront.webp" aria-label="路環海旁漫步影片">
-    <source src="media/modern/coloane-waterfront.mp4" type="video/mp4">
-  </video>
-  <p>沿海堤看路環十月初五馬路的步道、街屋與壁畫。影片由用戶提供。</p>
-</dialog>
-<footer class="exhibition-footer"><span>十月初五 · 澳門歷史地景</span><p>現代地形與歷史記憶的對讀。插圖、行動方向與岩層厚度屬展示示意；史料來源見各項記錄。</p><button id="sources-open">資料與地形說明 ↗</button></footer></main>
+<meta name="color-scheme" content="light">
+<title>中國大陸與日本｜經濟走勢對照</title>
 <style>
-#pano-dialog{width:min(1040px,96vw);max-width:1040px;max-height:92vh;padding:16px}#pano-dialog::backdrop{background:#050b10eb}.pano-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.pano-head h2{margin:0;color:#f2cd91}.pano-head small{color:#e0b777}.pano-intro,#pano-info{font-size:14px}.pano-tabs{display:flex;gap:7px;flex-wrap:wrap}.pano-tabs button{padding:7px 10px}#panorama{height:min(52vh,480px);min-height:240px;background:#111e27;border:1px solid #7b6a4c;border-radius:8px;overflow:hidden}#pano-status{margin:4px 0;color:#e7cfa2;font-size:13px}#pano-dialog a{color:#f8ce87}.pano-motion-controls{display:flex;gap:7px;margin:8px 0}.pano-motion-controls button{padding:7px 10px}.pano-smoke,.pano-wave{pointer-events:none!important;background:none!important}.pano-smoke::after,.pano-wave::after{content:"";position:absolute;pointer-events:none}.pano-smoke::after{width:110px;height:120px;left:-55px;bottom:-24px;background:radial-gradient(ellipse at 55% 70%,#d6d3c548,transparent 60%),radial-gradient(ellipse at 35% 45%,#e9e1d02b,transparent 62%);filter:blur(8px);animation:pano-drift 7s ease-in-out infinite alternate}.pano-wave::after{width:105px;height:35px;left:-52px;top:-17px;background:repeating-linear-gradient(174deg,transparent 0 7px,#fff4cf66 8px,transparent 10px 17px);border-radius:50%;filter:blur(1.6px);opacity:.25;animation:pano-glint 4s ease-in-out infinite alternate}.pano-effects-paused .pano-wave::after,.pano-effects-paused .pano-smoke::after{animation-play-state:paused}@keyframes pano-drift{from{transform:translate(-8px,10px) scale(.8);opacity:.25}to{transform:translate(12px,-26px) scale(1.3);opacity:.8}}@keyframes pano-glint{from{transform:translateX(-8px);opacity:.08}to{transform:translateX(8px);opacity:.38}}@media(prefers-reduced-motion:reduce){.pano-smoke::after,.pano-wave::after{animation:none}}@media(max-width:650px){#pano-dialog{width:96vw;padding:10px}#panorama{height:42vh;min-height:220px}.pano-head h2{font-size:20px}}
-#war-gallery[hidden]{display:none}.gallery-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.gallery-row button{padding:0;margin:0;background:none}.gallery-row img{width:100%;height:52px;object-fit:cover;border-radius:4px}.war-legend{padding-left:18px;font-size:13px;line-height:1.5}.war-legend li:first-child strong{color:#8bc6ff}.war-legend li:last-child strong{color:#ffc184}.rail button{background:#192735;color:#f4e7cf;border:1px solid #b79b6f66;border-radius:5px;padding:5px 9px;cursor:pointer}.rail button[aria-pressed=true]{background:#714d2b}
-#forces-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .7s ease;overflow:hidden}#forces-overlay.visible{opacity:1}#forces-overlay .force-pirates,#forces-overlay .force-portuguese{position:absolute;top:0;bottom:0;transition:width 2.6s ease,opacity 2.6s ease;pointer-events:none}#forces-overlay .force-pirates{right:0;width:var(--pirate-width,72%);background:linear-gradient(90deg,transparent,#b64a9770 30%,#8a2f7d75);opacity:var(--pirate-opacity,.9)}#forces-overlay .force-portuguese{left:0;width:var(--portuguese-width,28%);background:linear-gradient(90deg,#248be078,#318ee06b 70%,transparent)}#forces-overlay[data-phase="0"]{--portuguese-width:35%;--pirate-width:70%;--pirate-opacity:.9}#forces-overlay[data-phase="1"]{--portuguese-width:52%;--pirate-width:54%;--pirate-opacity:.8}#forces-overlay[data-phase="2"]{--portuguese-width:77%;--pirate-width:30%;--pirate-opacity:.55}#forces-overlay[data-phase="3"]{--portuguese-width:110%;--pirate-width:0%;--pirate-opacity:0}#forces-key{position:absolute;z-index:2;left:14px;bottom:20px;max-width:min(430px,calc(100% - 28px));padding:6px 10px;background:#091620e8;color:#f7ecdb;border:1px solid #d8bd8066;border-radius:6px;font-size:12px;pointer-events:none}#forces-key[hidden]{display:none}#forces-key b{display:inline-block;margin-right:12px}#forces-key i{display:inline-block;width:10px;height:10px;margin-right:5px;border-radius:50%}.force-blue{background:#4da5f0}.force-purple{background:#d17aba}#forces-key span{display:block;color:#e2cfaf;font-size:11px}@media(max-width:650px){#forces-key{top:96px;bottom:auto;left:8px;right:8px;max-width:none;font-size:11px;line-height:1.4}#forces-key span{font-size:10px}}
-.war-unit{pointer-events:none;text-align:center;color:white;white-space:nowrap}.war-unit svg{display:block;width:42px;height:32px;margin:auto;overflow:visible;filter:drop-shadow(0 0 6px #a2dcff);transform:none!important}.war-unit span{display:block;background:#102238ef;border:1px solid #8fc9ff;border-radius:4px;padding:2px 5px;color:#eff9ff;font-size:10px;line-height:1.2}.war-unit.troops svg{filter:drop-shadow(0 0 6px #ffb1a2)}.war-unit.troops span{border-color:#ffad94}#war-villagers[hidden]{display:none}#war-villagers{margin:9px 0;padding:8px 10px;background:#5e3a26b8;border:1px solid #f1ad66;border-radius:6px;color:#fff0d6}#war-villagers strong{color:#ffcd91}#war-villagers p{margin:3px 0;font-size:12px}#war-villagers a{font-size:12px;color:#ffe0a9}
-#stage-vfx{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}#stage-vfx span{position:absolute;display:block;opacity:0;pointer-events:none}.fx-water{left:8%;top:35%;width:46%;height:24%;background:repeating-linear-gradient(174deg,transparent 0 15px,#a9e9ff33 16px,transparent 20px 34px);filter:blur(2px);border-radius:50%}.fx-flash{left:35%;top:34%;width:29%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff9d6cc 0,#ffa74688 13%,#ef6a2833 35%,transparent 65%);filter:blur(8px)}.fx-smoke{left:28%;top:30%;width:45%;height:40%;background:radial-gradient(ellipse at 40% 65%,#e6d7be44,transparent 45%),radial-gradient(ellipse at 60% 45%,#c3b6a538,transparent 45%);filter:blur(15px)}#stage-vfx.sea .fx-water{animation:water-fx 4s ease-in-out infinite alternate}#stage-vfx.shelling .fx-flash{animation:flash-fx 3s ease-out 2}#stage-vfx.shelling .fx-smoke{animation:smoke-fx 8s ease-out 1}.war-player{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}.war-player #war-auto{background:#c04a30;color:white;box-shadow:0 0 14px #d85b3b88}.war-player #war-stop{background:#263744;color:#fff}.war-player #war-stop[hidden]{display:none}.war-player span,.fx-disclaimer{font-size:12px;color:#d7bd95}.fx-disclaimer{margin:5px 0!important}[data-phase].phase-active{background:#c14b36;color:#fff;box-shadow:0 0 12px #fa745988}#event-art img{animation:art-arrive .7s ease-out}@keyframes art-arrive{from{opacity:.2;transform:scale(.96)}to{opacity:1;transform:scale(1)}}@keyframes water-fx{from{opacity:.1;transform:translateX(-20px)}to{opacity:.65;transform:translateX(20px)}}@keyframes flash-fx{0%,40%,100%{opacity:0;transform:scale(.4)}8%{opacity:.8;transform:scale(1)}18%{opacity:.15}26%{opacity:.6;transform:scale(1.2)}}@keyframes smoke-fx{0%{opacity:0;transform:translateY(15px) scale(.6)}30%{opacity:.7}100%{opacity:0;transform:translateY(-55px) scale(1.35)}}
-.stage{background:#233741}.stage.live #live-map{opacity:1}.info{max-height:66%}.info #event-art img{max-height:120px;object-fit:cover}
-#route-overlay{position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;overflow:hidden;transform:none}
-#route-overlay text{font-family:"PingFang TC","Microsoft JhengHei",sans-serif;paint-order:stroke;stroke:#10202b;stroke-width:1px}
-@media(max-width:650px){.info{max-height:42%}.info #event-art img{max-height:76px}}
+:root {
+  --paper:#f4efe6; --ink:#1c1a17; --muted:#655b50; --rule:#afa292; --red:#bd422d; --jp:#353b37;
+  --sans:"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --serif:"Songti TC","Noto Serif TC","PMingLiU","SimSun",serif;
+  --fig:Georgia,"Times New Roman",serif; --mono:"Cascadia Mono",Consolas,monospace; --dock-height:58px;
+}
+*,*::before,*::after { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; }
+body { background:#161511; color:var(--ink); font-family:var(--sans); }
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+:focus-visible { outline:3px solid #b48239; outline-offset:4px; }
+button[disabled] { cursor:default; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+#screen { position:fixed; inset:0 0 var(--dock-height); overflow:hidden; touch-action:pan-y; }
+#stage { position:absolute; width:1920px; height:1080px; transform-origin:0 0; overflow:hidden; background:var(--paper); }
+.slide {
+  position:absolute; inset:0; overflow:hidden; background:var(--paper); opacity:0; visibility:hidden;
+  transition:opacity .32s ease, visibility 0s linear .32s;
+}
+.slide.active { opacity:1; visibility:visible; transition:opacity .32s ease; z-index:1; }
+.slide::before { content:""; position:absolute; left:0; top:0; height:7px; width:100%; background:var(--red); opacity:.9; }
+.mast {
+  position:absolute; left:105px; right:105px; top:75px; display:flex; justify-content:space-between; align-items:center;
+  border-top:3px solid var(--ink); border-bottom:1px solid var(--rule); padding:16px 0; font-size:24px;
+  font-weight:700; letter-spacing:.13em;
+}
+.mast span:last-child { font:22px var(--mono); color:var(--red); letter-spacing:.08em; }
+.head { position:absolute; left:105px; right:105px; top:176px; }
+.head h2 { margin:0; font:800 76px/1.15 var(--serif); letter-spacing:-.016em; }
+.head p { margin:19px 0 0; font-size:30px; color:var(--muted); letter-spacing:.035em; }
+.foot {
+  position:absolute; bottom:68px; left:105px; right:105px; border-top:1px solid var(--rule); padding-top:17px;
+  display:flex; justify-content:space-between; align-items:center; gap:32px; color:var(--muted); font-size:22px;
+}
+.foot b { color:var(--ink); flex:none; font:22px var(--mono); }
+.split { position:absolute; top:345px; left:105px; right:105px; bottom:159px; display:grid; grid-template-columns:1218px minmax(0,1fr); gap:48px; align-items:start; }
+.chart-shell { min-width:0; }
+.legend { display:flex; align-items:center; gap:37px; margin:0 0 10px 77px; font-size:25px; color:var(--muted); }
+.legend i { display:inline-block; width:14px; height:14px; margin-right:10px; vertical-align:2px; }
+.legend .cn-key { background:var(--red); border-radius:50%; }
+.legend .jp-key { background:var(--jp); transform:rotate(45deg); }
+.chart { display:block; width:100%; overflow:visible; }
+.chart text { font-family:var(--sans); font-weight:650; fill:var(--muted); font-size:24px; }
+.chart .grid { stroke:#cfc4b4; stroke-width:1; }
+.chart .zero { stroke:#776c5f; stroke-width:2; }
+.chart .cn-ink { fill:var(--red); }
+.chart .jp-ink { fill:var(--jp); }
+.chart .series { fill:none; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; }
+.chart .series.cn-ink { stroke:var(--red); }
+.chart .series.jp-ink { stroke:var(--jp); }
+.chart .point { stroke:var(--paper); stroke-width:4; }
+.chart .value { font-size:26px; font-weight:750; }
+.chart .year { font:25px var(--mono); }
+.aside {
+  border-left:1px solid var(--rule); padding:24px 0 20px 45px; min-height:480px;
+  display:flex; flex-direction:column; align-items:start;
+}
+.label { margin:0; color:var(--muted); font-size:25px; font-weight:700; letter-spacing:.1em; }
+.measure { font:600 126px/.94 var(--fig); color:var(--red); letter-spacing:-.06em; font-variant-numeric:lining-nums tabular-nums; }
+.measure small { font:700 28px var(--sans); letter-spacing:0; margin-left:12px; }
+.aside .measure { margin:34px 0 28px; }
+.aside p:last-child { margin:0; max-width:12.8em; font-size:33px; line-height:1.5; }
+.aside h3 { margin:20px 0 9px; font:800 38px/1.2 var(--serif); }
+.aside .scope { margin:0 0 12px; font-size:28px; line-height:1.48; }
+.aside .scope:last-child { margin-top:14px; font-size:25px; color:var(--muted); }
+.aside .scope-rule { width:100%; border-top:1px solid var(--rule); margin:14px 0 0; }
+
+/* Cover and optical opening */
+.cover-title { position:absolute; left:105px; top:254px; margin:0; font:800 125px/1.2 var(--serif); letter-spacing:-.02em; }
+.cover-title span { display:block; overflow:hidden; }
+.cover-title b { display:block; }
+.cover-title .red { color:var(--red); }
+.cover-period { position:absolute; top:620px; left:112px; margin:0; font-size:32px; letter-spacing:.055em; }
+.cover-period::before { content:""; display:inline-block; width:56px; height:3px; margin-right:22px; vertical-align:.27em; background:var(--red); }
+.cover-plot { position:absolute; left:1090px; top:234px; width:725px; min-height:565px; padding-left:60px; border-left:1px solid var(--rule); }
+.cover-plot h3 { margin:0 0 35px; font-size:31px; letter-spacing:.05em; }
+.cover-row { margin:0 0 30px; color:var(--jp); }
+.cover-row:first-of-type { color:var(--red); }
+.cover-value { display:flex; align-items:baseline; justify-content:space-between; }
+.cover-value > span { font-size:34px; font-weight:700; }
+.cover-value strong { font:600 104px/.98 var(--fig); letter-spacing:-.06em; }
+.cover-value small { font:36px var(--fig); margin-left:8px; }
+.cover-bar { display:block; width:var(--bar); height:20px; margin-top:17px; background:currentColor; transform-origin:left; }
+.cover-caption { margin-top:43px; color:var(--muted); font-size:23px; }
+.opening { position:absolute; z-index:3; inset:0; background:#100b09; overflow:hidden; color:#fff4d8; visibility:hidden; pointer-events:none; }
+.opening canvas { position:absolute; width:100%; height:100%; inset:0; }
+.opening::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,#140c08e8 0%,#140c088c 33%,transparent 65%); }
+.opening-copy { position:absolute; z-index:1; left:108px; top:145px; }
+.opening-kicker { margin:0 0 40px; font:25px var(--mono); color:#e1b77b; letter-spacing:.19em; }
+.opening-copy p:nth-child(2) { margin:0 0 38px; font:800 91px/1.08 var(--serif); }
+.opening-count { display:flex; align-items:baseline; gap:36px; font:500 161px/.94 var(--fig); letter-spacing:-.06em; color:#ffe5ab; }
+.opening-count small { font:51px var(--fig); letter-spacing:0; }
+.opening-count .slash { font:66px var(--fig); color:#b6905c; }
+.opening-unit { margin:27px 0 0; font-size:29px; letter-spacing:.10em; color:#efc98e; }
+.play .opening { visibility:visible; animation:open-mask 2.95s both; }
+.play .opening-copy { animation:open-copy .72s cubic-bezier(.2,.7,.2,1) both; }
+.play .cover-title b { animation:title-rise .84s 2.10s cubic-bezier(.19,.72,.2,1) both; }
+.play .cover-title span:nth-child(2) b { animation-delay:2.23s; }
+.play .cover-bar { animation:grow-x .88s 2.24s cubic-bezier(.19,.72,.2,1) both; }
+.play .cover-row:nth-of-type(2) .cover-bar { animation-delay:2.40s; }
+
+/* Comparative charts and annotated pages */
+.waterfalls { position:absolute; left:105px; right:105px; top:351px; display:grid; grid-template-columns:1fr 1fr; gap:64px; }
+.waterfalls article + article { position:relative; }
+.waterfalls article + article::before { content:""; position:absolute; top:0; bottom:0; left:-32px; border-left:1px solid var(--rule); }
+.waterfalls h3 { margin:0 0 7px 57px; font:800 42px var(--serif); }
+.waterfalls article:first-child h3 { color:var(--red); }
+.waterfalls .chart { height:490px; }
+.tableau { position:absolute; left:105px; right:105px; top:347px; }
+.tableau-row { display:grid; grid-template-columns:1.46fr 1fr 1fr; align-items:center; border-bottom:1px solid var(--rule); min-height:144px; }
+.tableau-row.heading { min-height:66px; border-top:2px solid var(--ink); font-size:27px; letter-spacing:.08em; font-weight:700; }
+.tableau-row > div { padding-left:22px; }
+.tableau-row > div:nth-child(2) { color:var(--red); }
+.tableau-row h3 { margin:0; font:800 42px/1.1 var(--serif); }
+.tableau-row p { margin:10px 0 0; font-size:25px; color:var(--muted); }
+.tableau-row strong { font:500 93px/.96 var(--fig); letter-spacing:-.055em; }
+.tableau-row small { font-size:32px; margin-left:8px; }
+.tableau-note { margin:19px 0 0 22px; font-size:24px; color:var(--muted); }
+
+/* Live comparison */
+.interactive { position:absolute; left:105px; right:105px; top:346px; }
+.interactive-controls { display:grid; grid-template-columns:1fr 1fr; gap:65px; align-items:center; padding:20px 0 19px; border-block:1px solid var(--rule); }
+#metrics { display:flex; gap:12px; }
+#metrics button { border:1px solid #968878; padding:13px 20px; color:var(--ink); background:transparent; font-size:27px; font-weight:700; }
+#metrics button[aria-pressed=true] { background:var(--red); color:white; border-color:var(--red); }
+.range-block { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:16px 30px; }
+.range-block label { font-size:28px; font-weight:750; }
+#yearLabel { color:var(--red); }
+#year { width:100%; height:36px; accent-color:var(--red); }
+.range-marks { display:flex; justify-content:space-between; grid-column:2; color:var(--muted); font:19px var(--mono); margin-top:-12px; }
+.readout { display:grid; grid-template-columns:1fr 1fr 1fr; gap:50px; margin-top:37px; }
+.readout > div { border-top:3px solid var(--ink); padding:16px 0 8px; }
+.readout > div:first-child { border-color:var(--red); }
+.readout p { margin:0 0 10px; font-size:27px; font-weight:700; }
+.readout strong { font:500 102px/.92 var(--fig); letter-spacing:-.052em; }
+.readout > div:first-child strong { color:var(--red); }
+.readout small { font-size:26px; margin-left:10px; }
+.comparison-bars { position:relative; padding:26px 0 4px; }
+.track { height:20px; position:relative; margin-bottom:16px; background:#e5dac9; }
+.track::before { content:""; position:absolute; left:var(--zero-position,10%); height:32px; top:-6px; width:2px; background:#766956; z-index:1; }
+.live-bar { display:block; position:absolute; top:0; left:var(--bar-start,10%); width:var(--bar-width,0%); height:100%; background:var(--red); transition:left .36s ease,width .36s ease; }
+.track + .track .live-bar { background:var(--jp); }
+.track .live-bar.is-zero { width:3px; }
+.readout strong { display:inline-block; }
+.readout.changed strong { animation:readout-in .28s cubic-bezier(.22,.8,.22,1) both; }
+#interaction-note { margin:12px 0 0; color:var(--muted); font-size:25px; }
+
+/* Ending and sources */
+.outlook { position:absolute; top:362px; left:105px; right:105px; display:grid; grid-template-columns:1fr 1fr; gap:66px; }
+.outlook article { padding-top:19px; border-top:5px solid var(--red); }
+.outlook article + article { border-color:var(--jp); }
+.outlook h3 { margin:0; font:800 49px/1.15 var(--serif); }
+.outlook time { display:block; margin:13px 0 34px; color:var(--muted); font-size:24px; }
+.outlook .keyfigures { display:grid; grid-template-columns:1.17fr 1fr; gap:19px; }
+.outlook .keyfigures strong { color:var(--red); font:500 94px/.95 var(--fig); letter-spacing:-.06em; }
+.outlook article + article .keyfigures strong { color:var(--jp); }
+.outlook .keyfigures small { margin-left:7px; font:30px var(--fig); }
+.outlook .keyfigures span:last-child { display:block; margin-top:14px; font-size:28px; font-weight:700; }
+.outlook p { margin:36px 0 0; padding-top:23px; border-top:1px solid var(--rule); font-size:31px; line-height:1.53; }
+.sources { position:absolute; top:341px; left:105px; right:105px; display:grid; grid-template-columns:1fr 1fr; gap:66px; }
+.sources article { border-top:4px solid var(--ink); }
+.sources h3 { font:800 43px var(--serif); margin:19px 0; }
+.sources p { font-size:29px; margin:0; padding:18px 0; border-top:1px solid var(--rule); line-height:1.4; }
+.sources p b { color:var(--red); font:23px var(--mono); margin-right:12px; }
+.source-action { position:absolute; top:819px; left:105px; display:flex; align-items:center; gap:25px; }
+.source-action button { background:var(--ink); color:var(--paper); border:0; padding:16px 25px; font-size:27px; font-weight:700; }
+.source-action span { color:var(--muted); font-size:25px; }
+
+/* Reveal animations */
+.play .head { animation:headline-in .7s cubic-bezier(.2,.7,.2,1) both; }
+.play .series { stroke-dasharray:1; stroke-dashoffset:1; animation:draw 1.05s .17s ease-in-out both; }
+.play .series.jp-ink { animation-delay:.28s; }
+.play .chart .point,.play .chart .value,.play .chart .join { animation:mark-in .45s calc(.30s + var(--i,0) * .105s) ease-out both; }
+.play .chart .bar { transform-box:fill-box; transform-origin:center bottom; animation:grow-y .65s calc(.18s + var(--i,0) * .09s) cubic-bezier(.22,.8,.23,1) both; }
+.play .chart .bar.below { transform-origin:center top; }
+.play .aside,.play .outlook article,.play .sources article { animation:page-wipe .76s .24s cubic-bezier(.22,.75,.22,1) both; }
+.play .outlook article + article,.play .sources article + article { animation-delay:.38s; }
+.play .tableau-row:not(.heading) { animation:page-wipe .63s calc(.08s + var(--i,0) * .12s) cubic-bezier(.23,.76,.25,1) both; }
+@keyframes open-mask {
+  0%,65% { clip-path:inset(0); opacity:1; visibility:visible; }
+  97% { clip-path:inset(0 0 0 100%); opacity:1; visibility:visible; }
+  100% { clip-path:inset(0 0 0 100%); opacity:0; visibility:hidden; }
+}
+@keyframes open-copy { from { transform:translateX(-48px); opacity:0; filter:blur(8px); } to { transform:translateX(0); opacity:1; filter:none; } }
+@keyframes title-rise { from { transform:translateY(110%); } to { transform:translateY(0); } }
+@keyframes grow-x { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes grow-y { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes headline-in { from { clip-path:inset(0 100% 0 0); } to { clip-path:inset(0); } }
+@keyframes page-wipe { from { clip-path:inset(0 0 100% 0); } to { clip-path:inset(0); } }
+@keyframes draw { to { stroke-dashoffset:0; } }
+@keyframes mark-in { from { opacity:0; } to { opacity:1; } }
+@keyframes readout-in { from { opacity:.4; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* Controls remain readable outside the 16:9 artboard */
+#dock { position:fixed; left:0; right:0; bottom:0; color:#f6eddf; background:#211e19; border-top:1px solid #ffffff26; z-index:6; }
+.toolbar { display:flex; align-items:center; justify-content:center; gap:8px; padding:6px 12px max(6px,env(safe-area-inset-bottom)); }
+.toolbar button { min-width:44px; min-height:44px; background:#ffffff09; color:inherit; border:1px solid #ffffff30; padding:6px 13px; }
+.toolbar button:hover { background:#ffffff1e; }
+.toolbar button:disabled { opacity:.42; }
+.toolbar .number { min-width:82px; text-align:center; font:15px var(--mono); color:#f7cf9a; }
+.toolbar .short { display:none; }
+.dots { display:flex; gap:3px; margin:0 8px; }
+.dots button { min-width:28px; min-height:34px; padding:3px; border:none; background:none; color:#d4c8b6; font:13px var(--mono); }
+.dots button[aria-current=true] { color:#ffe6be; background:#a23c28; }
+#mobile-summary,#phone-interactive,#phone-sources { display:none; }
+@media (max-width:680px) { .dots { display:none; } }
+@media (max-width:430px) {
+  .toolbar { gap:5px; padding-inline:7px; }
+  .toolbar button { padding:6px 7px; font-size:14px; }
+  .toolbar .number { min-width:62px; font-size:13px; }
+  .toolbar .long { display:none; }
+  .toolbar .short { display:inline; }
+}
+@media (orientation:portrait) and (max-width:700px) {
+  #mobile-summary { display:block; padding:10px 14px 4px; font-size:14px; line-height:1.48; color:#e0d3bf; }
+  body[data-page="7"] #phone-interactive { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:9px 12px 4px; }
+  #phone-interactive label { font-size:13px; }
+  #phone-interactive select { display:block; min-height:44px; width:100%; margin-top:4px; color:#fff4df; background:#352e24; border:1px solid #928272; font-size:16px; }
+  body[data-page="9"] #phone-sources { display:block; margin:7px 12px 3px; padding:8px 12px; min-height:44px; background:#352e24; color:#fff4df; border:1px solid #928272; }
+}
+#sources-dialog { width:min(850px,calc(100% - 24px)); max-height:85dvh; padding:0; background:var(--paper); color:var(--ink); border:1px solid var(--rule); }
+#sources-dialog::backdrop { background:#100d0bd9; }
+.dialog-head { position:sticky; top:0; background:var(--paper); border-bottom:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center; gap:15px; padding:16px 20px; }
+.dialog-head h2 { margin:0; font:800 25px var(--serif); }
+.dialog-head button { min-height:44px; padding:6px 12px; background:var(--ink); color:var(--paper); border:0; }
+.dialog-body { padding:5px 20px 23px; line-height:1.6; }
+.dialog-body h3 { margin:19px 0 5px; }
+.dialog-body li { margin:6px 0; }
+.dialog-body code { overflow-wrap:anywhere; font-size:.84em; color:#713320; }
+.dialog-body table { border-collapse:collapse; width:100%; margin:8px 0; font-size:14px; }
+.dialog-body th,.dialog-body td { padding:7px 3px; border-bottom:1px solid #c9beaf; text-align:right; }
+.dialog-body th:first-child,.dialog-body td:first-child { text-align:left; }
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation:none!important; transition:none!important; }
+  .opening { display:none!important; }
+  .play .series { stroke-dashoffset:0; }
+}
 </style>
+</head>
+<body data-page="1">
+<main id="screen" aria-label="中日經濟走勢演示">
+  <div id="stage">
+    <section class="slide active" aria-label="1 封面" data-summary="中國大陸與日本經濟走勢對照。從 2025 年實質 GDP 增速開始。">
+      <header class="mast"><span>宏觀經濟比較</span><span>ECONOMIC BRIEFING</span></header>
+      <h1 class="cover-title"><span><b>中國大陸與日本</b></span><span class="red"><b>經濟走勢對照</b></span></h1>
+      <p class="cover-period">2021–2025 年走勢與 2026 年近況</p>
+      <div class="cover-plot">
+        <h3>2025 年實質 GDP 年增率</h3>
+        <div class="cover-row" style="--bar:100%"><div class="cover-value"><span>中國大陸</span><strong><span data-count="5.0" data-delay="2170">5.0</span><small>%</small></strong></div><i class="cover-bar"></i></div>
+        <div class="cover-row" style="--bar:24%"><div class="cover-value"><span>日本</span><strong><span data-count="1.2" data-delay="2300">1.2</span><small>%</small></strong></div><i class="cover-bar"></i></div>
+        <p class="cover-caption">曆年同比 · 已扣除價格變動</p>
+      </div>
+      <footer class="foot"><span>資料｜中國國家統計局、日本內閣府</span><b>01 / 09</b></footer>
+      <div class="opening" aria-hidden="true">
+        <canvas id="opening-canvas" width="1280" height="720"></canvas>
+        <div class="opening-copy">
+          <p class="opening-kicker">ECONOMIC BRIEFING / 2025</p>
+          <p>兩地經濟<br>兩條走勢</p>
+          <div class="opening-count"><span><span data-count="5.0" data-delay="140" data-duration="1460">5.0</span><small>%</small></span><span class="slash">/</span><span><span data-count="1.2" data-delay="300" data-duration="1460">1.2</span><small>%</small></span></div>
+          <p class="opening-unit">實質 GDP 年增率 · 1 格代表 0.1 個百分點</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="2 實質 GDP 趨勢" data-summary="2021 至 2025 年中國大陸實質 GDP 增速較高，日本在 2025 年回升至 1.2%。" inert>
+      <header class="mast"><span>成長速度</span><span>REAL GDP</span></header>
+      <div class="head"><h2>中國大陸增速較高，日本在 2025 年回升</h2><p>實質 GDP 年增率 · 2021–2025 曆年 · %</p></div>
+      <div class="split">
+        <div class="chart-shell">
+          <div class="legend"><span><i class="cn-key"></i>中國大陸</span><span><i class="jp-key"></i>日本</span></div>
+          <div id="gdp-chart"></div>
+        </div>
+        <aside class="aside">
+          <p class="label">2025 年增速差</p>
+          <div class="measure"><span data-count="3.8" data-delay="380">3.8</span><small>百分點</small></div>
+          <p>中國大陸連兩年增長 5.0%。日本由 0.1% 回升至 1.2%。</p>
+        </aside>
+      </div>
+      <footer class="foot"><span>資料｜中國國家統計局 2025 年公報、日本內閣府 2026 年 9 月版時序表</span><b>02 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="3 消費物價趨勢" data-summary="2025 年中國大陸全年 CPI 持平，日本上漲 3.2%，較 2024 年加快。" inert>
+      <header class="mast"><span>消費物價</span><span>PRICES</span></header>
+      <div class="head"><h2>2025 年中國大陸物價持平，日本物價續升</h2><p>消費者物價指數（CPI）年均漲跌幅 · %</p></div>
+      <div class="split">
+        <div class="chart-shell">
+          <div class="legend"><span><i class="cn-key"></i>中國大陸</span><span><i class="jp-key"></i>日本</span></div>
+          <div id="cpi-chart"></div>
+        </div>
+        <aside class="aside">
+          <p class="label">2025 年物價漲幅差</p>
+          <div class="measure"><span data-count="3.2" data-delay="380">3.2</span><small>百分點</small></div>
+          <p>中國大陸全年 CPI 為 0.0%，日本由 2.7% 升至 3.2%。</p>
+        </aside>
+      </div>
+      <footer class="foot"><span>資料｜中國國家統計局各年公報、日本總務省統計局全國 CPI 年報</span><b>03 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="4 失業率趨勢與口徑" data-summary="中國大陸是城鎮、16 歲及以上；日本是全國、15 歲及以上。公布值可以並列觀察，兩地口徑有別。" inert>
+      <header class="mast"><span>勞動市場</span><span>UNEMPLOYMENT</span></header>
+      <div class="head"><h2>日本公布的失業率較低，兩地統計範圍不同</h2><p>調查失業率全年平均 · 2021–2025 曆年 · %</p></div>
+      <div class="split">
+        <div class="chart-shell">
+          <div class="legend"><span><i class="cn-key"></i>中國大陸城鎮</span><span><i class="jp-key"></i>日本全國</span></div>
+          <div id="jobs-chart"></div>
+        </div>
+        <aside class="aside">
+          <p class="label">口徑差異</p>
+          <h3>中國大陸</h3><p class="scope">城鎮 · 16 歲及以上<br>近三個月求職</p>
+          <div class="scope-rule"></div>
+          <h3>日本</h3><p class="scope">全國 · 15 歲及以上<br>最近一週求職</p>
+          <p class="scope">公開資料不足以按日本口徑重算中國大陸失業率。</p>
+        </aside>
+      </div>
+      <footer class="foot"><span>資料｜中國國家統計局調查失業率、日本總務省統計局勞動力調查</span><b>04 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="5 增長來源比較" data-summary="2025 年兩地的內需都有正貢獻。中國大陸淨出口貢獻正 1.6 個百分點，日本為負 0.3 個百分點。" inert>
+      <header class="mast"><span>增長來源</span><span>GROWTH DRIVERS</span></header>
+      <div class="head"><h2>內需支撐兩地增長，淨出口貢獻方向不同</h2><p>2025 曆年 · 對實質 GDP 增長的貢獻 · 百分點</p></div>
+      <div class="waterfalls">
+        <article><h3>中國大陸</h3><div id="cn-drivers"></div></article>
+        <article><h3>日本</h3><div id="jp-drivers"></div></article>
+      </div>
+      <footer class="foot"><span>中國大陸內需 3.4 個百分點＝最終消費 2.6 ＋資本形成 0.8。日本採內閣府曆年貢獻度。</span><b>05 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="6 2026 年同期快照" data-summary="2026 年第二季 GDP 同比為 4.3% 與 0.9%；物價及失業率使用兩地同為 9 月的公布值。" inert>
+      <header class="mast"><span>2026 年同期快照</span><span>COMMON PERIODS</span></header>
+      <div class="head"><h2>中國大陸增速較高，日本物價漲幅較高</h2><p>GDP 取第二季。CPI 與失業率取 9 月。</p></div>
+      <div class="tableau">
+        <div class="tableau-row heading"><div>比較指標</div><div>中國大陸</div><div>日本</div></div>
+        <div class="tableau-row" style="--i:0">
+          <div><h3>實質 GDP</h3><p>2026 年第二季 · 同比</p></div>
+          <div><strong data-count="4.3" data-delay="130">4.3</strong><small>%</small></div>
+          <div><strong data-count="0.9" data-delay="210">0.9</strong><small>%</small></div>
+        </div>
+        <div class="tableau-row" style="--i:1">
+          <div><h3>CPI</h3><p>2026 年 9 月 · 同比</p></div>
+          <div><strong data-count="0.9" data-delay="250">0.9</strong><small>%</small></div>
+          <div><strong data-count="2.1" data-delay="330">2.1</strong><small>%</small></div>
+        </div>
+        <div class="tableau-row" style="--i:2">
+          <div><h3>失業率</h3><p>2026 年 9 月 · 月度公布值</p></div>
+          <div><strong data-count="5.2" data-delay="370">5.2</strong><small>%</small></div>
+          <div><strong data-count="2.4" data-delay="450">2.4</strong><small>%</small></div>
+        </div>
+        <p class="tableau-note">中國大陸為城鎮調查值。日本為全國季調值。</p>
+      </div>
+      <footer class="foot"><span>資料截至 2026.11.07｜日本內閣府第二季 GDP 二次速報、兩地官方 9 月發布</span><b>06 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="7 互動比較" data-summary="選指標、切換年份，查看兩地數值和差距。差距按中國大陸減日本計算。" inert>
+      <header class="mast"><span>互動比較</span><span>EXPLORE THE GAP</span></header>
+      <div class="head"><h2>哪一年、哪個指標的差距最大？</h2><p>切換指標與年份，數字和長條會一起更新。</p></div>
+      <div class="interactive">
+        <div class="interactive-controls">
+          <div id="metrics" role="group" aria-label="選擇指標">
+            <button type="button" data-metric="gdp" aria-pressed="true">實質 GDP</button>
+            <button type="button" data-metric="cpi" aria-pressed="false">CPI</button>
+            <button type="button" data-metric="jobs" aria-pressed="false">失業率</button>
+          </div>
+          <div class="range-block">
+            <label for="year">年份 <span id="yearLabel">2025</span></label>
+            <input id="year" type="range" min="2021" max="2025" value="2025" step="1">
+            <div class="range-marks" aria-hidden="true"><span>2021</span><span>2022</span><span>2023</span><span>2024</span><span>2025</span></div>
+          </div>
+        </div>
+        <div class="readout" aria-live="polite" aria-atomic="true">
+          <div><p>中國大陸</p><strong id="value-cn">5.0</strong><small>%</small></div>
+          <div><p>日本</p><strong id="value-jp">1.2</strong><small>%</small></div>
+          <div><p>差距（中國大陸 − 日本）</p><strong id="value-gap">+3.8</strong><small>百分點</small></div>
+        </div>
+        <div class="comparison-bars" aria-hidden="true">
+          <div class="track"><i class="live-bar" id="bar-cn"></i></div>
+          <div class="track"><i class="live-bar" id="bar-jp"></i></div>
+        </div>
+        <p id="interaction-note">實質 GDP 曆年同比。細直線代表 0%。</p>
+      </div>
+      <footer class="foot"><span>使用第 2–4 頁的同一組官方數據。差距以百分點表示。</span><b>07 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="8 趨勢觀察" data-summary="中國大陸觀察房地產與零售能否改善；日本觀察實質薪資回升能否帶動消費。" inert>
+      <header class="mast"><span>內需觀察</span><span>WHAT TO WATCH</span></header>
+      <div class="head"><h2>中國大陸看房市與消費，日本看工資購買力</h2><p>兩地內需的後續觀察點</p></div>
+      <div class="outlook">
+        <article>
+          <h3>中國大陸</h3><time>2026 年 1–9 月 · 名義同比</time>
+          <div class="keyfigures">
+            <div><strong data-count="-20.6" data-delay="260">−20.6</strong><small>%</small><span>房地產開發投資</span></div>
+            <div><strong data-count="1.1" data-sign data-delay="390">+1.1</strong><small>%</small><span>社會消費品零售額</span></div>
+          </div>
+          <p>樓市投資仍在收縮，零售增幅有限。觀察房市調整會否放緩、消費能否加速。</p>
+        </article>
+        <article>
+          <h3>日本</h3><time>2026 年 9 月 · 同比 · 工資速報</time>
+          <div class="keyfigures">
+            <div><strong data-count="4.6" data-sign data-delay="390">+4.6</strong><small>%</small><span>名義現金工資</span></div>
+            <div><strong data-count="2.2" data-sign data-delay="520">+2.2</strong><small>%</small><span>實質現金工資</span></div>
+          </div>
+          <p>扣除物價後，9 月工資購買力仍上升。觀察實質工資改善能否持續並帶動消費。</p>
+        </article>
+      </div>
+      <footer class="foot"><span>資料｜中國國家統計局、日本厚生勞動省。日本實質工資採扣除自有住宅設算租金的 CPI。</span><b>08 / 09</b></footer>
+    </section>
+
+    <section class="slide" aria-label="9 資料來源與統計口徑" data-summary="資料來源、每年數值和統計定義集中在本頁。點「查閱數據與來源」可查看詳表。" inert>
+      <header class="mast"><span>附錄</span><span>SOURCES &amp; DEFINITIONS</span></header>
+      <div class="head"><h2>資料來源與統計口徑</h2><p>歷史數據採曆年。近況數據截至 2026 年 11 月 7 日。</p></div>
+      <div class="sources">
+        <article><h3>中國大陸</h3>
+          <p><b>01</b> 國家統計局 · 2021–2025 年統計公報</p>
+          <p><b>02</b> 國家統計局 · 2026 年前三季發布</p>
+          <p><b>03</b> 國家統計局 · 調查失業率計算方法</p>
+        </article>
+        <article><h3>日本</h3>
+          <p><b>04</b> 內閣府 · 2026 年第二季 GDP 二次速報</p>
+          <p><b>05</b> 總務省統計局 · CPI 與勞動力調查</p>
+          <p><b>06</b> 厚生勞動省 · 2026 年 9 月工資速報</p>
+        </article>
+      </div>
+      <div class="source-action"><button id="open-sources" type="button">查閱數據與來源</button><span>含完整年表、計算方式和官方發布網址</span></div>
+      <footer class="foot"><span>中國大陸為城鎮調查失業率，日本為全國完全失業率。</span><b>09 / 09</b></footer>
+    </section>
+  </div>
+</main>
+
+<div id="dock">
+  <div id="mobile-summary"></div>
+  <div id="phone-interactive">
+    <label>指標<select id="phone-metric"><option value="gdp">實質 GDP</option><option value="cpi">CPI</option><option value="jobs">失業率</option></select></label>
+    <label>年份<select id="phone-year"><option>2021</option><option>2022</option><option>2023</option><option>2024</option><option selected>2025</option></select></label>
+  </div>
+  <button id="phone-sources" type="button">查閱數據與來源</button>
+  <nav class="toolbar" aria-label="放映控制">
+    <button id="prev" type="button" aria-label="上一頁">← <span class="long">上頁</span></button>
+    <span class="number" id="page-count" aria-live="polite">01 / 09</span>
+    <div class="dots" id="page-jumps" aria-label="跳頁"></div>
+    <button id="next" type="button" aria-label="下一頁"><span class="long">下頁 </span>→</button>
+    <button id="replay" type="button" aria-label="重播本頁">重播</button>
+    <button id="full" type="button" aria-label="切換全屏">全屏</button>
+  </nav>
+</div>
+
+<dialog id="sources-dialog" aria-labelledby="source-heading">
+  <div class="dialog-head"><h2 id="source-heading">數據與官方來源</h2><form method="dialog"><button type="submit">關閉</button></form></div>
+  <div class="dialog-body">
+    <h3>曆年原始數值（%）</h3>
+    <table id="year-data"><thead><tr><th scope="col">指標與地區</th><th scope="col">2021</th><th scope="col">2022</th><th scope="col">2023</th><th scope="col">2024</th><th scope="col">2025</th></tr></thead><tbody></tbody></table>
+    <p>實質 GDP 採不變價格的年增率。日本採曆年版次。CPI 採全項目年均增幅。2026 年兩地的月度 CPI 採各自公布的 2025 基期序列。</p>
+    <p>失業率分母為勞動力人口。中國大陸採城鎮 16 歲及以上、近三個月求職且兩週內可工作。日本採全國 15 歲及以上、近一週求職且可工作。9 月日本公布數採季節調整。</p>
+    <p>2025 年中國大陸內需貢獻 3.4 個百分點為最終消費（2.6）與資本形成（0.8）相加。日本內需貢獻 1.5 個百分點為民間需求（1.3）與公共需求（0.2）相加，淨出口貢獻 −0.3 個百分點，取內閣府曆年表第 4-1 表。</p>
+    <h3>中國國家統計局</h3>
+    <ul>
+      <li>2021–2025 年國民經濟和社會發展統計公報。歷史 GDP 採 2025 年公報圖 1 的版次。<br><code>stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html</code></li>
+      <li>2021、2022 年公報。<br><code>stats.gov.cn/sj/zxfb/202302/t20230203_1901393.html</code><br><code>stats.gov.cn/sj/zxfb/202302/t20230228_1919011.html</code></li>
+      <li>2023、2024 年公報。<br><code>stats.gov.cn/sj/zxfb/202402/t20240228_1947915.html</code><br><code>stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html</code></li>
+      <li>2026 年前三季國民經濟發布（10 月 19 日）。<br><code>stats.gov.cn/sj/zxfb/202610/t20261019_1965618.html</code></li>
+      <li>調查失業率的計算方法。<br><code>stats.gov.cn/zs/tjws/zytjzbqs/tcsyl/202411/t20241115_1957491.html</code></li>
+    </ul>
+    <h3>日本內閣府與總務省統計局</h3>
+    <ul>
+      <li>2026 年第二季 GDP 二次速報（9 月 8 日），第 3-2 與第 4-1 表及實質曆年時序表。<br><code>esri.cao.go.jp/en/sna/data/sokuhou/files/2026/qe262_2/pdf/gaiyou2622_e.pdf</code><br><code>esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2026/qe262_2/pdf/jikei_1.pdf</code></li>
+      <li>全國 CPI 2025 年平均結果、2026 年 9 月結果（10 月 23 日）。<br><code>stat.go.jp/data/cpi/sokuhou/nen/pdf/zen-n.pdf</code><br><code>stat.go.jp/data/cpi/sokuhou/tsuki/index-z.html</code></li>
+      <li>2025 年勞動力調查年度摘要與時序、2026 年 9 月結果（10 月 30 日）、調查定義。<br><code>stat.go.jp/info/t-news/pdf/2604.pdf</code><br><code>stat.go.jp/data/roudou/sokuhou/tsuki/</code><br><code>stat.go.jp/english/data/roudou/qa-1.html</code></li>
+    </ul>
+    <h3>日本厚生勞動省</h3>
+    <ul><li>2026 年 9 月每月勤勞統計速報（11 月 6 日）。現金工資採僱用五人以上事業所，實質工資按排除自有住宅設算租金的 CPI 折算。<br><code>mhlw.go.jp/toukei/itiran/roudou/monthly/r08/2609p/dl/houdou2609p.pdf</code></li></ul>
+  </div>
+</dialog>
+
 <script>
-const $=id=>document.getElementById(id);
-const gov="https://www.macaotourism.gov.mo/";
-const chapel=gov+"en/sightseeing/churches/chapel-of-st-francis-xavier";
-const library="https://www.library.gov.mo/uploads/attachment/2024-12/6875167627c3b4949b.pdf";
-const tam=gov+"zh-hant/sightseeing/temples/tam-kong-temple";
-const walk="https://content.macaotourism.gov.mo/uploads/mgto_brochures/f6b79de606327cc5f6d649eda5d53f93569c565f.pdf";
-const groups=[
- {name:"路環十月初五馬路",center:[113.5511,22.1159],zoom:15.9,events:[
- ["清同治年間","譚公廟",[113.5501,22.1142],"譚公廟位於海旁馬路南端，面對水道，供奉譚仙聖。廟內鯨骨龍舟與漁民信仰有關。從廟前望向海面，可以理解昔日漁村的生活如何與海相連。",tam,"tam"],
- ["1864年","荔枝碗軍事行動",[113.550978,22.120640],"1864年，有路環居民向澳葡當局請求派兵抵禦海盜。編年資料記載一支巡捕分遣隊進駐荔枝碗並設立據點；另有資料記載其後首度進攻海盜失利。進駐日期在文獻有不同記載，出發點、分兵及交戰路線未確認。","https://macaumemory.mo/specialtopic_b60a5de32d4e4898811d84738ebd01f6","laichi"],
- ["1910年7月","路環戰役",[113.55126,22.11696],"廣東新寧學童遭綁架後，澳葡當局於7月12日派兵進攻路環。其後增援並出動炮艦，至19日向九澳一帶搜捕。有被擄人士獲救，也有村民受炮擊波及。可逐幕觀看方向示意。","https://www.macaumemory.mo/entries_31f9154cdbaa4987a48adc3909f0c3db","pirates"],
- ["1910年","打海盜紀念碑",[113.55126,22.11696],"路環在1910年發生與海盜有關的衝突。聖堂前方的紀念碑紀念當年擊退海盜一事。地圖聚焦今日紀念碑附近；圖片為紀念碑及聖堂的2013年實景照片。",chapel,"monument-photo"],
- ["1911年 → 1983年","由學校到圖書館",[113.55104,22.11667],"這幢單層葡式建築建於1911年，前身為路環公局市立學校。建築經過不同用途，1983年改為圖書館。由學校到公共圖書館，同一座建築一直與社區教育和閱讀有關。",library,"library"],
- ["1928年","聖方濟各聖堂",[113.55147,22.11692],"聖堂建於1928年，外觀以淺黃色及白色為主，設有橢圓形窗和鐘樓。走進前地，可以同時看見宗教建築和紀念海盜事件的石碑，兩者記錄不同年代的路環。",chapel,"chapel"],
- ["街巷地名","鹹蝦巷與市亭前地",[113.55104,22.11667],"沿十月初五馬路步行時，可留意通往市亭前地的街巷和路牌。這一站定位在圖書館附近，供比較海旁主路與細小巷道；巷名由來仍待史料核實。","https://charles.com.tw/%E6%BE%B3%E9%96%80%E8%B6%B4%E8%B6%B4%E8%B5%B0-day-1-%E5%8D%81%E6%9C%88%E5%88%9D%E4%BA%94%E9%A6%AC%E8%B7%AF/","alley"],
- ["街巷地名","老人圍",[113.55147,22.11692],"老人圍見於市政署的路環街巷資料。圖片為路環舊村街巷的示意，並非已確認的老人圍實景。地圖以路環舊村附近作區域提示，老人圍的精確位置及命名由來仍待查證。","https://www.iam.gov.mo/Content/notices/01d86fe6-91d9-4292-9817-137cfff05ac0/%E6%8B%9B%E6%A8%99%E6%96%87%E4%BB%B6-%E4%B8%AD%E6%96%87.pdf","new-elder"],
- ["古樹保育","譚公廟前的假菩提樹",[113.5501,22.1142],"市政署資料記載，譚公廟前地的假菩提樹納入《古樹名木保護名錄》，公布時估計樹齡約140年。可以留意廟前的樹蔭，看看古樹如何成為居民生活空間的一部分。圖片為廟宇及樹蔭的示意，並非該樹的實景照片。","https://www.gov.mo/zh-hant/news/1077908/","new-tree"],
- ["漫步路線","沿海旁走到譚公廟",[113.5506,22.1154],"由圖書館附近出發，經聖堂及紀念碑一帶，再沿海旁向南至譚公廟。紅線連接本次介紹的地標，供展示大致方向。",walk,null,[[113.55104,22.11667],[113.55126,22.11696],[113.55090,22.11620],[113.55047,22.11536],[113.5501,22.1142]]]
- ]},
- {name:"澳門半島十月初五日街",center:[113.538,22.1967],zoom:16,events:[
- ["16世紀・區域背景","明代澳門與內港",[113.5359,22.1966],"16世紀澳門逐步成為海上貿易港，中葡商貿往來帶動港口發展。這是日後街區形成的背景；今日十月初五日街的街道格局主要與19世紀填海有關。地圖標示今內港一帶，明代岸線未重建。","https://whc.unesco.org/en/list/1110/","ming"],
- ["1860年起","康真君廟",[113.53797,22.19673],"康真君廟始建於1860年，位於今日十月初五日街與草堆街交界。廟內供奉康公真君等神明。廟地界址碑記下廟前填築至海旁的範圍，提供昔日海岸與碼頭生活的線索。","https://www.gcs.gov.mo/news/detail/zh-hant/M23AMKBDcR","temple"],
- ["1860年代","由海灣變街道",[113.53797,22.19673],"康公廟前原為內港北灣的灘塗。填海後，1869年前後開闢皇家新街、海邊新街等街道。皇家新街又稱泗𠵼街，後來成為十月初五日街。地圖以康公廟前地作區域參照。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","trade"],
- ["1895年","廟前墟集與攤販",[113.53797,22.19673],"《鏡海叢報》1895年的報道記下康公廟前有大量食物攤檔，一度擠滿通道。廟前地既是拜神的地方，也是街坊做買賣和聚集的公共空間。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-market"],
- ["1910年・街名由來","十月初五日街",[113.53797,22.19673],"1910年10月5日，葡萄牙革命推翻君主制並建立共和國。澳葡當局其後將皇家新街改名為 Rua de Cinco de Outubro 作紀念。插圖重構的是里斯本革命背景，地圖定位則是澳門改名的街區。",gov+"zh-hant/macao-full-of-fun/world-heritage-tour-in-central-district","republic"],
- ["20世紀上半葉","碼頭帶旺商業街",[113.53797,22.19673],"靠近內港輪渡碼頭，往返中山的客商可以就近採購。街上有雜貨、海味、油糖等店舖，康公廟前亦有攤檔和賣藝。街道與碼頭之間的人流及貨物流動，令這裡成為商業中心。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-commerce"],
- ["抗戰時期","交通受阻與商業轉移",[113.53797,22.19673],"據澳門街坊掌故記載，中山部分鄉鎮淪陷後，跨境交通和交易受阻，部分商店結業或搬走，街道昔日的商業地位逐漸被新馬路取代。這一節展示港口交通改變如何影響街區。","https://www.macaumemory.mo/specialtopic_b515313a1a50456885c19361d71d43df","new-wartime"],
- ["近年","街節與社區記憶",[113.53797,22.19673],"十月初五街節曾在十月初五日街及康公廟前地舉行，以展覽、市集和活動介紹街區歷史。可把今日的街坊活動與早期廟前墟集放在一起比較。",gov+"zh-hant/events/whatson/13804?month=10","fair"]
-
- ]}
-];
-const war=[
- ["7月12日 · 葡軍出兵","藍箭嘴示意由水面向路環登岸；守方遇到抵抗後，澳葡當局再派增援。",[[113.546,22.118],[113.551,22.117]],"#459af0"],
- ["7月17–18日 · 增援與炮擊","橙色光圈示意受戰事波及的村落一帶。炮擊造成村民死傷，確切位置及炮彈軌跡未在圖上重建。",null,"#ee9b52"],
- ["7月19日 · 向九澳搜捕","紅箭嘴示意葡軍向九澳一帶推進的總方向。史料記載部分被擄人士獲救。",[[113.552,22.117],[113.566,22.122],[113.587,22.129]],"#e95438"],
- ["戰事記憶 · 紀念碑","紀念碑紀念擊退海盜。另有史料以『路環慘案』記錄村民受到的傷害，兩種記憶可對照閱讀。",null,"#eac16e"]
-];
-const laichiApproach=[[113.5477,22.1220],[113.5492,22.1217],[113.550978,22.120640]];
-let routeColor="#e95438";
-let area=0,current=-1,map,ready=false,markers=[],spot,frame=0,flat=true;
-let activeRoute=null,routeRequest=0,roadRouteCache=null;
-let warTimer=0,warRun=0,forcesShown=true,warUnit=null,warSoundOn=false,warAudio=null,warSoundNode=null,warPhase=null;
-const empty={type:"FeatureCollection",features:[]};
-const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-const colors=["#edb870","#fa8171","#8cc8fa","#d8acff","#80d5c5","#f6bc7a","#9bd477"];
-const camera=()=>({center:groups[area].center,zoom:groups[area].zoom,pitch:flat?0:45,bearing:-20});
-
-// Keep the direction symbols and their label aligned as the map moves.
-function drawRouteOverlay(){
- const overlay=$("route-overlay");
- overlay.replaceChildren();
- if(!activeRoute||activeRoute.points.length<2)return;
- const container=map.getContainer();
- const width=container.clientWidth,height=container.clientHeight;
- if(!width||!height)return;
- overlay.setAttribute("viewBox",`0 0 ${width} ${height}`);
- const points=activeRoute.points.map(point=>map.project(point));
- const segments=[];
- let length=0;
- for(let i=1;i<points.length;i++){
-  const a=points[i-1],b=points[i];
-  const distance=Math.hypot(b.x-a.x,b.y-a.y);
-  if(distance<.01)continue;
-  segments.push({a,b,distance,start:length});
-  length+=distance;
- }
- if(!segments.length)return;
- const svgNS="http://www.w3.org/2000/svg";
- const element=(name,attributes)=>{
-  const node=document.createElementNS(svgNS,name);
-  for(const [key,value] of Object.entries(attributes))node.setAttribute(key,value);
-  return node;
- };
- const pathData="M"+points.map(point=>`${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" L");
- const line=(stroke,strokeWidth,opacity)=>element("path",{
-  d:pathData,fill:"none",stroke,"stroke-width":strokeWidth,
-  "stroke-opacity":opacity,"stroke-linecap":"round","stroke-linejoin":"round"
- });
- overlay.append(line("#10202b",13,.55),line(activeRoute.color,9,.86));
-
- function at(distance){
-  const target=Math.max(0,Math.min(distance,length));
-  const segment=segments.find(part=>target<=part.start+part.distance)||segments.at(-1);
-  const progress=(target-segment.start)/segment.distance;
-  const ux=(segment.b.x-segment.a.x)/segment.distance;
-  const uy=(segment.b.y-segment.a.y)/segment.distance;
-  return {x:segment.a.x+progress*(segment.b.x-segment.a.x),
-   y:segment.a.y+progress*(segment.b.y-segment.a.y),ux,uy};
- }
- function position(point,along,across){
-  return `${(point.x+along*point.ux-across*point.uy).toFixed(1)},${(point.y+along*point.uy+across*point.ux).toFixed(1)}`;
- }
- for(let distance=20;distance<length-15;distance+=34){
-  const point=at(distance);
-  overlay.append(element("polygon",{points:[
-   position(point,6,0),position(point,-5,-5),
-   position(point,-2,0),position(point,-5,5)
-  ].join(" "),fill:"#ffffff","fill-opacity":.9}));
- }
- const end=at(length);
- overlay.append(element("polygon",{points:[
-  position(end,7,0),position(end,-12,-9),position(end,-12,9)
- ].join(" "),fill:activeRoute.color,stroke:"#ffffff","stroke-width":2}));
-
- const midpoint=at(length*.5);
- const boxWidth=Math.min(width-16,Math.max(136,activeRoute.label.length*15+24));
- const info=$('info').getBoundingClientRect();
- const stage=container.getBoundingClientRect();
- const cardTop=info.height&&info.left<stage.right&&info.right>stage.left?info.top-stage.top:height;
- const safeBottom=window.matchMedia("(max-width:650px)").matches?Math.max(85,cardTop-12):height-12;
- const x=Math.max(boxWidth/2+8,Math.min(width-boxWidth/2-8,midpoint.x));
- const y=Math.max(94,Math.min(safeBottom-42,midpoint.y-55));
- const group=element("g",{transform:`translate(${x} ${y})`});
- group.append(element("rect",{x:-boxWidth/2,y:0,width:boxWidth,height:38,rx:6,
-  fill:"#10202b","fill-opacity":.96,stroke:activeRoute.color,"stroke-width":2}));
- const label=element("text",{x:0,y:16,"text-anchor":"middle",fill:"#fff8e8","font-size":14,"font-weight":700});
- label.textContent=activeRoute.label;
- const detail=element("text",{x:0,y:31,"text-anchor":"middle",fill:"#d8e4e7","font-size":10});
- detail.textContent=activeRoute.detail;
- group.append(label,detail);overlay.append(group);
-}
-
-function clear(){
- routeRequest++;cancelAnimationFrame(frame);spot?.remove();spot=null;warUnit?.remove();warUnit=null;
- activeRoute=null;$("route-overlay").replaceChildren();
- if(ready){map.getSource("route").setData(empty);map.setPaintProperty("route","line-opacity",1);}
-}
-function pins(){
- markers.forEach(m=>m.remove());markers=[];
- const seen=new Set();
- groups[area].events.forEach((item,i)=>{
-  const key=item[2].join();if(seen.has(key)||item[6]||["鹹蝦巷與市亭前地","老人圍","明代澳門與內港"].includes(item[1]))return;seen.add(key);
-  const b=document.createElement("button");b.className="map-pin landmark-dot";b.title=item[1];b.setAttribute("aria-label",item[1]);b.textContent=String(i+1).padStart(2,"0");b.onclick=()=>show(i);
-  markers.push(new maplibregl.Marker({element:b,anchor:"center"}).setLngLat(item[2]).addTo(map));
- });
-}
-function spacePins(){
- const visible=[];
- for(const marker of [...markers].sort((a,b)=>Number(b.getElement().classList.contains("active"))-Number(a.getElement().classList.contains("active")))){
-  const point=map.project(marker.getLngLat());
-  const overlaps=visible.some(p=>Math.hypot(p.x-point.x,p.y-point.y)<27);
-  marker.getElement().hidden=overlaps;
-  if(!overlaps)visible.push(point);
- }
-}
-function reset(){
- stopWar();clear();current=-1;markers.forEach(m=>m.getElement().classList.remove("active"));$("info").hidden=true;$("laichi-steps").hidden=true;$("war-steps").hidden=true;
- $("hp").textContent="選擇下方地標，探索街道歷史";
- for(const b of $("tl").children){b.classList.remove("on","past");b.removeAttribute("aria-current");}
- document.dispatchEvent(new Event("exhibit-reset"));
- if(ready)map.flyTo({...camera(),duration:reduce?0:1050});
-}
-function switchArea(index){
- area=index;$("area").textContent=groups[area].name;
- for(const b of document.querySelectorAll("[data-area]"))b.setAttribute("aria-pressed",String(Number(b.dataset.area)===area));
- $("tl").replaceChildren();
- groups[area].events.forEach(([date,title],i)=>{
-  const b=document.createElement("button"),y=document.createElement("b");
-  y.textContent=date;b.style.setProperty("--tl-delay",`${Math.min(i,8)*45}ms`);b.append(title,y);b.onclick=()=>{if(document.body.classList.contains('timeline-overview'))window.exhibitionUI?.setView('terrain',{locate:false});show(i,"timeline");};$("tl").append(b);
- });
- reset();if(ready){pins();spacePins();}
- window.macauTerrain?.setLandmarks(groups[area].events,index=>show(index));
- document.dispatchEvent(new CustomEvent('exhibit-area',{detail:{area}}));
-}
-function locate(item,i,color=colors[i%colors.length],routeInfo=null){
- clear();
- const [date,title,point,,, ,path]=item;
- if(path){
-  const bounds=new maplibregl.LngLatBounds();path.forEach(p=>bounds.extend(p));
-  const container=map.getContainer(),card=$("info").getBoundingClientRect();
-  const mobile=window.matchMedia("(max-width:650px)").matches;
-  const padding=mobile
-   ?{top:Math.min(108,container.clientHeight*.24),bottom:Math.min(card.height+22,container.clientHeight*.46),left:32,right:32}
-   :{top:75,bottom:60,left:55,right:Math.min(card.width+55,container.clientWidth*.4)};
-  map.fitBounds(bounds,{padding,maxZoom:17.4,duration:reduce?0:2100});
-  if(routeInfo)map.setPaintProperty("route","line-opacity",0);
-  if(routeInfo?.unit){
-   const node=document.createElement("div");node.className="war-unit "+routeInfo.unit;node.setAttribute("aria-hidden","true");
-   node.innerHTML=routeInfo.unit==="ship"?'<svg viewBox="0 0 60 40"><path d="M4 23h51l-8 10H14z" fill="#d8e8f1" stroke="#275476" stroke-width="2"/><path d="M19 21v-7h14v7M25 14V5h3v9M36 21v-5h7v5" fill="#a2d2ea" stroke="#275476" stroke-width="2"/></svg><span>澳葡船隻 · 示意</span>':'<svg viewBox="0 0 60 40"><path d="M22 34V5m1 1 20 6-20 7" fill="#ff9878" stroke="#f8e4ce" stroke-width="3"/><circle cx="14" cy="26" r="4" fill="#ffd2a3"/><circle cx="29" cy="26" r="4" fill="#ffd2a3"/><path d="M8 36q6-11 12 0m3 0q6-11 12 0" stroke="#fff3d4" stroke-width="4" fill="none"/></svg><span>澳葡軍警 · 示意</span>';
-   warUnit=new maplibregl.Marker({element:node,anchor:"bottom"}).setLngLat(path[0]).addTo(map);
+(() => {
+  const years = [2021, 2022, 2023, 2024, 2025];
+  const metrics = {
+    gdp: {name:'實質 GDP', cn:[8.6,3.1,5.4,5.0,5.0], jp:[3.6,1.2,0.9,0.1,1.2], bounds:[0,9], note:'實質 GDP 曆年同比。細直線代表 0%。'},
+    cpi: {name:'CPI', cn:[0.9,2.0,0.2,0.2,0.0], jp:[-0.2,2.5,3.2,2.7,3.2], bounds:[-0.5,4], note:'全項目 CPI 年均漲跌幅。細直線代表 0%。'},
+    jobs: {name:'失業率', cn:[5.1,5.6,5.2,5.1,5.2], jp:[2.8,2.6,2.6,2.5,2.5], bounds:[0,6], note:'中國大陸為城鎮，日本為全國。兩地公布值的涵蓋範圍不同。'}
+  };
+  const byId = id => document.getElementById(id);
+  const minus = '−';
+  function number(value, sign = false) {
+    const rounded = Math.round(value * 10) / 10;
+    return (rounded < 0 ? minus : sign && rounded > 0 ? '+' : '') + Math.abs(rounded).toFixed(1);
   }
-  const start=performance.now(),source=map.getSource("route");
-  // Interpolate by distance so long and short road segments move at the same speed.
-  const lengths=[0];
-  for(let j=1;j<path.length;j++){
-   const a=path[j-1],b=path[j],lat=(a[1]+b[1])*Math.PI/360;
-   lengths.push(lengths[j-1]+Math.hypot((b[0]-a[0])*Math.cos(lat),b[1]-a[1]));
+  const SVG = 'http://www.w3.org/2000/svg';
+  function svgNode(tag, attributes, label) {
+    const node = document.createElementNS(SVG, tag);
+    for (const [key,value] of Object.entries(attributes)) node.setAttribute(key, value);
+    if (label !== undefined) node.textContent = label;
+    return node;
   }
-  const total=lengths.at(-1),duration=routeInfo?7000:2400;
-  function animate(now){
-   const progress=reduce?1:Math.max(0,Math.min(1,(now-start)/duration));
-   const traveled=total*progress;
-   let k=0;while(k<path.length-2&&lengths[k+1]<traveled)k++;
-   if(progress===1)k=path.length-1;
-   const points=path.slice(0,k+1);
-   if(k<path.length-1){
-    const span=lengths[k+1]-lengths[k],fraction=span?(traveled-lengths[k])/span:1;
-    points.push(path[k].map((v,j)=>v+(path[k+1][j]-v)*fraction));
-   }
-   if(warUnit&&points.length)warUnit.setLngLat(points[points.length-1]);
-   if(points.length>1){
-    source.setData({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:points}});
-    if(routeInfo){activeRoute={...routeInfo,points,color};drawRouteOverlay();}
-   }
-   if(k<path.length-1)frame=requestAnimationFrame(animate);
-   else if(!routeInfo){
-    const end=path.at(-1),previous=path.at(-2);
-    const arrow=document.createElement("div");arrow.className="direction-arrow";arrow.style.background=routeColor;
-    const angle=Math.atan2(previous[1]-end[1],(end[0]-previous[0])*Math.cos(end[1]*Math.PI/180))*180/Math.PI;
-    spot=new maplibregl.Marker({element:arrow,rotation:angle,rotationAlignment:"map",pitchAlignment:"map",anchor:"right"}).setLngLat(end).addTo(map);
-   }
+  function chart(id,width,height,label) {
+    const svg = svgNode('svg',{class:'chart',viewBox:'0 0 '+width+' '+height,role:'img','aria-label':label});
+    byId(id).append(svg);
+    return svg;
   }
-  frame=requestAnimationFrame(animate);
- }else{
-  map.flyTo({center:point,zoom:17.65,pitch:flat?0:40,bearing:-12,offset:[0,-45],duration:reduce?0:1900});
-  const el=document.createElement("div"),label=document.createElement("strong"),ring=document.createElement("i");
-  el.className="era-spotlight";el.style.setProperty("--era-color",color);
-  label.textContent=title;el.append(label,ring);
-  spot=new maplibregl.Marker({element:el,anchor:"bottom"}).setLngLat(point).addTo(map);
- }
-}
-function show(i,focusMode){
- stopWar();current=i;
- const item=groups[area].events[i], [date,title,coords,body,source,art]=item;
- markers.forEach(marker=>{const pos=marker.getLngLat();marker.getElement().classList.toggle("active",Math.abs(pos.lng-coords[0])<.0000001&&Math.abs(pos.lat-coords[1])<.0000001);});
- if(ready)spacePins();
- $("info").hidden=false;$("yr").textContent=date;$("tt").textContent=title;$("tx").textContent=body;
- $("coast-film-open").hidden=area!==0||title!=="沿海旁走到譚公廟";
- $("event-source").href=source;$("hp").textContent=date+" · "+title;
- $("event-art").hidden=!art;$("photo-source").hidden=art!=="monument-photo";
- if(art){$("art-thumb").srcset=art==="monument-photo"?"":`media/thumbs/${art}.webp 720w`;$("art-thumb").sizes="(max-width:760px) 90vw, 368px";$("art-thumb").src=art==="monument-photo"?"https://upload.wikimedia.org/wikipedia/commons/0/07/Coloane_Village.JPG":"media/"+art+(art.startsWith("new-")?".png":".webp");$("art-thumb").alt=title;$("art-credit").textContent=art==="monument-photo"?"2013年紀念碑實景 · Elizabeth B. Thomsen / Wikimedia Commons · CC BY-SA 3.0":"景觀插圖／情景重構 · 點擊放大";}
- const buttons=[...$("tl").children];buttons.forEach((b,j)=>{b.classList.toggle("on",j===i);b.classList.toggle("past",j<i);if(j===i)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");});buttons[i].scrollIntoView({behavior:reduce?"auto":"smooth",block:"nearest",inline:"center"});
- $("war-gallery").hidden=title!=="路環戰役";
- $("war-steps").hidden=title!=="路環戰役";
- $("laichi-steps").hidden=title!=="荔枝碗軍事行動";
- routeColor="#e95438";
- if(ready){map.setPaintProperty("route","line-color",routeColor);if(!window.macauTerrain?.active)locate(item,i);}
- if(window.macauTerrain?.active)window.macauTerrain.focusPoint(coords,{label:title,date,index:i,area,timeline:focusMode==="timeline"});
- document.dispatchEvent(new CustomEvent('exhibit-selection',{detail:{area,index:i,item}}));
-}
-$("coast-film-open").onclick=()=>$("clip-dialog").showModal();
-$("clip-dialog").addEventListener("close",()=>$("coast-film").pause());
-$("laichi-advance").onclick=async()=>{
- const requestedArea=area,requestedIndex=current,requestedRun=warRun;
- if(window.macauTerrain?.active){window.macauCampaign?.setLaichi(laichiApproach);return;}
- window.exhibitionUI?.setView("street");
- if(!(await whenStreetReady())||current<0||area!==requestedArea||current!==requestedIndex||warRun!==requestedRun)return;
- const item=groups[area].events[current].slice();
- item[6]=laichiApproach;routeColor="#459af0";
- map.setPaintProperty("route","line-color",routeColor);
- locate(item,current,routeColor,{label:"澳葡巡捕分遣隊",detail:"進駐方向 · 示意"});
-};
-function stopWarSound(){if(warSoundNode){try{warSoundNode.stop()}catch{}warSoundNode=null}}
-function playWarSound(phase){
- if(!warSoundOn||!warAudio||![0,1].includes(phase))return;
- stopWarSound();
- try{
-  const ctx=warAudio,seconds=phase===0?2.8:1.3;
-  const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*seconds),ctx.sampleRate),samples=buf.getChannelData(0);
-  for(let i=0;i<samples.length;i++)samples[i]=Math.random()*2-1;
-  const node=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain(),now=ctx.currentTime;
-  node.buffer=buf;filter.type="lowpass";filter.frequency.setValueAtTime(phase===0?500:1100,now);filter.frequency.exponentialRampToValueAtTime(phase===0?260:90,now+seconds);
-  gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(phase===0?.035:.08,now+(phase===0?.5:.025));gain.gain.exponentialRampToValueAtTime(.0001,now+seconds);
-  node.connect(filter);filter.connect(gain);gain.connect(ctx.destination);node.onended=()=>{if(warSoundNode===node)warSoundNode=null};warSoundNode=node;node.start();node.stop(now+seconds);
- }catch{$("war-progress").textContent="音效暫未能播放"}
-}
-$("war-audio").onclick=async()=>{
- if(warSoundOn){warSoundOn=false;stopWarSound();$("war-audio").setAttribute("aria-pressed","false");$("war-audio").textContent="🔇 開啟音效";return;}
- try{const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)throw Error("不支援音效");warAudio=warAudio||new AudioCtor();await warAudio.resume();if(warAudio.state!=="running")throw Error("音效未啟用");warSoundOn=true;$("war-audio").setAttribute("aria-pressed","true");$("war-audio").textContent="🔊 關閉音效";if(warPhase!==null)playWarSound(warPhase)}catch{$("war-progress").textContent="此裝置未能啟用音效";}
-};
-function stopWar(){
- window.macauCampaign?.clear();
- stopWarSound();warPhase=null;$("war-villagers").hidden=true;warUnit?.remove();warUnit=null;
- warRun++;routeRequest++;clearTimeout(warTimer);cancelAnimationFrame(frame);$("war-auto").hidden=false;$("war-stop").hidden=true;$("war-progress").textContent="";
- $("stage-vfx").className="";$("forces-overlay").classList.remove("visible");$("forces-key").hidden=true;document.querySelectorAll("[data-phase]").forEach(b=>b.classList.remove("phase-active"));
-}
-async function selectWarPhase(index){
- const requestedRun=warRun,requestedIndex=current,requestedArea=area;
- const terrainMode=Boolean(window.macauTerrain?.active);
- if(!terrainMode)window.exhibitionUI?.setView("street");
- if(current<0||groups[area].events[current][1]!=="路環戰役")return;
- if(!terrainMode&&!(await whenStreetReady())){if(requestedRun===warRun){stopWar();$("war-progress").textContent="街道地圖尚未就緒，請稍後再播放；史料仍可閱讀。";}return;}
- if(requestedRun!==warRun||requestedIndex!==current||requestedArea!==area)return;
- const phase=String(index), [title,body,path,color]=war[index];
- warPhase=index;$("war-villagers").hidden=index!==1;playWarSound(index);
- document.querySelectorAll("[data-phase]").forEach(b=>b.classList.toggle("phase-active",b.dataset.phase===phase));
- $("stage-vfx").className="";void $("stage-vfx").offsetWidth;$("stage-vfx").className=index===0?"sea":index===1?"shelling":"";
- $("war-progress").textContent=`第 ${index+1} / 4 幕 · 畫面示意`;
- $("forces-overlay").dataset.phase=phase;$("forces-overlay").classList.toggle("visible",forcesShown);$("forces-key").hidden=!forcesShown;
- const button={dataset:{phase}};
- const item=groups[area].events[current].slice();
- item[1]=index===1?"路環村落一帶 · 示意":title;item[6]=path;
- $("hp").textContent=title;$("tx").textContent=body;
- $("art-thumb").srcset="media/thumbs/war-"+button.dataset.phase+".webp 720w";$("art-thumb").src="media/war-"+button.dataset.phase+".webp";
- $("art-thumb").alt=title;
- $("art-credit").textContent=button.dataset.phase==="3"?"景觀插圖 · 點擊放大":"情景重構 · 點擊放大";
- document.dispatchEvent(new CustomEvent('exhibit-phase',{detail:{art:'war-'+phase}}));
- routeColor=color;
- const routeInfo=path?{
-  label:"澳葡軍警",
-  unit:index===0?"ship":"troops",
-  detail:button.dataset.phase==="0"?"海上登岸 · 示意":"向九澳搜捕 · 示意"
- }:null;
- if(terrainMode){await window.macauCampaign?.setPhase(index,path);return;}
- if(ready){
-  map.setPaintProperty("route","line-color",color);
-  if(button.dataset.phase==="2"){
-   // Today's road network provides an illustrative route, not a historical reconstruction.
-   clear();const request=routeRequest;
-   $("tx").textContent=body+" 正在載入今日道路示意。";
-   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
-   try{
-    const ends=[path[0],path[path.length-1]].map(p=>p.join(",")).join(";");
-    let coords=roadRouteCache;
-    if(!coords){
-     const response=await fetch(`https://router.project-osrm.org/route/v1/driving/${ends}?overview=full&geometries=geojson`,{signal:controller.signal});
-     if(!response.ok)throw new Error("路線服務未能回應");
-     const data=await response.json();coords=data.routes?.[0]?.geometry?.coordinates;
-     if(!Array.isArray(coords)||coords.length<2)throw new Error("沒有可用道路");
-     roadRouteCache=coords;
+  function axis(svg, ticks, y, left, right) {
+    for (const tick of ticks) {
+      const ty = y(tick);
+      svg.append(svgNode('line',{x1:left,y1:ty,x2:right,y2:ty,class:tick===0?'zero':'grid'}),
+        svgNode('text',{x:left-19,y:ty+8,'text-anchor':'end'},String(tick).replace('-',minus)));
     }
-    if(request!==routeRequest)return;
-    item[6]=coords;
-    $("tx").textContent=body+" 箭嘴沿今日道路示意，並非已確認的歷史行軍路線。";
-    routeInfo.detail="今日道路 · 歷史方向示意";
-    locate(item,current,color,routeInfo);
-   }catch(error){
-    if(request!==routeRequest)return;
-    $("tx").textContent=body+" 今日道路路線暫時未能載入，請稍後再按此步驟。";
-   }finally{clearTimeout(timer)}
-  }else locate(item,current,color,routeInfo);
- }
-}
-for(const button of document.querySelectorAll("[data-phase]"))button.onclick=()=>{stopWar();selectWarPhase(Number(button.dataset.phase));};
-$("war-auto").onclick=()=>{
- if(current<0||groups[area].events[current][1]!=="路環戰役")return;
- stopWar();const run=warRun;$("war-auto").hidden=true;$("war-stop").hidden=false;
- async function play(index){
-  if(run!==warRun)return;
-  await selectWarPhase(index);
-  if(run!==warRun)return;
-  if(index===3){$("war-auto").hidden=false;$("war-stop").hidden=true;$("war-progress").textContent="播放完成 · 畫面示意";return;}
-  warTimer=setTimeout(()=>play(index+1),index===0?9000:index===1?6000:9000);
- }
- play(0);
-};
-$("forces-toggle").onclick=()=>{
- forcesShown=!forcesShown;$("forces-toggle").setAttribute("aria-pressed",String(forcesShown));
- $("forces-toggle").textContent=forcesShown?"隱藏色彩":"顯示色彩";
- $("forces-overlay").classList.toggle("visible",forcesShown&&current>=0);$("forces-key").hidden=!forcesShown||current<0;window.macauCampaign?.setColored(forcesShown);
-};
-$("war-stop").onclick=()=>{stopWar();routeRequest++;cancelAnimationFrame(frame);$("war-progress").textContent="已停止自動播放";};
-let panoramaViewer=null,pannellumLoading=null;
-function loadPanoramaLibrary(){
- if(window.pannellum)return Promise.resolve();
- if(pannellumLoading)return pannellumLoading;
- pannellumLoading=new Promise((resolve,reject)=>{
-  const css=document.createElement("link");css.rel="stylesheet";css.href="vendor/pannellum.css";document.head.append(css);
-  const script=document.createElement("script");script.src="vendor/pannellum.js";script.onload=resolve;script.onerror=()=>reject(new Error("全景元件載入失敗"));document.head.append(script);
- });
- return pannellumLoading.catch(e=>{pannellumLoading=null;throw e});
-}
-$("open-panorama").onclick=async()=>{
- $("pano-dialog").showModal();$("pano-status").textContent="正在載入場景…";
- try{
-  await loadPanoramaLibrary();
-  if(!$("pano-dialog").open)return;
-  if(!panoramaViewer){
-   panoramaViewer=window.pannellum.viewer("panorama",{type:"equirectangular",panorama:"media/coloane-360.png",autoLoad:true,showZoomCtrl:true,showFullscreenCtrl:true,showControls:true,compass:false,hfov:95,hotSpots:[
-    {pitch:0,yaw:-35,cssClass:"pano-smoke"},{pitch:2,yaw:-55,cssClass:"pano-smoke"},
-    {pitch:-8,yaw:60,cssClass:"pano-wave"},{pitch:-7,yaw:85,cssClass:"pano-wave"},{pitch:-9,yaw:110,cssClass:"pano-wave"}
-   ]});
-   panoramaViewer.on("load",()=>{$("pano-status").textContent="拖動畫面環視，或用 +／− 調整遠近。光影與煙霧為示意效果。";});
-   panoramaViewer.on("error",()=>{$("pano-status").textContent="場景未能載入，請檢查網絡後重新開啟。"});
-  }else{panoramaViewer.resize();$("pano-status").textContent="拖動畫面環視，或用 +／− 調整遠近。";}
- }catch{$("pano-status").textContent="全景元件未能載入，請檢查網絡後重新開啟。";}
-};
-$("pano-rotate").onclick=()=>{
- if(!panoramaViewer||!panoramaViewer.isLoaded()){$("pano-status").textContent="請等待全景載入後再開啟環視。";return;}
- const turning=$("pano-rotate").getAttribute("aria-pressed")!=="true";
- if(turning)panoramaViewer.startAutoRotate(-3);else panoramaViewer.stopAutoRotate();
- $("pano-rotate").setAttribute("aria-pressed",String(turning));$("pano-rotate").textContent=turning?"❚❚ 停止環視":"▶ 自動環視";
-};
-$("pano-effects").onclick=()=>{
- const paused=$("panorama").classList.toggle("pano-effects-paused");
- $("pano-effects").setAttribute("aria-pressed",String(!paused));$("pano-effects").textContent=paused?"播放光影與煙霧":"暫停光影與煙霧";
-};
-$("pano-dialog").addEventListener("close",()=>{
- if(panoramaViewer)panoramaViewer.stopAutoRotate();
- $("pano-rotate").setAttribute("aria-pressed","false");$("pano-rotate").textContent="▶ 自動環視";
-});
-$("close-panorama").onclick=()=>$("pano-dialog").close();
-const panoInfo=["1910年7月，綁架事件引發澳葡當局派兵到路環，其後衝突波及村落。","澳葡當局先後派出軍警及增援，亦出動炮艦；場景中的船隻和人物位置只是示意。","村民同樣受到戰事影響。不同史料對事件有不同側重，可以對照閱讀。"];
-for(const button of document.querySelectorAll("[data-pano-info]"))button.onclick=()=>{$("pano-info").textContent=panoInfo[Number(button.dataset.panoInfo)];};
-for(const button of document.querySelectorAll("[data-art]"))button.onclick=()=>{
- $("art-dialog-note").textContent="場景重構：人物及環境細節屬藝術演繹。";const picture=button.querySelector("img");$("art-title").textContent=picture.alt;$("art-large").src=picture.src;$("art-large").alt=picture.alt;$("art-dialog").showModal();
-};
-$("art-open").onclick=()=>{
- $("art-dialog-note").textContent=$("art-credit").textContent;$("art-title").textContent=$("art-thumb").alt;$("art-large").src=$("art-thumb").src;$("art-large").alt=$("art-thumb").alt;$("art-dialog").showModal();
-};
-$("close").onclick=()=>{stopWar();if(window.exhibitionUI)window.exhibitionUI.closePanel();else $("info").hidden=true;};
-$("zr").onclick=()=>{if(window.macauTerrain?.active){window.exhibitionUI?.closePanel();window.macauTerrain.reset();}else reset();};
-$("z1").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.zoom(.8);else if(ready)map.zoomIn();};
-$("z0").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.zoom(1.25);else if(ready)map.zoomOut();};
-$("rot").onclick=()=>{if(window.macauTerrain?.active)window.macauTerrain.rotate();else if(ready)map.rotateTo(map.getBearing()+25);};
-$("td").onclick=()=>{if(window.macauTerrain?.active){window.macauTerrain.flat();return;}flat=!flat;$("td").textContent=flat?"立體":"平面";if(ready)map.easeTo({pitch:flat?0:45});};
-$("full").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{$("full").textContent="可橫向觀看";}};
-document.addEventListener("fullscreenchange",()=>{const on=Boolean(document.fullscreenElement);$("full").textContent=on?"退出全螢幕":"全螢幕";$("full").setAttribute("aria-pressed",String(on));});
-for(const b of document.querySelectorAll("[data-area]"))b.onclick=()=>switchArea(Number(b.dataset.area));
-window.addEventListener("keydown",e=>{
- if(document.querySelector("dialog[open]")||e.target.closest("button,a,input,textarea,select,[contenteditable],.info,canvas")||document.body.classList.contains("timeline-overview"))return;
- if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
-  const length=groups[area].events.length;
-  show(current<0?0:(current+(e.key==="ArrowRight"?1:-1)+length)%length);
- }
-});
-document.addEventListener('macau-view-change',e=>{if(!e.detail.terrain&&ready){map.resize();$('td').textContent=flat?'立體':'平面';}if(e.detail.terrain)stopWar();});
-document.addEventListener('macau-street-overview',()=>window.exhibitionUI?.setView('street'));
-switchArea(0);
-let streetStarting=false,streetAttempts=0,streetResolve;
-const streetReady=new Promise(resolve=>{streetResolve=resolve;});
-function whenStreetReady(){
- if(ready)return Promise.resolve(true);
- initStreetMap();
- return new Promise(resolve=>{const timeout=setTimeout(()=>resolve(false),20000);streetReady.then(value=>{clearTimeout(timeout);resolve(value);});});
-}
-function initStreetMap(){
- if(map||streetStarting)return;
- $('street-notice').hidden=false;
- if(!window.maplibregl){if(streetAttempts++<20)setTimeout(initStreetMap,500);else {$('street-notice').textContent='街道地圖元件未能載入。你仍可閱讀全部歷史資料，或重新整理再試。';streetResolve(false);}return;}
- streetStarting=true;
- if(!window.maplibregl){$("status").textContent="地圖元件未載入，仍可使用時間軸瀏覽資料。";return;}
- try{map=new maplibregl.Map({container:"live-map",style:"https://tiles.openfreemap.org/styles/liberty",...camera()});}
- catch{$("street-notice").textContent="此裝置暫時未能顯示街道地圖，仍可使用時間軸閱讀資料。";streetStarting=false;streetResolve(false);return;}
- map.once("load",()=>{
- $("street-notice").hidden=true;
-  const style=map.getStyle();
-  if(style.sources.openmaptiles&&!style.layers.some(l=>l.type==="fill-extrusion")){
-   map.addLayer({id:"heritage-buildings",type:"fill-extrusion",source:"openmaptiles","source-layer":"building",minzoom:15,paint:{"fill-extrusion-color":"#cfb28a","fill-extrusion-height":["coalesce",["get","render_height"],8],"fill-extrusion-base":["coalesce",["get","render_min_height"],0]}},style.layers.find(l=>l.type==="symbol")?.id);
   }
-  map.addSource("route",{type:"geojson",data:empty});
-  map.addLayer({id:"route",type:"line",source:"route",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#e95438","line-width":7}});
-  ready=true;streetResolve(true);document.querySelector(".stage").classList.add("live");
-  map.on("move",()=>{spacePins();drawRouteOverlay();});
-  map.on("resize",drawRouteOverlay);
-  pins();spacePins();if(current>=0&&!window.macauTerrain?.active)locate(groups[area].events[current],current);else map.jumpTo(camera());
- });
-}
-window.historyExhibit={get groups(){return groups},get area(){return area},get current(){return current},get ready(){return ready},get map(){return map},select:show,switchArea,reset,stopWar,initStreet:initStreetMap,whenStreetReady,
- setFlat(value=true){flat=value;if(ready)map.easeTo({pitch:flat?0:45,duration:reduce?0:1100});$('td').textContent=flat?'立體':'平面';},
- locateCurrent(){if(ready){map.resize();if(current>=0)locate(groups[area].events[current],current);else map.flyTo({...camera(),duration:reduce?0:1500});}}};
-</script><link rel="stylesheet" href="exhibition.css"><link rel="stylesheet" href="cinematic-title.css"><link rel="stylesheet" href="opening-title.css"><link rel="stylesheet" href="landmark-architecture.css"><link rel="stylesheet" href="modern-photos.css"><script src="exhibition.js"></script><script src="cinematic-title.js"></script><script src="opening-title.js"></script><link rel="stylesheet" href="campaign-3d.css"><script src="art-motion.js"></script><script src="modern-photos.js"></script><script type="module" src="terrain-view.js"></script><script type="module" src="campaign-3d.js"></script><script type="module" src="landmark-architecture.js"></script><script src="cat-story.js"></script></body></html>
+  function trendChart(id,data,maximum,ticks) {
+    const description = years.map((year,i) => year+' 年，中國大陸 '+number(data.cn[i])+'%、日本 '+number(data.jp[i])+'%').join('；');
+    const svg = chart(id,1218,510,description);
+    const x = i => 105 + i * 261;
+    const y = value => 441 - value / maximum * 413;
+    axis(svg,ticks,y,73,1190);
+    years.forEach((year,i) => svg.append(svgNode('text',{x:x(i),y:492,class:'year','text-anchor':'middle'},year)));
+    for (const [series, values] of [['cn',data.cn],['jp',data.jp]]) {
+      const points = values.map((value,i) => [x(i),y(value)]);
+      const d = points.map((point,i) => (i?'L':'M')+point.join(' ')).join(' ');
+      svg.append(svgNode('path',{d,class:'series '+series+'-ink',pathLength:'1'}));
+      points.forEach(([px,py],i) => {
+        const cls = series+'-ink point';
+        const marker = series==='cn'
+          ? svgNode('circle',{cx:px,cy:py,r:i===4?12:10,class:cls,style:'--i:'+i})
+          : svgNode('path',{d:'M'+px+' '+(py-12)+' l12 12 -12 12 -12 -12 Z',class:cls,style:'--i:'+i});
+        svg.append(marker,svgNode('text',{x:px,y:py-17,'text-anchor':'middle',class:'value '+series+'-ink',style:'--i:'+i},number(values[i])));
+      });
+    }
+  }
+  function priceChart() {
+    const data=metrics.cpi;
+    const svg=chart('cpi-chart',1218,510,'2021–2025 年 CPI 年均漲跌幅，中國大陸 0.9、2.0、0.2、0.2、0.0；日本 −0.2、2.5、3.2、2.7、3.2。');
+    const x=i=>173+i*226;
+    const y=value=>431-(value+.5)/4.5*403;
+    const zero=y(0);
+    axis(svg,[-.5,0,1,2,3,4],y,73,1190);
+    years.forEach((year,i) => {
+      svg.append(svgNode('text',{x:x(i),y:493,class:'year','text-anchor':'middle'},year));
+      for (const [series,offset,value] of [['cn',-37,data.cn[i]],['jp',37,data.jp[i]]]) {
+        const px=x(i)+offset, py=y(value), h=Math.max(3,Math.abs(py-zero));
+        svg.append(svgNode('rect',{x:px-29,y:value<0?zero:zero-h,width:58,height:h,class:'bar '+series+'-ink'+(value<0?' below':''),style:'--i:'+i}),
+          svgNode('text',{x:px,y:value<0?py+27:py-12,class:'value '+series+'-ink','text-anchor':'middle',style:'--i:'+i},number(value)));
+      }
+    });
+  }
+  function driverChart(id,country,domestic,net,total,series) {
+    const svg=chart(id,805,470,country+' 2025 年：內需 '+number(domestic,true)+'、淨出口 '+number(net,true)+'、實質 GDP '+number(total,true)+'。');
+    const y=v=>382-v/5.5*351;
+    const xs=[172,410,648];
+    axis(svg,[0,1,2,3,4,5],y,59,775);
+    [[0,domestic],[domestic,total],[0,total]].forEach(([start,end],i)=>{
+      const py=y(Math.max(start,end));
+      const label=i===0?'內需':i===1?'淨出口':'合計';
+      const value=i===0?domestic:i===1?net:total;
+      const px=xs[i];
+      svg.append(svgNode('rect',{x:px-63,y:py,width:126,height:Math.abs(y(start)-y(end)),class:'bar '+series+'-ink'+(net<0&&i===1?' below':''),opacity:i===1?.48:1,style:'--i:'+i}),
+        svgNode('text',{x:px,y:py-13,'text-anchor':'middle',class:'value '+series+'-ink',style:'--i:'+i},number(value,i===1)),
+        svgNode('text',{x:px,y:443,'text-anchor':'middle'},label));
+      if (i<2) svg.append(svgNode('line',{x1:px+63,x2:xs[i+1]-63,y1:y(end),y2:y(end),stroke:'#7b6d5d','stroke-width':2,'stroke-dasharray':'7 5',class:'join',style:'--i:'+i}));
+    });
+  }
+  trendChart('gdp-chart',metrics.gdp,9,[0,2,4,6,8]);
+  priceChart();
+  trendChart('jobs-chart',metrics.jobs,6,[0,1,2,3,4,5,6]);
+  driverChart('cn-drivers','中國大陸',3.4,1.6,5.0,'cn');
+  driverChart('jp-drivers','日本',1.5,-.3,1.2,'jp');
+
+  const slides = [...document.querySelectorAll('.slide')];
+  const screen = byId('screen'), stage = byId('stage'), dock = byId('dock');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const canvas = byId('opening-canvas'), ctx = canvas.getContext('2d');
+  const prev = byId('prev'), next = byId('next'), full = byId('full');
+  const sources = byId('sources-dialog');
+  const jumps = byId('page-jumps');
+  const jumpButtons = slides.map((slide,i) => {
+    const button=document.createElement('button');
+    button.type='button'; button.textContent=i+1; button.setAttribute('aria-label',slide.getAttribute('aria-label'));
+    button.addEventListener('click',()=>go(i));
+    jumps.append(button);
+    return button;
+  });
+  let current=0, effectFrame=0, metric='gdp', selectedYear=2025;
+  function fit() {
+    document.documentElement.style.setProperty('--dock-height',dock.getBoundingClientRect().height+'px');
+    const {width,height}=screen.getBoundingClientRect();
+    const s=Math.min(width/1920,height/1080);
+    stage.style.transform='translate('+((width-1920*s)/2)+'px,'+((height-1080*s)/2)+'px) scale('+s+')';
+  }
+  const observer=new ResizeObserver(fit);
+  observer.observe(screen); observer.observe(dock);
+  window.addEventListener('resize',fit);
+
+  // Each illuminated cell represents one tenth of a percentage point.
+  function makeLattice(label,rows,columns,originX,originY,delay) {
+    const cells=Array.from({length:rows},(_,r)=>Array.from({length:columns},(_,c)=>({
+      x:originX+r*49+c*(84-r*4.1), y:originY-r*49-c*7,
+      depth:r, index:c*rows+r
+    }))).flat();
+    return {label,cells,originX,originY,delay};
+  }
+  const lattices=[
+    makeLattice('中國大陸',5,10,855,668,140),
+    makeLattice('日本',3,4,1332,855,300)
+  ];
+  function easedProgress(elapsed,delay,duration) {
+    const p=Math.max(0,Math.min(1,(elapsed-delay)/duration));
+    return 1-(1-p)**3;
+  }
+  function drawOpening(elapsed) {
+    if (!ctx) return;
+    const t=elapsed/1000;
+    ctx.setTransform(2/3,0,0,2/3,0,0);
+    const sky=ctx.createRadialGradient(1380,525,30,1300,500,1130);
+    sky.addColorStop(0,'#372014'); sky.addColorStop(.56,'#1b100b'); sky.addColorStop(1,'#0b0807');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,1920,1080);
+    for (const lattice of lattices) {
+      const lit=Math.round(lattice.cells.length*easedProgress(elapsed,lattice.delay,1460));
+      for (const {x,y,depth,index} of lattice.cells) {
+        const isLit=index<lit, size=33-depth*1.6;
+        const wave=isLit?Math.exp(-Math.pow((lit-index-1)/4,2))*.66+.12*Math.sin(t*5+index):0;
+        const glow=isLit?.57+wave:0;
+        ctx.lineWidth=1.8; ctx.strokeStyle=isLit?'rgba(241,177,99,.68)':'rgba(160,113,58,.30)';
+        ctx.fillStyle=isLit?'rgba(225,146,62,'+(.12+.12*wave)+')':'rgba(18,11,7,.46)';
+        ctx.beginPath(); ctx.moveTo(x-size,y+17); ctx.lineTo(x+size-11,y+12);
+        ctx.lineTo(x+size+10,y-17); ctx.lineTo(x-size+17,y-11); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        if (!isLit) continue;
+        const h=34+31*wave+(4-depth)*3;
+        const light=ctx.createLinearGradient(x,y-h,x,y);
+        light.addColorStop(0,'rgba(255,211,129,0)');
+        light.addColorStop(.65,'rgba(255,196,110,'+Math.min(1,glow)+')');
+        light.addColorStop(1,'rgba(255,236,179,'+Math.min(1,glow+.18)+')');
+        ctx.fillStyle=light;
+        ctx.beginPath(); ctx.moveTo(x-2.8,y); ctx.lineTo(x,y-h); ctx.lineTo(x+2.8,y); ctx.fill();
+        ctx.shadowBlur=15+16*wave; ctx.shadowColor='#ffbb61';
+        ctx.fillStyle='rgba(255,215,148,'+Math.min(1,glow+.19)+')';
+        ctx.beginPath(); ctx.ellipse(x,y,4+2.5*wave,2.8+1.8*wave,0,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      }
+      ctx.fillStyle='#efc98e'; ctx.font='500 28px "Microsoft JhengHei",sans-serif';
+      ctx.fillText(lattice.label,lattice.originX-18,lattice.originY+65);
+    }
+    ctx.strokeStyle='#a777436e'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(828,971); ctx.lineTo(1815,971); ctx.stroke();
+    for(let i=0;i<=40;i++){
+      const x=828+987*i/40;
+      ctx.beginPath();ctx.moveTo(x,971);ctx.lineTo(x,971+(i%5===0?13:7));ctx.stroke();
+    }
+    const flareX=828+987*Math.min(1,t/2.15);
+    ctx.shadowColor='#ffc37c'; ctx.shadowBlur=26; ctx.fillStyle='#ffd79c';
+    ctx.beginPath(); ctx.arc(flareX,971,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+    for (let i=0;i<23;i++) {
+      const x=840+(i*223)%950, y=245+(i*89)%560 - 14*t;
+      ctx.fillStyle='rgba(255,215,142,'+(.06+.18*Math.max(0,Math.sin(i*2+t*2)))+')';
+      ctx.fillRect(x,y,2+(i%2),2+(i%2));
+    }
+  }
+  function play() {
+    cancelAnimationFrame(effectFrame);
+    const slide=slides[current];
+    const counters=[...slide.querySelectorAll('[data-count]')];
+    slide.classList.remove('play');
+    if (motion.matches) {
+      for (const el of counters) el.textContent=number(Number(el.dataset.count),el.hasAttribute('data-sign'));
+      return;
+    }
+    for (const el of counters) el.textContent='0.0';
+    if (current===0) drawOpening(0);
+    void slide.offsetWidth;
+    slide.classList.add('play');
+    const started=performance.now(), isCover=current===0;
+    const duration=Math.max(isCover?3090:0,...counters.map(el=>Number(el.dataset.delay||0)+Number(el.dataset.duration||760)));
+    if (duration===0) return;
+    function frame(now) {
+      const elapsed=now-started;
+      if (isCover && elapsed<2950) drawOpening(elapsed);
+      for (const el of counters) {
+        const progress=easedProgress(elapsed,Number(el.dataset.delay||0),Number(el.dataset.duration||760));
+        el.textContent=number(Number(el.dataset.count)*progress,el.hasAttribute('data-sign'));
+      }
+      if (elapsed<duration) effectFrame=requestAnimationFrame(frame);
+    }
+    effectFrame=requestAnimationFrame(frame);
+  }
+  function refreshNavigation() {
+    document.body.dataset.page=String(current+1);
+    byId('page-count').textContent=String(current+1).padStart(2,'0')+' / 09';
+    if (current===6) updateComparison();
+    else byId('mobile-summary').textContent=slides[current].dataset.summary;
+    prev.disabled=current===0; next.disabled=current===slides.length-1;
+    jumpButtons.forEach((button,i)=>button.setAttribute('aria-current',String(i===current)));
+    fit();
+  }
+  function go(index) {
+    const destination=Math.min(slides.length-1,Math.max(0,index));
+    if (destination===current) return;
+    const leaving=slides[current];
+    if (leaving.contains(document.activeElement)) document.activeElement.blur();
+    leaving.classList.remove('active');
+    leaving.inert=true;
+    current=destination;
+    slides[current].classList.add('active');
+    slides[current].inert=false;
+    refreshNavigation();
+    play();
+  }
+  function fullscreen() {
+    if (document.fullscreenElement) { document.exitFullscreen().catch(()=>{}); return; }
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  if (!document.documentElement.requestFullscreen) full.hidden=true;
+  document.addEventListener('fullscreenchange',()=>{
+    full.textContent=document.fullscreenElement?'退出全屏':'全屏';
+    fit();
+  });
+  prev.addEventListener('click',()=>go(current-1));
+  next.addEventListener('click',()=>go(current+1));
+  byId('replay').addEventListener('click',play);
+  full.addEventListener('click',fullscreen);
+  document.addEventListener('keydown',event=>{
+    if (sources.open || event.altKey || event.metaKey || event.ctrlKey || event.target.closest('input,select,textarea,[contenteditable]')) return;
+    const key=event.key.toLowerCase();
+    if (key==='arrowright'||key===' '||key==='pagedown') { event.preventDefault(); go(current+1); }
+    else if (key==='arrowleft'||key==='pageup') { event.preventDefault(); go(current-1); }
+    else if (key==='r') { event.preventDefault(); play(); }
+    else if (key==='f') { event.preventDefault(); fullscreen(); }
+    else if (/^[1-9]$/.test(key)) { event.preventDefault(); go(Number(key)-1); }
+  });
+  let swipe=null;
+  screen.addEventListener('pointerdown',event=>{
+    if (event.pointerType==='touch'&&!event.target.closest('button,input,select,label')) swipe={x:event.clientX,y:event.clientY};
+  });
+  screen.addEventListener('pointerup',event=>{
+    if (!swipe) return;
+    const dx=event.clientX-swipe.x, dy=event.clientY-swipe.y;
+    if (Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4) go(current+(dx<0?1:-1));
+    swipe=null;
+  });
+  screen.addEventListener('pointercancel',()=>{swipe=null;});
+
+  const metricButtons=[...byId('metrics').querySelectorAll('button')];
+  const yearControl=byId('year'), phoneMetric=byId('phone-metric'), phoneYear=byId('phone-year');
+  function updateComparison() {
+    const data=metrics[metric], index=years.indexOf(selectedYear), [min,max]=data.bounds;
+    const cn=data.cn[index], jp=data.jp[index];
+    const position=v=>(v-min)/(max-min)*100;
+    byId('value-cn').textContent=number(cn);
+    byId('value-jp').textContent=number(jp);
+    byId('value-gap').textContent=number(cn-jp,true);
+    byId('yearLabel').textContent=selectedYear;
+    byId('interaction-note').textContent=data.note;
+    if (current===6) {
+      byId('mobile-summary').textContent=selectedYear+' 年 '+data.name+'｜中國大陸 '+number(cn)+'%，日本 '+number(jp)+'%，差距 '+number(cn-jp,true)+' 個百分點。'+(metric==='jobs'?'中國大陸採城鎮口徑，日本採全國口徑。':'');
+    }
+    if (current===6 && !motion.matches) {
+      const readout=byId('value-cn').closest('.readout');
+      readout.classList.remove('changed');
+      void readout.offsetWidth;
+      readout.classList.add('changed');
+    }
+    yearControl.value=selectedYear; phoneYear.value=selectedYear; phoneMetric.value=metric;
+    yearControl.setAttribute('aria-valuetext',selectedYear+' 年');
+    metricButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.metric===metric)));
+    for (const [id,value] of [['bar-cn',cn],['bar-jp',jp]]) {
+      const bar=byId(id);
+      bar.parentElement.style.setProperty('--zero-position',position(0)+'%');
+      bar.style.setProperty('--bar-start',position(Math.min(0,value))+'%');
+      bar.style.setProperty('--bar-width',Math.abs(position(value)-position(0))+'%');
+      bar.classList.toggle('is-zero',value===0);
+    }
+  }
+  metricButtons.forEach(button=>button.addEventListener('click',()=>{ metric=button.dataset.metric; updateComparison(); }));
+  yearControl.addEventListener('input',()=>{selectedYear=Number(yearControl.value);updateComparison();});
+  phoneMetric.addEventListener('change',()=>{metric=phoneMetric.value;updateComparison();});
+  phoneYear.addEventListener('change',()=>{selectedYear=Number(phoneYear.value);updateComparison();});
+  const tbody=byId('year-data').tBodies[0];
+  for (const data of Object.values(metrics)) {
+    for (const [key,country] of [['cn','中國大陸'],['jp','日本']]) {
+      const row=tbody.insertRow();
+      const label=document.createElement('th'); label.scope='row'; label.textContent=data.name+'｜'+country; row.append(label);
+      for (const value of data[key]) row.insertCell().textContent=number(value);
+    }
+  }
+  for (const id of ['open-sources','phone-sources']) byId(id).addEventListener('click',()=>sources.showModal());
+  motion.addEventListener('change',play);
+  updateComparison();
+  refreshNavigation();
+  requestAnimationFrame(play);
+})();
+</script>
+</body>
+</html>
